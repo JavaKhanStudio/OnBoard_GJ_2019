@@ -5,10 +5,9 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.utils.Align;
 import com.kotcrab.vis.ui.widget.VisImage;
 import com.kotcrab.vis.ui.widget.VisTable;
-import com.rafaskoberg.gdx.typinglabel.TypingLabel;
+import com.github.tommyettinger.textra.TypingLabel;
 
 import jks.index.Index_Interface;
-import jks.vinterface.GVars_UI;
 import jks.vinterface.Utils_TexturesAcess;
 import jks.vinterface.font.GVars_Font;
 import jks.vinterface.font.Index_Fonts.Enum_Fonts;
@@ -37,9 +36,9 @@ public class DialogBubble extends VisTable
 		this.setLayoutEnabled(false);
 		dialogSize = size ; 
 		textWhenVisible = "" ; 
-		typing = new TypingLabel("",GVars_UI.baseSkin) ; 
+		typing = new TypingLabel("", GVars_Font.buildTextraFont(fontFor(size))) ; 
 		typing.setWrap(true);
-		typing.setAlignment(Align.center, Align.center);
+		typing.setAlignment(Align.center);
 		
 		Texture texture = Index_Interface.manager.get(Index_Interface.bubbleThink) ; 
 		bubbleBackground = new VisImage(Utils_TexturesAcess.buildDrawingRegionTexture(texture)) ; 
@@ -70,9 +69,9 @@ public class DialogBubble extends VisTable
 		this.setLayoutEnabled(false);
 		dialogSize = size ; 
 
-		typing = new TypingLabel(text,GVars_UI.baseSkin) ; 
+		typing = new TypingLabel(text, GVars_Font.buildTextraFont(fontFor(size))) ; 
 		typing.setWrap(true);
-		typing.setAlignment(Align.center, Align.center);
+		typing.setAlignment(Align.center);
 		
 		
 		Texture texture = Index_Interface.manager.get(Index_Interface.bubbleThink) ; 
@@ -156,37 +155,37 @@ public class DialogBubble extends VisTable
 			case BUBBLE_SMALL_TEXT_LARGE :
 			{
 				size = Gdx.graphics.getWidth()/devisingSmall ; 	
-				typing.setStyle(GVars_Font.buildLabel(Enum_Fonts.BUBBLE_SMALL_TEXT_LARGE));
+				typing.setFont(GVars_Font.buildTextraFont(Enum_Fonts.BUBBLE_SMALL_TEXT_LARGE));
 				break ; 
 			} 
 			case BUBBLE_MEDIUM_TEXT_LARGE :
 			{
 				size = Gdx.graphics.getWidth()/devisingMedium ; 	
-				typing.setStyle(GVars_Font.buildLabel(Enum_Fonts.BUBBLE_MEDIUM_TEXT_LARGE));
+				typing.setFont(GVars_Font.buildTextraFont(Enum_Fonts.BUBBLE_MEDIUM_TEXT_LARGE));
 				break ; 
 			} 
 			case BUBBLE_LARGE_TEXT_LARGE : 
 			{
 				size = Gdx.graphics.getWidth()/devisingLarge ; 	
-				typing.setStyle(GVars_Font.buildLabel(Enum_Fonts.BUBBLE_LARGE_TEXT_LARGE));
+				typing.setFont(GVars_Font.buildTextraFont(Enum_Fonts.BUBBLE_LARGE_TEXT_LARGE));
 				break ; 
 			} 
 			case BUBBLE_SMALL_TEXT_MEDIUM  : 
 			{
 				size = Gdx.graphics.getWidth()/devisingSmall ; 	
-				typing.setStyle(GVars_Font.buildLabel(Enum_Fonts.BUBBLE_SMALL_TEXT_MEDIUM));
+				typing.setFont(GVars_Font.buildTextraFont(Enum_Fonts.BUBBLE_SMALL_TEXT_MEDIUM));
 				break ; 
 			}
 			case BUBBLE_MEDIUM_TEXT_MEDIUM :
 			{
 				size = Gdx.graphics.getWidth()/devisingMedium ;
-				typing.setStyle(GVars_Font.buildLabel(Enum_Fonts.BUBBLE_MEDIUM_TEXT_MEDIUM));
+				typing.setFont(GVars_Font.buildTextraFont(Enum_Fonts.BUBBLE_MEDIUM_TEXT_MEDIUM));
 				break ; 
 			}
 			case BUBBLE_LARGE_TEXT_MEDIUM :
 			{
 				size = Gdx.graphics.getWidth()/devisingLarge ; 	
-				typing.setStyle(GVars_Font.buildLabel(Enum_Fonts.BUBBLE_LARGE_TEXT_MEDIUM));
+				typing.setFont(GVars_Font.buildTextraFont(Enum_Fonts.BUBBLE_LARGE_TEXT_MEDIUM));
 				break ; 
 			}
 		}
@@ -200,6 +199,18 @@ public class DialogBubble extends VisTable
 		typing.setPosition(decalXLeft, decalY * 1.5f);
 		bubbleBackground.setSize(size, size);
 		
+	}
+	
+	/**
+	 * TextraTypist resolves a Skin into its own Styles.LabelStyle, and uiskin.json only
+	 * declares the scene2d one, so the label is built from the font directly. resize() sets
+	 * the definitive face a moment later anyway; this just gives the constructor a real font.
+	 *
+	 * The two enums are parallel by construction - one entry per bubble size.
+	 */
+	private static Enum_Fonts fontFor(DialogSize size)
+	{
+		return Enum_Fonts.valueOf(size.name()) ; 
 	}
 	
 	public enum DialogSize

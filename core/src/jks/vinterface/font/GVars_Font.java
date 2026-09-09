@@ -6,6 +6,7 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator.FreeTypeFontParameter;
 import com.badlogic.gdx.scenes.scene2d.ui.Label.LabelStyle;
+import com.github.tommyettinger.textra.Font;
 import jks.vars.FVars_Heart;
 import jks.vinterface.font.Index_Fonts.Enum_Fonts;
 
@@ -42,11 +43,13 @@ public class GVars_Font
 	static HashMap<Enum_Fonts, BitmapFont> activeFont ;
 	static HashMap<String, FreeTypeFontGenerator> fontGenerators ;
 	static HashMap<Enum_Fonts, LabelStyle> activeLabelStyle ;
+	static HashMap<Enum_Fonts, Font> activeTextraFont ;
 	
 	public static void initFont()
 	{
 		activeFont = new HashMap() ;
 		activeLabelStyle = new HashMap() ; 
+		activeTextraFont = new HashMap() ; 
 		fontGenerators = new HashMap() ; 
 //		FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/Calibri.ttf"));
 //		FreeTypeFontParameter parameter = new FreeTypeFontParameter();
@@ -118,6 +121,25 @@ public class GVars_Font
 		
 		
 		return labelStyle ; 
+	}
+	
+	/**
+	 * The same font, wrapped for TextraTypist.
+	 *
+	 * TextraTypist draws through its own Font type rather than a scene2d LabelStyle, so the
+	 * FreeType-generated BitmapFont from {@link #buildLabel} gets wrapped once and cached -
+	 * building a Font per resize would re-measure every glyph.
+	 */
+	public static Font buildTextraFont(Enum_Fonts font)
+	{
+		Font textraFont = activeTextraFont.get(font) ;
+		if(textraFont == null)
+		{
+			textraFont = new Font(buildLabel(font).font) ;
+			activeTextraFont.put(font, textraFont) ;
+		}
+		
+		return textraFont ; 
 	}
 	
 }

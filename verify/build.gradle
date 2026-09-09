@@ -16,6 +16,11 @@ tasks.named('test') {
         if (!project.hasProperty('withGl')) excludeTags 'gl'
     }
 
+    // One JVM per test class. The GL tests each boot a full Lwjgl3Application, and libGDX,
+    // VisUI and the controller manager all keep static state that cannot be torn down and
+    // set up again in the same process - VisUI.load() throws outright the second time.
+    forkEvery = 1
+
     // Match how the game itself is launched, so Gdx.files resolves exactly as it does in play.
     workingDir = file('../desktop')
     classpath = sourceSets.test.runtimeClasspath + files('../desktop/assets')

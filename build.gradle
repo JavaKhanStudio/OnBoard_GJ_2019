@@ -20,10 +20,10 @@ allprojects {
     version = '1.0'
     ext {
         appName = "Aboard"
-        gdxVersion = '1.13.5'
+        gdxVersion = '1.14.2'
         controllersVersion = '2.2.4'
-        visuiVersion = '1.5.7'
-        typingLabelVersion = '1.4.0'
+        visuiVersion = '1.5.9'
+        textratypistVersion = '2.4.0'
         javaTarget = 21
         // Pinned deliberately. The .plax parallax assets are Kryo binaries written by this
         // exact version in 2019, and Kryo's wire format is not stable across releases - 5.6.2
@@ -133,7 +133,10 @@ project(":core") {
         api "com.badlogicgames.gdx:gdx-backend-lwjgl3:$gdxVersion"
         api "com.kotcrab.vis:vis-ui:$visuiVersion"
         api "com.esotericsoftware:kryo:$kryoVersion"
-        api "com.rafaskoberg.gdx:typing-label:$typingLabelVersion"
+        // Replaces com.rafaskoberg.gdx:typing-label, whose last release (1.4.0) calls
+        // com.badlogic.gdx.utils.StringBuilder - a class libGDX deleted in 1.14.0. This is
+        // the maintained successor and tracks the current engine.
+        api "com.github.tommyettinger:textratypist:$textratypistVersion"
         api "com.fasterxml.jackson.core:jackson-databind:$jacksonVersion"
 
         // The parallax renderer ships as compiled classes only - no source survives.
