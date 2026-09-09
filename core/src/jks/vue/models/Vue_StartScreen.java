@@ -5,7 +5,7 @@ import static jks.index.Index_Interface.manager;
 
 import java.util.ArrayList;
 
-import org.lwjgl.opengl.GL20;
+import com.badlogic.gdx.graphics.GL20;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputMultiplexer;

@@ -6,7 +6,6 @@ import java.util.HashMap;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Graphics.DisplayMode;
 import com.badlogic.gdx.Graphics.Monitor;
-import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Graphics;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Window;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
@@ -182,7 +181,7 @@ public class Block_Resolution extends VisTable
 	
 	public void buildDisplayList()
 	{
-		DisplayMode[] modes = Lwjgl3ApplicationConfiguration.getDisplayModes();
+		DisplayMode[] modes = Gdx.graphics.getDisplayModes();
 		displayMap = new HashMap<String,DisplayMode>() ;
 		displayList = new ArrayList<>() ;
 		

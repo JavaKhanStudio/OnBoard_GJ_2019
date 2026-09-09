@@ -4,7 +4,7 @@ import static jks.vinterface.GVars_UI.mainUi;
 
 import java.util.ArrayList;
 
-import org.lwjgl.opengl.GL30;
+import com.badlogic.gdx.graphics.GL30;
 
 import com.badlogic.gdx.Gdx;
 

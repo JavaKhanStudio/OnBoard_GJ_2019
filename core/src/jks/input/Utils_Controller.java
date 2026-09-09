@@ -1,5 +1,8 @@
 package jks.input;
 
+import com.badlogic.gdx.controllers.Controller;
+import com.badlogic.gdx.controllers.ControllerMapping;
+
 import jks.vars.GVars_Heart;
 
 public class Utils_Controller 
@@ -7,14 +10,20 @@ public class Utils_Controller
 	static float minForceMoveX = 0.3f;
 	static float minForceMoveY = 0.2f;
 	
-	public static boolean axisController(int axisCode, float value, Player_Inputs player)
+	public static boolean axisController(Controller controller, int axisCode, float value, Player_Inputs player)
 	{
 		if(GVars_Heart.inCinematic)
 		{
 			return true; 
 		}
 		
-		if(axisCode == KeysXbox.AXIS_LEFT_X)
+		// The stick axes used to be hard-coded as 1 and 0 - swapped relative to convention,
+		// because that is how the old backend happened to number them. The device now tells us.
+		ControllerMapping map = controller.getMapping() ;
+		if(map == null)
+			return false ;
+		
+		if(axisCode == map.axisLeftX)
 		{
 			if(value > minForceMoveX)
 			{
@@ -33,7 +42,7 @@ public class Utils_Controller
 			}
 		}
 		
-		if(axisCode == KeysXbox.AXIS_LEFT_Y)
+		if(axisCode == map.axisLeftY)
 		{
 			if(value > minForceMoveY)
 			{

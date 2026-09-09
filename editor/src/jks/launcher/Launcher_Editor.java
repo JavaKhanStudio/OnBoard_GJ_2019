@@ -14,7 +14,7 @@ public class Launcher_Editor
 	{		
 		Lwjgl3ApplicationConfiguration config = new Lwjgl3ApplicationConfiguration();
 		config.setWindowedMode(1600, 900);
-		config.useOpenGL3(true, 1, 1);
+		config.setOpenGLEmulation(Lwjgl3ApplicationConfiguration.GLEmulation.GL30, 3, 2);
 		config.setTitle("GENERIC");
 		config.setResizable(false);
 		

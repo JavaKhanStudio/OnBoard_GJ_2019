@@ -18,7 +18,9 @@ public class Launcher_Game
 //		Utils_Launcher.loadConfig(config) ; 
 		
 		config.setWindowedMode(1600, 900);
-		config.useOpenGL3(true, 1, 1);
+		// Was useOpenGL3(true, 1, 1), which is gone in libGDX 1.14 - and asked for a 1.1
+		// context while requesting GL3, so the driver decided what you actually got.
+		config.setOpenGLEmulation(Lwjgl3ApplicationConfiguration.GLEmulation.GL30, 3, 2);
 		config.setTitle("On Board");
 		config.setResizable(false);
 //		config.setWindowIcon("ui/icon/logo_onboard.png");

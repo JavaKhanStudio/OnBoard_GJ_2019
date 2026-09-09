@@ -15,7 +15,7 @@ public class Launcher_Test
 
 		config.setWindowedMode(1600, 900);
 //		config.setWindowedMode(3200, 1800);
-		config.useOpenGL3(true, 1, 1);
+		config.setOpenGLEmulation(Lwjgl3ApplicationConfiguration.GLEmulation.GL30, 3, 2);
 		config.setTitle("Test");
 		config.setResizable(false);
 

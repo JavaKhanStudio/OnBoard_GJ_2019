@@ -7,9 +7,10 @@ import static jks.input.IKM_Game_Keyboard.pressingTop;
 import static jks.vinterface.GVars_UI.buttonMap;
 import static jks.vinterface.GVars_UI.cursorPos;
 
+import com.badlogic.gdx.controllers.Controller;
+import com.badlogic.gdx.controllers.ControllerMapping;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
 
-import jks.input.KeysXbox;
 import jks.vinterface.GVars_UI; 
 
 public class Utils_Controllable 
@@ -49,16 +50,19 @@ public class Utils_Controllable
 		//*/
 	}
 	
-	public static boolean decodeInterfaceControllerButton(int buttonCode) 
+	public static boolean decodeInterfaceControllerButton(Controller controller, int buttonCode) 
 	{
-		switch (buttonCode) 
+		ControllerMapping map = controller.getMapping() ;
+		if(map == null)
+			return false ; 
+		
+		if(buttonCode == map.buttonA)
 		{
-			case KeysXbox.A :
-				GVars_UI.selectButton() ;
-				return true ;
-			case KeysXbox.START :
-				return true ;
+			GVars_UI.selectButton() ;
+			return true ;
 		}
+		if(buttonCode == map.buttonStart)
+			return true ;
 		
 		return false ; 
 	}
