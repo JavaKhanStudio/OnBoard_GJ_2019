@@ -1,0 +1,68 @@
+soldier.png
+size: 920, 3121
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+idle
+  rotate: false
+  xy: 319, 11
+  size: 289, 1001
+  orig: 691, 1080
+  offset: 204, 18
+  index: -1
+move
+  rotate: false
+  xy: 319, 11
+  size: 289, 1001
+  orig: 691, 1080
+  offset: 204, 18
+  index: 1
+move
+  rotate: false
+  xy: 650, 11
+  size: 245, 1000
+  orig: 691, 1080
+  offset: 226, 23
+  index: 2
+move
+  rotate: false
+  xy: 11, 11
+  size: 266, 1011
+  orig: 691, 1080
+  offset: 219, 20
+  index: 3
+move
+  rotate: false
+  xy: 11, 2110
+  size: 383, 1000
+  orig: 691, 1080
+  offset: 195, 23
+  index: 4
+move
+  rotate: false
+  xy: 267, 1064
+  size: 339, 990
+  orig: 691, 1080
+  offset: 174, 23
+  index: 5
+move
+  rotate: false
+  xy: 648, 1054
+  size: 261, 999
+  orig: 691, 1080
+  offset: 221, 24
+  index: 6
+move
+  rotate: false
+  xy: 11, 1064
+  size: 214, 1004
+  orig: 691, 1080
+  offset: 237, 26
+  index: 7
+move
+  rotate: false
+  xy: 436, 2096
+  size: 326, 1001
+  orig: 691, 1080
+  offset: 238, 24
+  index: 8

@@ -1,0 +1,68 @@
+fumee.png
+size: 5760, 3240
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+fumee
+  rotate: false
+  xy: 0, 0
+  size: 1920, 1080
+  orig: 1920, 1080
+  offset: 0, 0
+  index: 1
+fumee
+  rotate: false
+  xy: 1920, 0
+  size: 1920, 1080
+  orig: 1920, 1080
+  offset: 0, 0
+  index: 2
+fumee
+  rotate: false
+  xy: 3840, 0
+  size: 1920, 1080
+  orig: 1920, 1080
+  offset: 0, 0
+  index: 3
+fumee
+  rotate: false
+  xy: 0, 1080
+  size: 1920, 1080
+  orig: 1920, 1080
+  offset: 0, 0
+  index: 4
+fumee
+  rotate: false
+  xy: 1920, 1080
+  size: 1920, 1080
+  orig: 1920, 1080
+  offset: 0, 0
+  index: 5
+fumee
+  rotate: false
+  xy: 3840, 1080
+  size: 1920, 1080
+  orig: 1920, 1080
+  offset: 0, 0
+  index: 6
+fumee
+  rotate: false
+  xy: 0, 2160
+  size: 1920, 1080
+  orig: 1920, 1080
+  offset: 0, 0
+  index: 7
+fumee
+  rotate: false
+  xy: 1920, 2160
+  size: 1920, 1080
+  orig: 1920, 1080
+  offset: 0, 0
+  index: 8
+fumee
+  rotate: false
+  xy: 3840, 2160
+  size: 1920, 1080
+  orig: 1920, 1080
+  offset: 0, 0
+  index: 9

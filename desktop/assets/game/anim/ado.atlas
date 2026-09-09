@@ -1,0 +1,68 @@
+ado.png
+size: 1316, 1578
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+idle
+  rotate: false
+  xy: 394, 806
+  size: 338, 744
+  orig: 614, 889
+  offset: 141, 51
+  index: -1
+move
+  rotate: false
+  xy: 394, 806
+  size: 338, 744
+  orig: 614, 889
+  offset: 141, 51
+  index: 1
+move
+  rotate: false
+  xy: 427, 11
+  size: 280, 742
+  orig: 614, 889
+  offset: 155, 59
+  index: 2
+move
+  rotate: false
+  xy: 749, 11
+  size: 238, 743
+  orig: 614, 889
+  offset: 172, 64
+  index: 3
+move
+  rotate: false
+  xy: 11, 806
+  size: 341, 761
+  orig: 614, 889
+  offset: 145, 37
+  index: 4
+move
+  rotate: false
+  xy: 774, 796
+  size: 267, 755
+  orig: 614, 889
+  offset: 158, 49
+  index: 5
+move
+  rotate: false
+  xy: 1083, 798
+  size: 202, 747
+  orig: 614, 889
+  offset: 200, 62
+  index: 6
+move
+  rotate: false
+  xy: 1083, 11
+  size: 222, 745
+  orig: 614, 889
+  offset: 204, 61
+  index: 7
+move
+  rotate: false
+  xy: 11, 11
+  size: 374, 753
+  orig: 614, 889
+  offset: 151, 47
+  index: 8

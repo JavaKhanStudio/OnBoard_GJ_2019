@@ -1,0 +1,33 @@
+automne.png
+size: 5215, 2422
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+Automne1
+  rotate: false
+  xy: 11, 11
+  size: 4898, 354
+  orig: 5193, 580
+  offset: 295, 0
+  index: -1
+Automne2
+  rotate: false
+  xy: 11, 467
+  size: 5065, 580
+  orig: 5193, 580
+  offset: 74, 0
+  index: -1
+Automne3
+  rotate: false
+  xy: 11, 1149
+  size: 5193, 580
+  orig: 5193, 580
+  offset: 0, 0
+  index: -1
+Automne4
+  rotate: false
+  xy: 11, 1831
+  size: 3645, 580
+  orig: 3645, 580
+  offset: 0, 0
+  index: -1

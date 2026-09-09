@@ -1,0 +1,68 @@
+enfant.png
+size: 1779, 528
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+idle
+  rotate: false
+  xy: 448, 11
+  size: 172, 503
+  orig: 386, 576
+  offset: 117, 26
+  index: -1
+move
+  rotate: false
+  xy: 448, 11
+  size: 172, 503
+  orig: 386, 576
+  offset: 117, 26
+  index: 1
+move
+  rotate: false
+  xy: 1587, 11
+  size: 181, 499
+  orig: 386, 576
+  offset: 113, 30
+  index: 2
+move
+  rotate: false
+  xy: 1358, 11
+  size: 187, 499
+  orig: 386, 576
+  offset: 110, 32
+  index: 3
+move
+  rotate: false
+  xy: 898, 11
+  size: 193, 500
+  orig: 386, 576
+  offset: 109, 31
+  index: 4
+move
+  rotate: false
+  xy: 662, 11
+  size: 194, 501
+  orig: 386, 576
+  offset: 95, 27
+  index: 5
+move
+  rotate: false
+  xy: 1133, 11
+  size: 183, 500
+  orig: 386, 576
+  offset: 114, 31
+  index: 6
+move
+  rotate: false
+  xy: 230, 11
+  size: 176, 506
+  orig: 386, 576
+  offset: 117, 28
+  index: 7
+move
+  rotate: false
+  xy: 11, 11
+  size: 177, 506
+  orig: 386, 576
+  offset: 117, 28
+  index: 8

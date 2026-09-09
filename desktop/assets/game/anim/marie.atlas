@@ -1,0 +1,68 @@
+marie.png
+size: 929, 3088
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+idle
+  rotate: false
+  xy: 11, 2075
+  size: 292, 996
+  orig: 691, 1080
+  offset: 203, 16
+  index: -1
+move
+  rotate: false
+  xy: 11, 2075
+  size: 292, 996
+  orig: 691, 1080
+  offset: 203, 16
+  index: 1
+move
+  rotate: false
+  xy: 695, 11
+  size: 223, 990
+  orig: 691, 1080
+  offset: 225, 24
+  index: 2
+move
+  rotate: false
+  xy: 605, 2078
+  size: 239, 999
+  orig: 691, 1080
+  offset: 217, 22
+  index: 3
+move
+  rotate: false
+  xy: 385, 1043
+  size: 389, 993
+  orig: 691, 1080
+  offset: 191, 24
+  index: 4
+move
+  rotate: false
+  xy: 11, 11
+  size: 343, 985
+  orig: 691, 1080
+  offset: 171, 21
+  index: 5
+move
+  rotate: false
+  xy: 396, 11
+  size: 257, 989
+  orig: 691, 1080
+  offset: 224, 25
+  index: 6
+move
+  rotate: false
+  xy: 345, 2078
+  size: 218, 996
+  orig: 691, 1080
+  offset: 234, 23
+  index: 7
+move
+  rotate: false
+  xy: 11, 1038
+  size: 332, 995
+  orig: 691, 1080
+  offset: 236, 21
+  index: 8

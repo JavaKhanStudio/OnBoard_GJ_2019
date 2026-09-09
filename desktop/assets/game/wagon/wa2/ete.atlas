@@ -1,0 +1,40 @@
+ete.png
+size: 7771, 1468
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+été
+  rotate: false
+  xy: 11, 11
+  size: 4185, 340
+  orig: 4421, 580
+  offset: 68, 0
+  index: 1
+été
+  rotate: false
+  xy: 4298, 11
+  size: 3300, 580
+  orig: 4932, 580
+  offset: 1074, 0
+  index: 2
+été
+  rotate: false
+  xy: 11, 453
+  size: 4002, 417
+  orig: 4002, 580
+  offset: 0, 0
+  index: 3
+été
+  rotate: false
+  xy: 11, 972
+  size: 3645, 485
+  orig: 3645, 580
+  offset: 0, 0
+  index: 4
+été
+  rotate: false
+  xy: 4115, 693
+  size: 3645, 580
+  orig: 3645, 580
+  offset: 0, 0
+  index: 5
