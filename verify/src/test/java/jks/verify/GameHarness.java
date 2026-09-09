@@ -26,6 +26,9 @@ public class GameHarness implements ApplicationListener
 	public volatile BufferedImage capture;
 	public volatile int framesRendered;
 
+	/** Called after each rendered frame, so a test can drive the running game. */
+	public java.util.function.IntConsumer frameHook;
+
 	public GameHarness(ApplicationListener delegate, int captureFrame, int exitFrame)
 	{
 		this.delegate = delegate;
@@ -56,6 +59,8 @@ public class GameHarness implements ApplicationListener
 			delegate.render();
 			frame++;
 			framesRendered = frame;
+
+			if (frameHook != null) frameHook.accept(frame);
 
 			if (frame == captureFrame) capture = grab();
 			if (frame >= exitFrame) Gdx.app.exit();
