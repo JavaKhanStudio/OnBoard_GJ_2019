@@ -1,6 +1,6 @@
-apply plugin: "java"
+apply plugin: "java-library"
 
-sourceCompatibility = 1.8
+java { sourceCompatibility = JavaVersion.VERSION_1_8; targetCompatibility = JavaVersion.VERSION_1_8 }
 sourceSets 
 {
     main 
@@ -19,3 +19,12 @@ eclipse.project {
 
 project.ext.mainClassName = "jks.launcher.Launcher_Game"
 project.ext.assetsDir = new File("../desktop/assets")
+
+tasks.register('runGame', JavaExec) {
+    mainClass = 'jks.launcher.Launcher_Game'
+    // Eclipse ran with the project dir as CWD and `assets` as a source folder
+    // (i.e. on the classpath). Reproduce both.
+    classpath = sourceSets.main.runtimeClasspath + files('assets')
+    workingDir = projectDir
+    ignoreExitValue = true
+}

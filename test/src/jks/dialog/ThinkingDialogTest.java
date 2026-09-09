@@ -34,7 +34,7 @@ public class ThinkingDialogTest extends ApplicationAdapter
 	
 	public AssetManager manager ; 
 	
-	private static String testText = "{COLOR=black} Ceci est une phrase en continue que j'espère fonctionnera correctement pourtant il n'est pas sur que ce soit le cas" ; 
+	private static String testText = "{COLOR=black} Ceci est une phrase en continue que j'espÃ¨re fonctionnera correctement pourtant il n'est pas sur que ce soit le cas" ; 
 	private static String testTextADV = "{SPEED=0.75}{COLOR=black}Ceci{RAINBOW} est un test {ENDRAINBOW} \n {WAVE}Et ca fonctionne bienn{ENDWAVE}" ; 
 	private static String testTextLong = "{COLOR=black} DEDAZDZDZDZDZADEDAZDZDZDZDZADEDAZDZDZDZDZADEDAZDZDZDZDZADEDAZDZDZDZDZADEDAZDZDZDZDZA" ; 
 	

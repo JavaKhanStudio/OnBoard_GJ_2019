@@ -25,8 +25,8 @@ public class Index_Interface
 	// StartScreen 
 	public static String maisMenus_Background = menu + "UI_1.png" ;
 	
-	public static String mainMenus_New = menu + "UI_newGame.png";
-	public static String mainMenus_NewON = menu + "UI_newGame2.png";
+	public static String mainMenus_New = menu + "UI_NewGame.png";
+	public static String mainMenus_NewON = menu + "UI_NewGame2.png";
 	
 	public static String mainMenus_Settings = menu + "UI_Settings.png";
 	public static String mainMenus_SettingsON= menu + "UI_Settings2.png";
