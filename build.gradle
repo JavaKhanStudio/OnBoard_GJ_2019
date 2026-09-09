@@ -27,6 +27,7 @@ allprojects {
         aiVersion = '1.8.0'
         visuiVersion = '1.4.2'
         typingLabelVersion = '1.1.0'
+        javaTarget = 21
         junitVersion = '5.14.4'
     }
 
@@ -43,6 +44,20 @@ allprojects {
 tasks.withType(JavaExec) {
     if (System.getProperty('DEBUG', 'false') == 'true') {
         jvmArgs '-Xdebug', '-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=9099'
+    }
+}
+
+// One toolchain for every module. Gradle provisions a JDK 21 if the machine has none,
+// so the build no longer depends on whatever java happens to be on PATH.
+allprojects {
+    plugins.withType(JavaPlugin) {
+        java {
+            toolchain { languageVersion = JavaLanguageVersion.of(rootProject.ext.javaTarget) }
+        }
+        tasks.withType(JavaCompile) {
+            options.encoding = 'UTF-8'
+            options.release = rootProject.ext.javaTarget
+        }
     }
 }
 
