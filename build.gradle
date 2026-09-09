@@ -27,6 +27,7 @@ allprojects {
         aiVersion = '1.8.0'
         visuiVersion = '1.4.2'
         typingLabelVersion = '1.1.0'
+        junitVersion = '5.14.4'
     }
 
     repositories {

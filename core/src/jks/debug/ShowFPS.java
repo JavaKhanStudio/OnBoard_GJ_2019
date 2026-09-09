@@ -14,7 +14,7 @@ public class ShowFPS implements ToRender
 	public ShowFPS()
 	{
 		decal = Gdx.graphics.getWidth()/10 ;
-		BitmapFont myFont = new BitmapFont(Gdx.files.internal("skin/font-export.fnt"));
+		BitmapFont myFont = new BitmapFont(Gdx.files.internal("ui/skins/freezing/font-export.fnt"));
 		Label.LabelStyle label1Style = new Label.LabelStyle();
 		label1Style.font = myFont ; 
 		fpsLabel = new Label("", label1Style);

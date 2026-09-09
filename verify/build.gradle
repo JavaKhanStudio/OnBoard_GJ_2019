@@ -1,0 +1,38 @@
+apply plugin: "java-library"
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
+}
+
+eclipse.project { name = appName + "-verify" }
+
+dependencies {
+    testImplementation project(":core")
+    testImplementation project(":desktop")
+    testImplementation "com.badlogicgames.gdx:gdx-backend-headless:$gdxVersion"
+    testImplementation "org.junit.jupiter:junit-jupiter:$junitVersion"
+    testRuntimeOnly "org.junit.platform:junit-platform-launcher"
+}
+
+tasks.named('test') {
+    // The GL test drives a real window, so it is opt-in: ./gradlew :verify:test -PwithGl
+    useJUnitPlatform {
+        if (!project.hasProperty('withGl')) excludeTags 'gl'
+    }
+
+    // Match how the game itself is launched, so Gdx.files resolves exactly as it does in play.
+    workingDir = file('../desktop')
+    classpath = sourceSets.test.runtimeClasspath + files('../desktop/assets')
+
+    if (project.hasProperty('recordGolden')) systemProperty 'onboard.golden.record', 'true'
+    // The game resolves assets relative to desktop/, with assets/ on the classpath.
+    systemProperty 'onboard.assets', file('../desktop/assets').absolutePath
+    systemProperty 'onboard.root', rootDir.absolutePath
+    systemProperty 'onboard.verify', projectDir.absolutePath
+    testLogging {
+        events "passed", "failed", "skipped"
+        exceptionFormat "full"
+        showStandardStreams = false
+    }
+}
