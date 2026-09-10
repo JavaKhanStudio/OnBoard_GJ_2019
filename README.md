@@ -34,13 +34,19 @@ Nothing needs to be installed first — Gradle fetches its own Java 21.
 ## Packaging a Windows build
 
 ```bash
-./gradlew :desktop:packageWinX64
-# -> desktop/build/construo/dist/onboard-winX64.zip   (~54 MB)
+./gradlew :desktop:packageWindows
 ```
+
+Output lands in `dist/` at the top of the project:
+
+    dist/onboard-winX64.zip          the file to send people  (~54 MB)
+    dist/OnBoard-windows/onboard.exe the same thing unpacked, to run right now
 
 A self-contained folder: `onboard.exe`, a trimmed Java runtime, and one jar with the code
 and assets. Players need nothing installed. Cross-builds from Linux or macOS — no Windows
-machine required. `packageLinuxX64` does the same for Linux.
+machine required. `packageLinux` does the same for Linux.
+
+(`packageWinX64` builds only the zip, without unpacking it.)
 
 ## Tests
 
