@@ -58,6 +58,7 @@ class OpeningRenderTest
 	private static GameHarness harness;
 	private static final Set<String> viewsSeen = new LinkedHashSet<>();
 	private static volatile double secondsRun;
+	private static volatile double lastPageTurn;
 
 	@BeforeAll
 	void runTheOpening()
@@ -81,8 +82,21 @@ class OpeningRenderTest
 			if (GVars_Heart.vue != null) viewsSeen.add(GVars_Heart.vue.getClass().getSimpleName());
 
 			double elapsed = (System.nanoTime() - startedAt) / 1e9;
-			boolean movedOn = viewsSeen.size() > 1 && frame > CAPTURE_FRAME;
-			if (movedOn || elapsed > TIMEOUT_SEC)
+
+			// The story pages wait for the player before turning. Stand in for them, so the
+			// test can follow the opening all the way to the menu rather than stopping at
+			// the first hand-off - which is how a start screen that crashed on its first
+			// label went unnoticed.
+			if (GVars_Heart.vue != null
+				&& GVars_Heart.vue.getClass().getSimpleName().equals("Vue_Scenematic_Intro")
+				&& harness.gameSeconds - lastPageTurn > 0.4)
+			{
+				lastPageTurn = harness.gameSeconds;
+				GVars_Heart.inCinematic_Click = true;
+			}
+
+			boolean reachedMenu = viewsSeen.contains("Vue_StartScreen");
+			if (reachedMenu || elapsed > TIMEOUT_SEC)
 			{
 				secondsRun = elapsed;
 				com.badlogic.gdx.Gdx.app.exit();
@@ -102,13 +116,15 @@ class OpeningRenderTest
 	}
 
 	@Test
-	@DisplayName("the opening advances through its screens instead of stalling")
+	@DisplayName("the opening runs all the way from the logos to the menu")
 	void openingAdvances()
 	{
 		assertTrue(viewsSeen.contains("Vue_Preloading"),
 			"never showed the logo screen; saw " + viewsSeen);
-		assertTrue(viewsSeen.size() > 1,
-			"the opening never left the logo screen. Saw " + viewsSeen + " in "
+		assertTrue(viewsSeen.contains("Vue_Scenematic_Intro"),
+			"the logos never handed off to the story pages. Saw " + viewsSeen);
+		assertTrue(viewsSeen.contains("Vue_StartScreen"),
+			"the opening never reached the menu. Saw " + viewsSeen + " in "
 			+ String.format("%.1fs", secondsRun) + ". Note this sequence runs on a wall clock while"
 			+ " Main_Application clamps delta to 1/30s, so a machine under heavy GPU load can make"
 			+ " game time lag real time badly enough to trip the ceiling.");
