@@ -77,8 +77,9 @@ public class StartScreen_SmoothSideSelect extends Table implements ReplayAction,
 			{
 				if(onFocus)
 				{
+					// Was building two Vue_Game instances and discarding the first.
 					Vue_Game myGame = new Vue_Game() ; 
-					GVars_Heart.changeVue(new Vue_Game(),true) ; 
+					GVars_Heart.changeVue(myGame,true) ; 
 					GVars_Game.loadLevel(1);
 				}
 			}

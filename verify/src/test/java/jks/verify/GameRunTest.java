@@ -51,6 +51,11 @@ class GameRunTest
 		config.setTitle("On Board - verification run");
 		config.setResizable(false);
 
+		// Pin the entry point: the game now starts at the logos, and this test is about
+		// level 1. The golden frame was recorded on libGDX 1.9.10 and must keep meaning
+		// the same thing.
+		Main_Application.startPoint = Main_Application.StartPoint.GAME;
+
 		harness = new GameHarness(new Main_Application(), CAPTURE_FRAME, EXIT_FRAME);
 		new Lwjgl3Application(harness, config);
 	}

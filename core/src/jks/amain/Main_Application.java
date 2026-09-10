@@ -5,6 +5,10 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Graphics.DisplayMode;
 import com.badlogic.gdx.graphics.GL20;
 
+import java.util.Locale;
+
+import jks.tools.Utils_Debug;
+
 import jks.camera.GVars_Camera;
 import jks.index.Index_Interface;
 import jks.input.GVars_Controller;
@@ -22,6 +26,41 @@ import jks.vue.models.game.Vue_Game;
 public class Main_Application extends ApplicationAdapter 
 {
 
+	/**
+	 * Where the game begins.
+	 *
+	 * The screens chain into each other by themselves - the logos hand off to the intro,
+	 * the intro to the start screen, "New Game" to the first carriage, and finishing the
+	 * fourth to the ending - so LOGO plays the whole thing through.
+	 *
+	 * This used to be five lines with four of them commented out, which meant jumping past
+	 * the intro during development left the shipped game starting mid-story. Override it
+	 * with -Donboard.start=game when you are working on a level.
+	 */
+	public enum StartPoint
+	{
+		LOGO, INTRO, START_SCREEN, GAME, OUTRO
+	}
+	
+	public static StartPoint startPoint = fromSystemProperty() ; 
+	
+	private static StartPoint fromSystemProperty()
+	{
+		String requested = System.getProperty("onboard.start") ; 
+		if(requested == null)
+			return StartPoint.LOGO ; 
+		
+		try
+		{
+			return StartPoint.valueOf(requested.trim().toUpperCase(Locale.ROOT)) ; 
+		}
+		catch(IllegalArgumentException unknown)
+		{
+			Utils_Debug.warn("Unknown onboard.start value '" + requested + "', starting at the logos") ; 
+			return StartPoint.LOGO ; 
+		}
+	}
+	
 	@Override
 	public void create () 
 	{
@@ -32,11 +71,14 @@ public class Main_Application extends ApplicationAdapter
 		}
 		mainInit() ;
 		
-//		startAtLogo() ;
-//		startAtIntro() ;
-//		startAtStartScreen();	
-		startAtGame() ; 
-//		startAtOutro() ; 
+		switch(startPoint)
+		{
+			case LOGO:         startAtLogo() ;        break ; 
+			case INTRO:        startAtIntro() ;       break ; 
+			case START_SCREEN: startAtStartScreen() ; break ; 
+			case GAME:         startAtGame() ;        break ; 
+			case OUTRO:        startAtOutro() ;       break ; 
+		}
 	}
 	
 	public void startAtGame() 
@@ -71,7 +113,7 @@ public class Main_Application extends ApplicationAdapter
 		Index_Interface.init();
 	}
 
-	private void startAtStartScreen()
+	public void startAtStartScreen()
 	{
 		GVars_Heart.changeVue(new Vue_StartScreen(),true) ;
 	}

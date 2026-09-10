@@ -60,6 +60,8 @@ class DialogRenderTest
 		config.setTitle("On Board - dialogue verification");
 		config.setResizable(false);
 
+		Main_Application.startPoint = Main_Application.StartPoint.GAME;
+
 		harness = new GameHarness(new Main_Application(), CAPTURE_FRAME, EXIT_FRAME);
 		harness.frameHook = frame ->
 		{
