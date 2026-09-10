@@ -16,5 +16,21 @@ eclipse.project {
     name = appName + "-editor"
 }
 
-project.ext.mainClassName = "jks.launcher.Launcher_Game"
+project.ext.mainClassName = "jks.launcher.Launcher_Editor"
+
+// The level editor built the four .wa files this game ships. It still compiles and still
+// runs; it simply had no way to be started - no run task, and the ext above named the
+// game's launcher rather than its own.
+//
+//   ./gradlew :editor:runEditor
+//
+// Drop a .wa file onto the window to open a level, or drop images to add items.
+tasks.register('runEditor', JavaExec) {
+    group = 'application'
+    description = 'Launch the level editor'
+    mainClass = 'jks.launcher.Launcher_Editor'
+    classpath = sourceSets.main.runtimeClasspath
+    workingDir = rootProject.file('desktop')
+    ignoreExitValue = true
+}
 
