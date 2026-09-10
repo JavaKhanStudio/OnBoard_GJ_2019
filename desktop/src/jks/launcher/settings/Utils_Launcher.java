@@ -16,12 +16,16 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import jks.amain.GameConfigs;
 import jks.vars.FVars_Heart;
+import jks.sounds.GVars_Audio;
 import jks.vars.GVars_Heart;
 
 public class Utils_Launcher 
 {
 
-	private static String configPath = "config." ;
+	// Was "config." - a trailing dot, which Windows quietly ignores and every other
+	// filesystem takes literally. On Linux it looked for a file named "config." , never
+	// found the real one, and wrote a second file beside it.
+	private static String configPath = "config" ;
 	
 	public static void basicConfig(Lwjgl3ApplicationConfiguration config)
 	{
@@ -56,6 +60,7 @@ public class Utils_Launcher
 			{
 				GameConfigs gameConfig = objectMapper.readValue(configFile.file(),GameConfigs.class) ;	
 				config.useVsync(gameConfig.useVsynch);
+				applyVolume(gameConfig.volume) ;
 				
 				if(gameConfig.isFullScreen)
 				{
@@ -71,17 +76,31 @@ public class Utils_Launcher
 			}
 			else
 			{
+				// First run: write the defaults out so the file exists and can be edited.
 				GameConfigs configsFile = new GameConfigs(); 
 				objectMapper.writeValue(new File(configPath),configsFile) ; 
-				config.useVsync(true);
+				config.useVsync(configsFile.useVsynch);
+				config.setWindowedMode(configsFile.width, configsFile.height);
+				applyVolume(configsFile.volume) ;
 			}
 		}
 		catch(Exception e)
 		{
-			Utils_Debug.warn("dont work");
-			e.printStackTrace();
+			Utils_Debug.warn("Could not read the config file, falling back to defaults: " + e);
 			config.setWindowedMode(1280, 720);
+			applyVolume(1f) ;
 		}	
+	}
+	
+
+	/**
+	 * GVars_Audio.muted defaulted to true, so anything the audio manager was asked to play
+	 * would have been silent. The saved volume now decides it.
+	 */
+	private static void applyVolume(float volume)
+	{
+		GVars_Audio.masterVolume = volume ;
+		GVars_Audio.muted = volume <= 0f ;
 	}
 	
 }
