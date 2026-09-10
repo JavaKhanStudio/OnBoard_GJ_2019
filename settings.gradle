@@ -1,1 +1,8 @@
+plugins {
+    // Lets Gradle fetch a matching JDK when the machine has none, so the toolchain below
+    // (and the daemon JVM pinned in gradle/gradle-daemon-jvm.properties) resolve anywhere,
+    // not just on a machine that happens to have the right JDK lying around.
+    id 'org.gradle.toolchains.foojay-resolver-convention' version '1.0.0'
+}
+
 include 'desktop', 'core', 'editor', 'test', 'verify'

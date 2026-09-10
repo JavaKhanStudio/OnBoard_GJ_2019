@@ -23,7 +23,6 @@ tasks.named('test') {
 
     // Match how the game itself is launched, so Gdx.files resolves exactly as it does in play.
     workingDir = file('../desktop')
-    classpath = sourceSets.test.runtimeClasspath + files('../desktop/assets')
 
     if (project.hasProperty('recordGolden')) systemProperty 'onboard.golden.record', 'true'
     // The game resolves assets relative to desktop/, with assets/ on the classpath.

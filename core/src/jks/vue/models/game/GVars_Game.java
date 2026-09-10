@@ -130,9 +130,13 @@ public class GVars_Game
     	
     	try
     	{
-    		FileHandle handle = Gdx.files.internal("assets/game/wagon/wa" + value + ".wa") ; 
+    		// Read as a stream, not handle.file(). file() hands back a path relative to the
+    		// process working directory, which only works when the assets sit loose on disk -
+    		// it cannot see inside a jar. Everything else already resolves the libGDX way
+    		// (no "assets/" prefix, found on the classpath), so this now matches.
+    		FileHandle handle = Gdx.files.internal("game/wagon/wa" + value + ".wa") ; 
 
-    		level = GVars_Serialization.objectMapper.readValue(handle.file(), WagonLevel.class) ; 
+    		level = GVars_Serialization.objectMapper.readValue(handle.read(), WagonLevel.class) ; 
     		level.init(); 
     		preloadedlevel.put(value, level) ; 
     		return level ; 

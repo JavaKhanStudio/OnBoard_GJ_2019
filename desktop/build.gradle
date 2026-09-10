@@ -1,3 +1,7 @@
+plugins {
+    id "io.github.fourlastor.construo" version "2.2.2"
+}
+
 apply plugin: "java-library"
 
 
@@ -5,11 +9,12 @@ sourceSets
 {
     main 
     {
-        java 
-        {
-            srcDir 'src'
-            srcDir 'assets'     
-        }
+        java { srcDir 'src' }
+        // assets belong on the classpath as resources, not as a java source dir. As a java
+        // srcDir (the old libGDX template trick) Gradle compiled the .java files there and
+        // copied nothing, so the assets only reached the runtime via an explicit classpath
+        // entry. As resources they land in the jar, which is what packaging needs.
+        resources { srcDir 'assets' }
     }
 }
 
@@ -24,7 +29,169 @@ tasks.register('runGame', JavaExec) {
     mainClass = 'jks.launcher.Launcher_Game'
     // Eclipse ran with the project dir as CWD and `assets` as a source folder
     // (i.e. on the classpath). Reproduce both.
-    classpath = sourceSets.main.runtimeClasspath + files('assets')
+    classpath = sourceSets.main.runtimeClasspath
     workingDir = projectDir
     ignoreExitValue = true
+}
+
+
+// ---------------------------------------------------------------------------
+// Distribution
+//
+// libGDX, LWJGL and jamepad each ship their native libraries for every desktop
+// platform at once - Windows, Linux, macOS, x86, arm, riscv. A build for one
+// platform needs one set of them, and the rest is about 15 MB of other people's
+// operating systems riding along in the download.
+//
+// The fat jar below keeps only the natives for the target being built, which is
+// derived from the task you asked for:
+//   ./gradlew packageWinX64      -> Windows zip
+//   ./gradlew packageLinuxX64    -> Linux zip (used to smoke-test the packaging itself)
+// -PdistTarget=... overrides it if you ever need to.
+// ---------------------------------------------------------------------------
+
+ext.distTargetSpecs = [
+    windowsX64: [
+        lwjglClassifier: 'natives-windows',
+        keepNatives    : ['gdx64.dll', 'gdx-freetype64.dll', 'jamepad64.dll'] as Set,
+        foreignSuffixes: ['.so', '.dylib'],
+    ],
+    linuxX64: [
+        lwjglClassifier: 'natives-linux',
+        keepNatives    : ['libgdx64.so', 'libgdx-freetype64.so', 'libjamepad64.so'] as Set,
+        foreignSuffixes: ['.dll', '.dylib'],
+    ],
+]
+
+// Derived from the requested task so the two never disagree - a Windows zip full of
+// Linux .so files would look perfectly fine right up until someone ran it.
+def requestedTasks = gradle.startParameter.taskNames.join(' ')
+ext.distTarget = project.findProperty('distTarget')
+    ?: (requestedTasks.contains('LinuxX64') ? 'linuxX64' : 'windowsX64')
+if (!distTargetSpecs.containsKey(distTarget))
+    throw new GradleException("Unknown distTarget '${distTarget}'. Known: ${distTargetSpecs.keySet()}")
+
+def spec = distTargetSpecs[distTarget]
+
+tasks.register('fatJar', Jar) {
+    group = 'distribution'
+    description = "Single runnable jar for ${distTarget}, carrying only that platform's natives"
+
+    archiveBaseName = 'OnBoard'
+    archiveClassifier = distTarget
+    destinationDirectory = layout.buildDirectory.dir('dist')
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+
+    manifest { attributes 'Main-Class': 'jks.launcher.Launcher_Game' }
+
+    from sourceSets.main.output
+    from project(':core').sourceSets.main.output
+
+    from {
+        configurations.runtimeClasspath.findAll { it.name.endsWith('.jar') }.collect { dependency ->
+            def classifier = (dependency.name =~ /-(natives-[a-z0-9-]+)\.jar$/).with { it ? it[0][1] : null }
+
+            // LWJGL publishes one jar per platform, with its libraries under <os>/<arch>/.
+            // Those are kept or dropped whole - filtering their entries would strip the very
+            // libraries we want. 'natives-desktop' is libGDX's all-platforms-in-one jar and
+            // is handled below like any other.
+            if (classifier != null && classifier != 'natives-desktop')
+                return classifier == spec.lwjglClassifier ? zipTree(dependency) : null
+
+            // Everything else may still carry loose native libraries at the jar root -
+            // libGDX's natives-desktop jars do, and so does jamepad, which has no classifier
+            // at all and quietly contributed 12 MB of other platforms. Keep only ours.
+            return zipTree(dependency).matching {
+                exclude { element ->
+                    def n = element.name
+                    (n.endsWith('.dll') || n.endsWith('.so') || n.endsWith('.dylib')) &&
+                        !spec.keepNatives.contains(n)
+                }
+            }
+        }.findAll { it != null }
+    }
+
+    // Signatures do not survive being merged into a different jar, and the fat jar is
+    // put on the classpath rather than the module path.
+    exclude 'META-INF/*.SF', 'META-INF/*.DSA', 'META-INF/*.RSA', 'META-INF/*.EC'
+    exclude '**/module-info.class'
+}
+
+// A package carrying the wrong platform's natives looks completely fine until someone
+// runs it, and the person who finds out is the player. Check before shipping.
+tasks.register('checkDistNatives') {
+    group = 'verification'
+    description = "Fails if the ${distTarget} jar carries natives for another platform"
+    dependsOn tasks.named('fatJar')
+
+    doLast {
+        def jar = tasks.fatJar.archiveFile.get().asFile
+        def offenders = []
+        new java.util.zip.ZipFile(jar).withCloseable { zip ->
+            zip.entries().each { entry ->
+                if (spec.foreignSuffixes.any { entry.name.endsWith(it) })
+                    offenders << entry.name
+            }
+        }
+
+        if (!offenders.isEmpty())
+            throw new GradleException(
+                "${jar.name} is built for ${distTarget} but contains ${offenders.size()} " +
+                "native librar${offenders.size() == 1 ? 'y' : 'ies'} for another platform:\n  " +
+                offenders.take(10).join('\n  '))
+
+        logger.lifecycle("checkDistNatives: ${jar.name} carries only ${distTarget} natives")
+    }
+}
+
+tasks.named('fatJar') { finalizedBy 'checkDistNatives' }
+
+construo { c ->
+    // named delegate: bare `version`/`name` would resolve to the project's own properties
+    c.name.set('onboard')
+    c.humanName.set('On Board')
+    c.mainClass.set('jks.launcher.Launcher_Game')
+    c.jarTask.set('fatJar')
+
+    c.roast {
+        // 1 GB is plenty for a 2D point-and-click and keeps the heap from ballooning.
+        vmArgs.addAll('-Xmx1G')
+        // ZGC is built for large heaps and low pause times. On a 1 GB heap it just costs
+        // startup time and virtual memory, so leave the default collector alone.
+        useZgc.set(false)
+    }
+
+    c.jlink {
+        // Pinned rather than guessed. Letting construo run jdeps produces a phantom module
+        // called "JDK removed internal API/sun.misc" - that is jdeps reporting LWJGL's use of
+        // sun.misc.Unsafe, not a real module, and jlink rejects it.
+        //
+        // This list is what
+        //   jdeps --print-module-deps --ignore-missing-deps --multi-release 21 <fat jar>
+        // reports, with the phantom entry replaced by the module that actually provides it.
+        // jlink pulls in the transitive requires (java.logging, java.xml) on its own.
+        //
+        //   java.base        always
+        //   java.desktop     libGDX and FreeType touch AWT image classes
+        //   java.sql         Jackson's optional java.sql date/time support
+        //   jdk.unsupported  sun.misc.Unsafe, used by LWJGL and by kryo's reflectasm
+        guessModulesFromJar.set(false)
+        modules.addAll('java.base', 'java.desktop', 'java.sql', 'jdk.unsupported')
+    }
+
+    c.targets {
+        create('winX64', io.github.fourlastor.construo.Target.Windows) {
+            architecture.set(io.github.fourlastor.construo.Target.Architecture.X86_64)
+            jdkUrl.set('https://github.com/adoptium/temurin21-binaries/releases/download/jdk-21.0.12.1%2B1/OpenJDK21U-jdk_x64_windows_hotspot_21.0.12.1_1.zip')
+            // Ask Windows to hand this to the discrete GPU, not integrated graphics.
+            useGpuHint.set(true)
+            // No console window behind the game.
+            useConsole.set(false)
+            icon.set(layout.projectDirectory.file('assets/ui/icon/logo_onboard.ico'))
+        }
+        create('linuxX64', io.github.fourlastor.construo.Target.Linux) {
+            architecture.set(io.github.fourlastor.construo.Target.Architecture.X86_64)
+            jdkUrl.set('https://github.com/adoptium/temurin21-binaries/releases/download/jdk-21.0.12.1%2B1/OpenJDK21U-jdk_x64_linux_hotspot_21.0.12.1_1.tar.gz')
+        }
+    }
 }
