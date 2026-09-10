@@ -116,9 +116,9 @@ Left as the team left it, in case anyone wants to pick it up:
 - **The Credits screen.** There's a Credits button on the start menu and it does nothing.
   For a project being handed back to the people who made it, this is the obvious first thing
   to fill in — **nobody's name is anywhere in this repository.**
-- **Sound.** `GVars_AudioManager` works, `musics/intro.mp3` exists, and nothing anywhere
-  calls `PlayMusic` or `PlaySound`. The game is silent. The effects named in
-  `Enum_Sounds_Game` (jump, run, idle) were never recorded — there are no files for them.
+- **Sound effects.** `Enum_Sounds_Game` names jump, run and idle, the loader for them is
+  commented out, and there are no files — they were never recorded. Music does work
+  (`musics/intro.mp3`, looping, volume-controlled); it is the effects that are missing.
 - **A second UI skin**, `assets/ui/skins/freezing/` — 31 atlas regions and 17 widget styles,
   never loaded. The game uses libGDX's stock skin instead. Two of its three bitmap-font
   pages are missing, so it needs those regenerated before it can be switched on.

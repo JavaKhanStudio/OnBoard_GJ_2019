@@ -45,6 +45,10 @@ public class GVars_Font
 	static HashMap<Enum_Fonts, LabelStyle> activeLabelStyle ;
 	static HashMap<Enum_Fonts, Font> activeTextraFont ;
 	
+	/** Menu fonts replaced by a resolution change, kept alive until shutdown. */
+	private static final java.util.List<BitmapFont> retiredFonts = new java.util.ArrayList<BitmapFont>() ;
+	private static int lastBuiltWidth = -1 ;
+	
 	public static void initFont()
 	{
 		activeFont = new HashMap() ;
@@ -63,35 +67,88 @@ public class GVars_Font
 //		generator.dispose(); // don't forget to dispose to avoid memory leaks!
 	}
 	
+	/**
+	 * Builds the label styles the menus draw with.
+	 *
+	 * This was commented out, which left labelStyle_ScreenTitle, labelStyle_OptionsTitle and
+	 * labelStyle_Second null - and scene2d rejects a null style outright. The start screen
+	 * and the options screen both died on their first label the moment either was reached,
+	 * which is how they stayed broken while the game was launching straight into level 1.
+	 *
+	 * The two typefaces are the ones the project already carries and never loaded:
+	 * OptimusPrinceps for titles, GeosansLight for everything smaller.
+	 */
 	public static void prebuild()
 	{
-//		generator_Titles = new FreeTypeFontGenerator(Gdx.files.internal("ui/fonts/OptimusPrinceps.ttf"));
-//		generator_Seconds = new FreeTypeFontGenerator(Gdx.files.internal("ui/fonts/GeosansLight.ttf"));
-//		parameter = new FreeTypeFontParameter();
-//		
-//		labelStyle_ScreenTitle = new LabelStyle(baseSkin.get("default", LabelStyle.class)) ; 
-//		labelStyle_OptionsTitle = new LabelStyle(baseSkin.get("default", LabelStyle.class)) ; 
-//		labelStyle_Second = new LabelStyle(baseSkin.get("default", LabelStyle.class)) ;
+		generator_Titles = new FreeTypeFontGenerator(Gdx.files.internal("ui/fonts/OptimusPrinceps.ttf"));
+		generator_Seconds = new FreeTypeFontGenerator(Gdx.files.internal("ui/fonts/GeosansLight.ttf"));
+		parameter = new FreeTypeFontParameter();
+		
+		labelStyle_ScreenTitle = new LabelStyle(baseSkin.get("default", LabelStyle.class)) ; 
+		labelStyle_OptionsTitle = new LabelStyle(baseSkin.get("default", LabelStyle.class)) ; 
+		labelStyle_Second = new LabelStyle(baseSkin.get("default", LabelStyle.class)) ;
+		labelStyle_BigStuff = new LabelStyle(baseSkin.get("default", LabelStyle.class)) ;
 	}
 	
+	/**
+	 * Regenerates the menu fonts for the current window size. FreeType renders to a bitmap,
+	 * so a resolution change needs new glyphs rather than a scaled-up old texture.
+	 */
 	public static void resize()
 	{
-//		parameter.size = (int) (Gdx.graphics.getWidth()/fontMainTitleSizeDivide) ;
-//		font_MainMenu = generator_Titles.generateFont(parameter);
-//		
-//		parameter.size = (int) (Gdx.graphics.getWidth()/fontTitleSizeDivide) ;
-//		font_Title = generator_Titles.generateFont(parameter);
-//		
-//		parameter.size = (int) (Gdx.graphics.getWidth()/fontBasicSizeDivide) ;
-//		font_Second = generator_Seconds.generateFont(parameter);
-//		fontont_SelectBox = generator_Seconds.generateFont(parameter);
-//		
-////		font_MainMenu.getRegion().getTexture().setFilter(TextureFilter.Linear, TextureFilter.Linear);
-//		labelStyle_ScreenTitle.font = font_MainMenu ; 
-//		labelStyle_OptionsTitle.font = font_Title ; 
-//		labelStyle_Second.font = font_Second ; 
+		if(generator_Titles == null)
+			return ;   // prebuild() has not run yet - nothing to resize
 		
-//		massResize(mainUi.getActors()) ; 
+		// Nothing to do if the window is the width these glyphs were rendered for. This is
+		// the common case by far: Vue_StartScreen calls resize() immediately after building
+		// its menu, and regenerating identical fonts there is pure churn.
+		if(lastBuiltWidth == Gdx.graphics.getWidth() && font_MainMenu != null)
+			return ;
+		
+		// A new set of textures. The previous ones cannot be disposed here: labels built
+		// before this call hold a glyph cache pointing at them, and disposing underneath a
+		// live label draws every character as a solid block - correct spacing, dead texture.
+		// They are retired instead, and released when the game shuts down. Only an actual
+		// resolution change reaches this point, so the list stays short.
+		retireMenuFonts() ;
+		lastBuiltWidth = Gdx.graphics.getWidth() ;
+		
+		parameter.size = (int) (Gdx.graphics.getWidth()/fontMainTitleSizeDivide) ;
+		font_MainMenu = generator_Titles.generateFont(parameter);
+		
+		parameter.size = (int) (Gdx.graphics.getWidth()/fontTitleSizeDivide) ;
+		font_Title = generator_Titles.generateFont(parameter);
+		
+		parameter.size = (int) (Gdx.graphics.getWidth()/fontBasicSizeDivide) ;
+		font_Second = generator_Seconds.generateFont(parameter);
+		fontont_SelectBox = generator_Seconds.generateFont(parameter);
+		
+		labelStyle_ScreenTitle.font = font_MainMenu ; 
+		labelStyle_OptionsTitle.font = font_Title ; 
+		labelStyle_Second.font = font_Second ; 
+		labelStyle_BigStuff.font = font_MainMenu ; 
+	}
+	
+	private static void retireMenuFonts()
+	{
+		for(BitmapFont font : new BitmapFont[]{font_MainMenu, font_Title, font_Second, fontont_SelectBox})
+			if(font != null)
+				retiredFonts.add(font) ;
+	}
+	
+	/** Releases every menu font, including ones a previous resolution left behind. */
+	public static void dispose()
+	{
+		retireMenuFonts() ;
+		for(BitmapFont font : retiredFonts)
+			font.dispose() ;
+		retiredFonts.clear() ;
+		
+		font_MainMenu = font_Title = font_Second = fontont_SelectBox = null ;
+		lastBuiltWidth = -1 ;
+		
+		if(generator_Titles != null)  { generator_Titles.dispose() ;  generator_Titles = null ; }
+		if(generator_Seconds != null) { generator_Seconds.dispose() ; generator_Seconds = null ; }
 	}
 	
 	public static LabelStyle buildLabel(Enum_Fonts font)

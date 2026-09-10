@@ -6,15 +6,12 @@ import static jks.launcher.settings.GVars_Laucher.finalHeight;
 import static jks.launcher.settings.GVars_Laucher.finalWidth;
 import static jks.launcher.settings.GVars_Laucher.tailleTest;
 
-import java.io.File;
 
 import com.badlogic.gdx.Graphics.DisplayMode;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
-import com.badlogic.gdx.files.FileHandle;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import jks.amain.GameConfigs;
+import jks.amain.Utils_Config;
 import jks.vars.FVars_Heart;
 import jks.sounds.GVars_Audio;
 import jks.vars.GVars_Heart;
@@ -22,10 +19,6 @@ import jks.vars.GVars_Heart;
 public class Utils_Launcher 
 {
 
-	// Was "config." - a trailing dot, which Windows quietly ignores and every other
-	// filesystem takes literally. On Linux it looked for a file named "config." , never
-	// found the real one, and wrote a second file beside it.
-	private static String configPath = "config" ;
 	
 	public static void basicConfig(Lwjgl3ApplicationConfiguration config)
 	{
@@ -50,49 +43,27 @@ public class Utils_Launcher
 	
 	public static void loadConfig(Lwjgl3ApplicationConfiguration config)
 	{
-		ObjectMapper objectMapper = new ObjectMapper() ; 
-		objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false) ; 
+		// Reading and writing the file now lives in core (Utils_Config) so that the options
+		// screen, which is also in core, can save what the player changes. This method is
+		// only the part that applies settings to the window before libGDX starts.
+		GameConfigs gameConfig = Utils_Config.load() ;
 		
-		FileHandle configFile = new FileHandle(new File(configPath)) ;
-		try
+		config.useVsync(gameConfig.useVsynch) ;
+		applyVolume(gameConfig.volume) ;
+		
+		if(gameConfig.isFullScreen)
 		{
-			if(configFile.exists())
-			{
-				GameConfigs gameConfig = objectMapper.readValue(configFile.file(),GameConfigs.class) ;	
-				config.useVsync(gameConfig.useVsynch);
-				applyVolume(gameConfig.volume) ;
-				
-				if(gameConfig.isFullScreen)
-				{
-					GVars_Heart.isFullScreen = true ;
-					DisplayMode display = config.getDisplayModes()[config.getDisplayModes().length - 1] ; 
-					config.setWindowedMode(display.width,display.height);
-				}
-				else
-				{
-					Utils_Debug.log(gameConfig.width + "/" + gameConfig.height);
-					config.setWindowedMode(gameConfig.width, gameConfig.height);
-				}
-			}
-			else
-			{
-				// First run: write the defaults out so the file exists and can be edited.
-				GameConfigs configsFile = new GameConfigs(); 
-				objectMapper.writeValue(new File(configPath),configsFile) ; 
-				config.useVsync(configsFile.useVsynch);
-				config.setWindowedMode(configsFile.width, configsFile.height);
-				applyVolume(configsFile.volume) ;
-			}
+			GVars_Heart.isFullScreen = true ;
+			DisplayMode[] modes = config.getDisplayModes() ;
+			DisplayMode display = modes[modes.length - 1] ;
+			config.setWindowedMode(display.width, display.height) ;
 		}
-		catch(Exception e)
+		else
 		{
-			Utils_Debug.warn("Could not read the config file, falling back to defaults: " + e);
-			config.setWindowedMode(1280, 720);
-			applyVolume(1f) ;
-		}	
+			config.setWindowedMode(gameConfig.width, gameConfig.height) ;
+		}
 	}
 	
-
 	/**
 	 * GVars_Audio.muted defaulted to true, so anything the audio manager was asked to play
 	 * would have been silent. The saved volume now decides it.

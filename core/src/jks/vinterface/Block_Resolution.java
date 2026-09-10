@@ -19,6 +19,7 @@ import com.kotcrab.vis.ui.widget.VisLabel;
 import com.kotcrab.vis.ui.widget.VisTable;
 
 import jks.vars.GVars_Heart;
+import jks.amain.Utils_Config;
 import jks.vinterface.font.GVars_Font;
 
 public class Block_Resolution extends VisTable
@@ -174,9 +175,13 @@ public class Block_Resolution extends VisTable
 		GVars_Font.resize();
 		GVars_Heart.vue.resize(width, height);
 		
-		//DO STUFF
-		
-		
+		// Remember it. This screen applied a resolution and then forgot it the moment the
+		// game closed, so choosing one was something you had to do again on every launch.
+		Utils_Config.current.width = width ;
+		Utils_Config.current.height = height ;
+		Utils_Config.current.isFullScreen = fullScreenCheckBox.isChecked() ;
+		Utils_Config.current.useVsynch = vSynchCheckBox.isChecked() ;
+		Utils_Config.save() ;
 	}
 	
 	public void buildDisplayList()

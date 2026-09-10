@@ -15,6 +15,7 @@ import jks.index.Index_Interface;
 import jks.tools.Vector2Int;
 import jks.vinterface.GVars_UI;
 import jks.vinterface.Block_Resolution;
+import jks.vinterface.Block_Sound;
 import jks.vinterface.Utils_TexturesAcess;
 import jks.vue.Utils_View;
 
@@ -27,7 +28,7 @@ public class OverlayOptions extends OverlayModel
 	VisTable mainTable ; 
 	
 	Block_Resolution graphicBloc ; 
-	VisTable soundBloc ; 
+	Block_Sound soundBloc ; 
 	VisTable prefBloc ; 
 	VisTable languageBloc ; 
 	
@@ -62,13 +63,15 @@ public class OverlayOptions extends OverlayModel
 		graphicBloc = new Block_Resolution(); 
 		graphicBloc.setBackground(Utils_TexturesAcess.buildDrawingRegionTexture(frames));
 		
-		soundBloc = buildSoundsBloc() ; 
+		soundBloc = new Block_Sound() ; 
 		soundBloc.setBackground(Utils_TexturesAcess.buildDrawingRegionTexture(frames));
 		
-		prefBloc = buildSoundsBloc() ; 
+		// Preferences and language were never designed. They build empty boxes, same as
+		// before - but they no longer borrow the sound section's builder to do it.
+		prefBloc = new VisTable() ; 
 		prefBloc.setBackground(Utils_TexturesAcess.buildDrawingRegionTexture(frames));
 		
-		languageBloc = buildSoundsBloc() ; 
+		languageBloc = new VisTable() ; 
 		languageBloc.setBackground(Utils_TexturesAcess.buildDrawingRegionTexture(frames));
 		
 		mainTable.addActor(graphicBloc);
@@ -134,11 +137,7 @@ public class OverlayOptions extends OverlayModel
 	
 	
 
-	public VisTable buildSoundsBloc()
-	{
-		VisTable table = new VisTable() ;
-		return table ; 
-	}
+
 	
 	public VisTable buildPerfBloc()
 	{

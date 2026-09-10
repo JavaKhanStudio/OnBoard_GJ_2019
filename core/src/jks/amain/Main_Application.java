@@ -17,6 +17,7 @@ import jks.input.Player_Inputs;
 import jks.vars.GVars_Heart;
 import jks.vars.GVars_Serialization;
 import jks.vinterface.GVars_UI;
+import jks.vinterface.font.GVars_Font;
 import jks.vue.models.Vue_Preloading;
 import jks.vue.models.Vue_Scenematic_Intro;
 import jks.vue.models.Vue_Scenematic_Outro;
@@ -164,5 +165,6 @@ public class Main_Application extends ApplicationAdapter
 		// Music holds a decoder and an OpenAL source. Nothing released them, which was
 		// invisible while the game only ever exited by having its process killed.
 		GVars_AudioManager.StopAndDisposeMusic() ;
+		GVars_Font.dispose() ;
     }
 }
