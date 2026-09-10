@@ -52,22 +52,56 @@ tasks.register('runGame', JavaExec) {
 
 ext.distTargetSpecs = [
     windowsX64: [
-        lwjglClassifier: 'natives-windows',
-        keepNatives    : ['gdx64.dll', 'gdx-freetype64.dll', 'jamepad64.dll'] as Set,
-        foreignSuffixes: ['.so', '.dylib'],
+        lwjglClassifier : 'natives-windows',
+        lwjglPathPrefix : 'windows/x64/',
+        keepNatives     : ['gdx64.dll', 'gdx-freetype64.dll', 'jamepad64.dll'] as Set,
     ],
     linuxX64: [
-        lwjglClassifier: 'natives-linux',
-        keepNatives    : ['libgdx64.so', 'libgdx-freetype64.so', 'libjamepad64.so'] as Set,
-        foreignSuffixes: ['.dll', '.dylib'],
+        lwjglClassifier : 'natives-linux',
+        lwjglPathPrefix : 'linux/x64/',
+        keepNatives     : ['libgdx64.so', 'libgdx-freetype64.so', 'libjamepad64.so'] as Set,
+    ],
+    macX64: [
+        lwjglClassifier : 'natives-macos',
+        lwjglPathPrefix : 'macos/x64/',
+        keepNatives     : ['libgdx64.dylib', 'libgdx-freetype64.dylib', 'libjamepad64.dylib'] as Set,
+    ],
+    macArm64: [
+        lwjglClassifier : 'natives-macos-arm64',
+        lwjglPathPrefix : 'macos/arm64/',
+        keepNatives     : ['libgdxarm64.dylib', 'libgdx-freetypearm64.dylib', 'libjamepadarm64.dylib'] as Set,
     ],
 ]
 
-// Derived from the requested task so the two never disagree - a Windows zip full of
-// Linux .so files would look perfectly fine right up until someone ran it.
-def requestedTasks = gradle.startParameter.taskNames.join(' ').toLowerCase()
-ext.distTarget = project.findProperty('distTarget')
-    ?: (requestedTasks.contains('linux') ? 'linuxX64' : 'windowsX64')
+// Which target each package task builds for. Spelled out rather than pattern-matched:
+// the first version of this inferred the target from the task name, and
+// "packageMacAppleSilicon" does not contain the string "macarm", so it quietly fell
+// through to Intel and produced an Apple Silicon bundle containing the x86 jar. An
+// internally consistent jar paired with the wrong runtime - which checkDistNatives
+// cannot see, because the jar itself was fine.
+ext.taskToDistTarget = [
+    packagewindows        : 'windowsX64',
+    packagewinx64         : 'windowsX64',
+    packagelinux          : 'linuxX64',
+    packagelinuxx64       : 'linuxX64',
+    packagemacapplesilicon: 'macArm64',
+    packagemacarm64       : 'macArm64',
+    packagemacintel       : 'macX64',
+    packagemacx64         : 'macX64',
+]
+
+def requestedTargets = gradle.startParameter.taskNames
+    .collect { it.tokenize(':').last().toLowerCase() }
+    .findAll { taskToDistTarget.containsKey(it) }
+    .collect { taskToDistTarget[it] }
+    .unique()
+
+if (requestedTargets.size() > 1)
+    throw new GradleException("Asked to package ${requestedTargets} in one invocation. The fat jar "
+        + "carries one platform's natives, so build them one at a time.")
+
+ext.distTarget = project.findProperty('distTarget') ?: (requestedTargets ? requestedTargets[0] : 'windowsX64')
+
 if (!distTargetSpecs.containsKey(distTarget))
     throw new GradleException("Unknown distTarget '${distTarget}'. Known: ${distTargetSpecs.keySet()}")
 
@@ -129,15 +163,23 @@ tasks.register('checkDistNatives') {
         def offenders = []
         new java.util.zip.ZipFile(jar).withCloseable { zip ->
             zip.entries().each { entry ->
-                if (spec.foreignSuffixes.any { entry.name.endsWith(it) })
-                    offenders << entry.name
+                def name = entry.name
+                if (!(name.endsWith('.dll') || name.endsWith('.so') || name.endsWith('.dylib')))
+                    return
+
+                // Two shapes are legitimate: a libGDX native at the jar root whose exact
+                // filename we asked for, and an LWJGL native under this platform's own
+                // directory. Anything else is another platform riding along.
+                def atRoot = !name.contains('/') && spec.keepNatives.contains(name)
+                def underOurs = name.startsWith(spec.lwjglPathPrefix)
+                if (!atRoot && !underOurs) offenders << name
             }
         }
 
         if (!offenders.isEmpty())
             throw new GradleException(
                 "${jar.name} is built for ${distTarget} but contains ${offenders.size()} " +
-                "native librar${offenders.size() == 1 ? 'y' : 'ies'} for another platform:\n  " +
+                "native librar${offenders.size() == 1 ? 'y' : 'ies'} that do not belong to it:\n  " +
                 offenders.take(10).join('\n  '))
 
         logger.lifecycle("checkDistNatives: ${jar.name} carries only ${distTarget} natives")
@@ -193,6 +235,22 @@ construo { c ->
             useConsole.set(false)
             icon.set(layout.projectDirectory.file('assets/ui/icon/logo_onboard.ico'))
         }
+        // macOS ships as two builds: Apple Silicon and the older Intel machines. There is
+        // no universal binary here - the bundled runtime and the natives are per-architecture.
+        create('macArm64', io.github.fourlastor.construo.Target.MacOs) {
+            architecture.set(io.github.fourlastor.construo.Target.Architecture.AARCH64)
+            jdkUrl.set('https://github.com/adoptium/temurin21-binaries/releases/download/jdk-21.0.12.1%2B1/OpenJDK21U-jdk_aarch64_mac_hotspot_21.0.12.1_1.tar.gz')
+            identifier.set('com.pixmen.onboard')
+            appBundle.set(true)
+            macIcon.set(layout.projectDirectory.file('assets/ui/icon/logo_onboard.icns'))
+        }
+        create('macX64', io.github.fourlastor.construo.Target.MacOs) {
+            architecture.set(io.github.fourlastor.construo.Target.Architecture.X86_64)
+            jdkUrl.set('https://github.com/adoptium/temurin21-binaries/releases/download/jdk-21.0.12.1%2B1/OpenJDK21U-jdk_x64_mac_hotspot_21.0.12.1_1.tar.gz')
+            identifier.set('com.pixmen.onboard')
+            appBundle.set(true)
+            macIcon.set(layout.projectDirectory.file('assets/ui/icon/logo_onboard.icns'))
+        }
         create('linuxX64', io.github.fourlastor.construo.Target.Linux) {
             architecture.set(io.github.fourlastor.construo.Target.Architecture.X86_64)
             jdkUrl.set('https://github.com/adoptium/temurin21-binaries/releases/download/jdk-21.0.12.1%2B1/OpenJDK21U-jdk_x64_linux_hotspot_21.0.12.1_1.tar.gz')
@@ -203,8 +261,10 @@ construo { c ->
 
 // The packageXXX tasks produce a zip. That is the right thing to hand someone, but it
 // leaves nothing you can double-click while working, so these unpack it next to it.
-[['Windows', 'winX64', 'onboard-winX64.zip'],
- ['Linux',   'linuxX64', 'onboard-linuxX64.zip']].each { name, target, zipName ->
+[['Windows',          'winX64',   'onboard-winX64.zip'],
+ ['Linux',            'linuxX64', 'onboard-linuxX64.zip'],
+ ['MacAppleSilicon',  'macArm64', 'onboard-macArm64.zip'],
+ ['MacIntel',         'macX64',   'onboard-macX64.zip']].each { name, target, zipName ->
 
     tasks.register("package${name}", Copy) {
         group = 'distribution'
@@ -216,8 +276,10 @@ construo { c ->
 
         doLast {
             def folder = rootProject.file("dist/OnBoard-${name.toLowerCase()}")
-            def launcher = new File(folder, name == 'Windows' ? 'onboard.exe' : 'onboard')
-            if (launcher.exists() && name != 'Windows') launcher.setExecutable(true)
+            def launcher = name == 'Windows' ? new File(folder, 'onboard.exe')
+                : name.startsWith('Mac') ? new File(folder, 'On Board.app')
+                : new File(folder, 'onboard')
+            if (launcher.exists() && !name.startsWith('Windows')) launcher.setExecutable(true)
             logger.lifecycle("")
             logger.lifecycle("  ${name} build ready:")
             logger.lifecycle("    ${launcher}")
@@ -225,4 +287,12 @@ construo { c ->
             logger.lifecycle("")
         }
     }
+}
+
+// Diagnostic: which platform would this invocation build for?
+//   ./gradlew :desktop:packageMacIntel :desktop:whichDistTarget --dry-run
+tasks.register('whichDistTarget') {
+    group = 'distribution'
+    description = 'Print the platform the fat jar would be built for'
+    doLast { logger.lifecycle("distTarget = ${distTarget}") }
 }

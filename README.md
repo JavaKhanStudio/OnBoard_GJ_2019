@@ -31,22 +31,50 @@ Nothing needs to be installed first — Gradle fetches its own Java 21.
 | DEL | restart the level |
 | Gamepad | supported; buttons come from the device's own mapping |
 
-## Packaging a Windows build
+## Packaging
+
+All four builds are made from this one machine, whatever it is — construo downloads the
+target JDK, and jlink trims it. No Mac or Windows machine is involved.
 
 ```bash
-./gradlew :desktop:packageWindows
+./gradlew :desktop:packageWindows           # Windows x86-64
+./gradlew :desktop:packageLinux             # Linux x86-64
+./gradlew :desktop:packageMacAppleSilicon   # macOS arm64
+./gradlew :desktop:packageMacIntel          # macOS x86-64
 ```
 
-Output lands in `dist/` at the top of the project:
+Everything lands in `dist/` at the top of the project — a zip to send people, and the
+same thing unpacked to run right now:
 
-    dist/onboard-winX64.zip          the file to send people  (~54 MB)
-    dist/OnBoard-windows/onboard.exe the same thing unpacked, to run right now
+| | zip | run |
+|---|---|---|
+| Windows | `onboard-winX64.zip` | `OnBoard-windows/onboard.exe` |
+| Linux | `onboard-linuxX64.zip` | `OnBoard-linux/onboard` |
+| macOS Apple Silicon | `onboard-macArm64.zip` | `OnBoard-macapplesilicon/On Board.app` |
+| macOS Intel | `onboard-macX64.zip` | `OnBoard-macintel/On Board.app` |
 
-A self-contained folder: `onboard.exe`, a trimmed Java runtime, and one jar with the code
-and assets. Players need nothing installed. Cross-builds from Linux or macOS — no Windows
-machine required. `packageLinux` does the same for Linux.
+Each is self-contained — launcher, trimmed Java 21 runtime, and one jar with the code and
+assets. Players install nothing. Roughly 54-58 MB zipped, ~90 MB unpacked.
 
-(`packageWinX64` builds only the zip, without unpacking it.)
+Build them **one at a time**. The fat jar carries a single platform's native libraries, so
+asking for two targets in one invocation is refused rather than silently shipping the wrong
+ones. `checkDistNatives` fails the build if a package contains a library belonging to
+another platform, which is otherwise invisible until a player runs it.
+
+### macOS: the builds are unsigned
+
+They have no Apple Developer signature, because signing needs a paid certificate and,
+for notarisation, Apple's servers. Gatekeeper will refuse a double-click with *"On Board
+is damaged and can't be opened"* — which is misleading; it means unsigned, not broken.
+
+Whoever you send it to opens it once with **right-click → Open**, or clears the quarantine
+flag themselves:
+
+```bash
+xattr -dr com.apple.quarantine "On Board.app"
+```
+
+After that it opens normally. Signing properly needs a Mac and a developer account.
 
 ## Tests
 
