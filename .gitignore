@@ -128,3 +128,8 @@ Thumbs.db
 /verify/build/
 *.orig
 /desktop/build/
+
+## Agent board
+# `atelier skills install` links the skills in here with ABSOLUTE paths, so the
+# links are broken for anyone else who clones this.
+/.claude/
