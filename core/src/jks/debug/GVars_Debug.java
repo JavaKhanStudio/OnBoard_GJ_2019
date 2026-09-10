@@ -8,7 +8,12 @@ public class GVars_Debug
 	
 	public static boolean soundDebug = false ;
 	public static boolean collisionDebug = false ;
-	public static boolean coreInformationDebug = true ;
+	/**
+	 * Developer chatter and developer shortcuts. Off by default: with this on, the
+	 * gamepad's BACK button restarts the level, which is a fine debugging aid and a
+	 * terrible thing to hand a player.
+	 */
+	public static boolean coreInformationDebug = false ;
 	
 	public static ShapeRenderer shapeDebugRenderer;
 	

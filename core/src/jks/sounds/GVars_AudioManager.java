@@ -1,5 +1,7 @@
 package jks.sounds;
 
+import jks.tools.Utils_Debug;
+
 import static jks.sounds.GVars_Audio.masterVolume;
 
 import java.util.ArrayList;
@@ -47,7 +49,7 @@ public class GVars_AudioManager
 			return ;
 		
 		if(GVars_Debug.soundDebug)
-			System.out.println("Trying to play sound : " + whichOne);
+			Utils_Debug.log("Trying to play sound : " + whichOne);
 		
 		switch (whichOne) 
 		{
@@ -67,7 +69,7 @@ public class GVars_AudioManager
 				break;
 						
 			default:
-				System.out.println("Unknown Sound requested in PlaySound : " + whichOne);
+				Utils_Debug.log("Unknown Sound requested in PlaySound : " + whichOne);
 				break;
 		}
 	}
@@ -78,7 +80,7 @@ public class GVars_AudioManager
 			return ;
 		
 		if(GVars_Debug.soundDebug)
-			System.out.println("Trying to play sound : " + whichOne);
+			Utils_Debug.log("Trying to play sound : " + whichOne);
 		
 		switch (whichOne) 
 		{
@@ -98,7 +100,7 @@ public class GVars_AudioManager
 				break;
 						
 			default:
-				System.out.println("Unknown Sound requested in PlaySound : " + whichOne);
+				Utils_Debug.log("Unknown Sound requested in PlaySound : " + whichOne);
 				break;
 		}
 	}
@@ -109,7 +111,7 @@ public class GVars_AudioManager
 			return ;
 
 		if(GVars_Debug.soundDebug)
-			System.out.println("Trying to play Music : " + whichOne);
+			Utils_Debug.log("Trying to play Music : " + whichOne);
 		
 		switch (whichOne) 
 		{
@@ -130,7 +132,7 @@ public class GVars_AudioManager
 				}
 				break;		
 			default:
-				System.out.println("Unknown Music requested in PlayMusic : " + whichOne);
+				Utils_Debug.log("Unknown Music requested in PlayMusic : " + whichOne);
 				break;
 		}
 	}

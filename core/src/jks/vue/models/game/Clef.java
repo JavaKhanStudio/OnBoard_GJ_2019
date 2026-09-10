@@ -1,5 +1,7 @@
 package jks.vue.models.game;
 
+import jks.tools.Utils_Debug;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.scenes.scene2d.Actor;
@@ -59,14 +61,14 @@ public class Clef extends Table
 			@Override
 			public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor)
 			{
-//				System.out.println(text + " ENTER");
+//				Utils_Debug.log(text + " ENTER");
 				GVars_Game.dialogBubble.applyText(text); 
 			}
 			
 			@Override
 			public void exit (InputEvent event, float x, float y, int pointer, Actor toActor) 
 			{
-//				System.out.println(text + " EXIT");
+//				Utils_Debug.log(text + " EXIT");
 				GVars_Game.tryMakeDiseaper(text); 
 			}
 		} ;

@@ -1,5 +1,7 @@
 package jks.launcher.settings;
 
+import jks.tools.Utils_Debug;
+
 import static jks.launcher.settings.GVars_Laucher.finalHeight;
 import static jks.launcher.settings.GVars_Laucher.finalWidth;
 import static jks.launcher.settings.GVars_Laucher.tailleTest;
@@ -63,7 +65,7 @@ public class Utils_Launcher
 				}
 				else
 				{
-					System.out.println(gameConfig.width + "/" + gameConfig.height);
+					Utils_Debug.log(gameConfig.width + "/" + gameConfig.height);
 					config.setWindowedMode(gameConfig.width, gameConfig.height);
 				}
 			}
@@ -76,7 +78,7 @@ public class Utils_Launcher
 		}
 		catch(Exception e)
 		{
-			System.err.println("dont work");
+			Utils_Debug.warn("dont work");
 			e.printStackTrace();
 			config.setWindowedMode(1280, 720);
 		}	

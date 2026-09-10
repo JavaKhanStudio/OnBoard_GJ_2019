@@ -1,5 +1,7 @@
 package jks.vue.models;
 
+import jks.tools.Utils_Debug;
+
 import static jks.index.Index_Interface.*;
 
 import java.util.ArrayList;
@@ -46,7 +48,7 @@ public class Vue_Scenematic_Outro extends AVue_Model
 		imageSequence = new ArrayList<Texture>() ; 
 		GVars_AudioManager.PlayMusic(Enum_Music.GAME_INTRO);
 		
-		System.out.println(manager + "manager");
+		Utils_Debug.log(manager + "manager");
 		
 		page_1 = manager.get(outroPage1, Texture.class) ;
 		currentpage = page_1 ; 

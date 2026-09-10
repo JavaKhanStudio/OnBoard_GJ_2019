@@ -1,5 +1,7 @@
 package jks.vinterface;
 
+import jks.tools.Utils_Debug;
+
 import java.util.ArrayList;
 
 import com.badlogic.gdx.Gdx;
@@ -131,7 +133,7 @@ public class StartScreen_SmoothSideSelect extends Table implements ReplayAction,
 			public void touchUp(InputEvent event, float x, float y, int pointer, int button)
 			{
 				if(onFocus)
-				{System.out.println("Must be implement " + button + " " + pointer) ;}
+				{Utils_Debug.log("Must be implement " + button + " " + pointer) ;}
 			}
 			
 			public void exit (InputEvent event, float x, float y, int pointer, Actor toActor) 

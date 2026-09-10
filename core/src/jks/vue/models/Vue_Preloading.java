@@ -1,5 +1,7 @@
 package jks.vue.models;
 
+import jks.tools.Utils_Debug;
+
 import static jks.index.Index_Interface.introLogo_Jam;
 import static jks.index.Index_Interface.introLogo_LibGDX;
 import static jks.index.Index_Interface.introLogo_Team;
@@ -39,7 +41,7 @@ public class Vue_Preloading extends AVue_Model
 	@Override
 	public void init() 
 	{
-		System.out.println("I see");
+		Utils_Debug.log("I see");
 		GVars_Heart.inCinematic = true ; 
 		resize(0,0) ; 
 		imageSequence = new ArrayList<Texture>() ; 
@@ -64,7 +66,7 @@ public class Vue_Preloading extends AVue_Model
 		
 		GVars_UI.mainUi.addActor(showingLogo);
 		fadeInAndOut(showingLogo) ;
-		System.out.println("Hellow");
+		Utils_Debug.log("Hellow");
 	}
 
 	@Override

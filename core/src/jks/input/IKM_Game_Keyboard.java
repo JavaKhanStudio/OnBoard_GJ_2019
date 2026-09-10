@@ -1,5 +1,9 @@
 package jks.input;
 
+import jks.debug.GVars_Debug;
+
+import jks.tools.Utils_Debug;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.InputAdapter;
@@ -20,12 +24,12 @@ public class IKM_Game_Keyboard extends InputAdapter
 		{
 			
 			if(GVars_Heart.inCinematic) {
-				System.out.println("TO BE REMOVE");
+				Utils_Debug.log("TO BE REMOVE");
 				GVars_Heart.inCinematic_Click = true ;
 				return true; 
 			}
 			
-			System.out.println(Keys.toString(keycode));
+			Utils_Debug.log(Keys.toString(keycode));
 			
 			if(Keys.D == keycode || Keys.RIGHT == keycode)
 			{
@@ -37,9 +41,11 @@ public class IKM_Game_Keyboard extends InputAdapter
 				GVars_Inputs.leftPressed = true ; 
 				return true ; 
 			}
-			else if(Keys.SPACE == keycode)
+			// Skipping the level on SPACE is a development shortcut. It used to be live in
+			// every build, and SPACE is about the first key anyone presses.
+			else if(Keys.SPACE == keycode && GVars_Debug.debugMode)
 			{
-				GVars_Game.nextLevel(); ; 
+				GVars_Game.nextLevel() ; 
 				return true ; 
 			}
 			
@@ -79,7 +85,7 @@ public class IKM_Game_Keyboard extends InputAdapter
 				case Keys.R :
 				
 				default :
-					System.out.println("Nothing found for " + keycode);
+					Utils_Debug.log("Nothing found for " + keycode);
 					return false ; 
 			}		
 		}

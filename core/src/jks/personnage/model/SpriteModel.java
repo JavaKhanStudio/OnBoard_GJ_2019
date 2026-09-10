@@ -1,5 +1,7 @@
 package jks.personnage.model;
 
+import jks.tools.Utils_Debug;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Animation.PlayMode;
@@ -51,11 +53,11 @@ public class SpriteModel extends AnimationModel
 						HEIGHT);
 			} 
 			else 
-			{System.out.println("impossible de trouver state pour");}
+			{Utils_Debug.warn("impossible de trouver state pour");}
 		}
 		catch(Exception e)
 		{
-			System.out.println("Impossible de trouver " + currentAnimState.name());
+			Utils_Debug.warn("Impossible de trouver " + currentAnimState.name());
 		}
 
 	}
@@ -154,7 +156,7 @@ public class SpriteModel extends AnimationModel
 		if(currentState == null)
 		{
 			currentState = index.animationList.values().iterator().next() ;
-			System.out.println("Impossible de trouver l'animation - " + state.toString() +  " - dans SpriteModel");
+			Utils_Debug.warn("Impossible de trouver l'animation - " + state.toString() +  " - dans SpriteModel");
 		}
 		currentAnimState = state  ;
 

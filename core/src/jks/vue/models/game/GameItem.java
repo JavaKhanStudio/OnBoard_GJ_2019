@@ -1,5 +1,7 @@
 package jks.vue.models.game;
 
+import jks.tools.Utils_Debug;
+
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.math.Rectangle;
@@ -111,7 +113,7 @@ public class GameItem
 			else if(name_Interaction_1 != null && name_Interaction_1.equals(touchingWith.name))
 			{
 				if(inTest)
-					System.out.println("misa interaction 1");
+					Utils_Debug.log("misa interaction 1");
 				else
 				{
 					objectTexture = Index_Interface.manager.get(relativePath + path_EtatApres_1, Texture.class);
@@ -121,7 +123,7 @@ public class GameItem
 			else if (name_Interaction_2 != null && name_Interaction_2.equals(touchingWith.name))
 			{
 				if(inTest)
-					System.out.println("misa interaction 2");	
+					Utils_Debug.log("misa interaction 2");	
 				else
 				{
 					objectTexture = Index_Interface.manager.get(relativePath + path_EtatApres_2, Texture.class);

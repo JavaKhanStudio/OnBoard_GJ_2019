@@ -1,5 +1,7 @@
 package jks.vinterface.tools;
 
+import jks.tools.Utils_Debug;
+
 import java.util.Collection;
 
 import com.badlogic.gdx.Input.Keys;
@@ -146,7 +148,7 @@ public class JksTextureList extends Widget implements Cullable
 	
 	public void choiceAction(GameItem item)
 	{
-		System.out.println("public void choiceAction(TextureRegion item) should be implemented");
+		Utils_Debug.log("public void choiceAction(TextureRegion item) should be implemented");
 	}
 	
 	public void drawOnSelected(Batch batch, float x, float f, float width, float itemHeight2)

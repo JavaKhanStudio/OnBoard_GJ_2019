@@ -1,9 +1,12 @@
 package jks.vue.models.game;
 
+import jks.tools.Utils_Debug;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
@@ -103,7 +106,7 @@ public class GVars_Game
 		WagonLevel level = preloadedlevel.get(value) ; 
 		if(level == null)
 		{
-			System.err.println("ATTETNION BAD LOGGING DE " + value);
+			Utils_Debug.log("Level " + value + " was not preloaded, loading it now") ;
 			level = preLoadLevel(value) ;
 		}
 		
@@ -143,11 +146,12 @@ public class GVars_Game
     	}
     	catch (Exception e)
     	{
-    		e.printStackTrace();
+    		// This used to print the stack trace and return null, and the caller then walked
+    		// straight into a NullPointerException inside Clef - which says nothing about the
+    		// actual problem. If a level will not load the game cannot continue, so say why.
+    		throw new GdxRuntimeException(
+    			"Could not load level " + value + " from game/wagon/wa" + value + ".wa", e) ;
     	}
-	
-		return null ; 
-
     }
 	
 	public static void checkForSelection()
@@ -157,7 +161,7 @@ public class GVars_Game
 
 	public static void addKey(int keyNumb) 
 	{
-		System.out.println("applying succes " + keyNumb);
+		Utils_Debug.log("applying succes " + keyNumb);
 		clef.applySucces(keyNumb);
 	}
 
@@ -201,11 +205,11 @@ public class GVars_Game
 
 	public static void tryMakeDiseaper(String text) 
 	{
-		System.out.println(dialogBubble.getText());
+		Utils_Debug.log(dialogBubble.getText());
 		if(dialogBubble.getText().equals(text))
 		{
 			dialogBubble.makeDisappear() ; 
-			System.out.println("am out of the same");
+			Utils_Debug.log("am out of the same");
 		}
 		
 	}	

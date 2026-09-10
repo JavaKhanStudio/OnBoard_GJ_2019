@@ -1,5 +1,7 @@
 package jks.vue;
 
+import jks.tools.Utils_Debug;
+
 import jks.vars.GVars_Heart;
 import jks.vinterface.GVars_UI;
 import jks.vinterface.overlay.OverlayModel;
@@ -26,7 +28,7 @@ public class Utils_View
 			GVars_Heart.vue.overlay = null ; 
 		}
 		else if(GVars_Heart.debug)
-			System.out.println("no Overlay to remove in removeCurrentOverlay of Utils_View");
+			Utils_Debug.log("no Overlay to remove in removeCurrentOverlay of Utils_View");
 		
 		GVars_UI.resetInterface() ;
 	}

@@ -1,5 +1,7 @@
 package jks.vars;
 
+import jks.tools.Utils_Debug;
+
 import java.util.Random;
 
 import com.badlogic.gdx.assets.AssetManager;
@@ -67,7 +69,7 @@ public class GVars_Heart
 			vue = View;
 			vue.init();
 		} else {
-			System.out.println("Aucune view?");
+			Utils_Debug.warn("Aucune view?");
 		}
 	}
 

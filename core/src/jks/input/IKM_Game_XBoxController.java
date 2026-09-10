@@ -1,5 +1,7 @@
 package jks.input;
 
+import jks.tools.Utils_Debug;
+
 import static jks.input.GVars_Controller.getPlayer;
 
 import com.badlogic.gdx.controllers.Controller;
@@ -23,14 +25,14 @@ public class IKM_Game_XBoxController implements ControllerListener
 	public void connected(Controller controller)
 	{
 		if(GVars_Debug.coreInformationDebug)
-			System.out.println("Controller connected: " + controller.getName());
+			Utils_Debug.log("Controller connected: " + controller.getName());
 	}
 
 	@Override
 	public void disconnected(Controller controller)
 	{
 		if(GVars_Debug.coreInformationDebug)
-			System.out.println("Controller disconnected: " + controller.getName());
+			Utils_Debug.log("Controller disconnected: " + controller.getName());
 	}
 
 	@Override

@@ -1,5 +1,7 @@
 package jks.vinterface.controlling;
 
+import jks.tools.Utils_Debug;
+
 import static jks.input.IKM_Game_Keyboard.pressingDown;
 import static jks.input.IKM_Game_Keyboard.pressingLeft;
 import static jks.input.IKM_Game_Keyboard.pressingRight;
@@ -19,7 +21,7 @@ public class Utils_Controllable
 	
 	public static void decodeInterfaceKeybord(int keycode)
 	{
-		System.out.println("key " + keycode);
+		Utils_Debug.log("key " + keycode);
 		
 		if(pressingTop(keycode))
 			moveY(true) ; 

@@ -28,7 +28,7 @@ public class GlobalTimmer
 		
 		long finishTime = System.currentTimeMillis();
 		long took = (finishTime-timeHolder.get(key)) ; 
-		System.out.println(key + " at state " + state + " took: " + took+ " ms");
+		Utils_Debug.log(key + " at state " + state + " took: " + took+ " ms");
 		
 		if(reset)
 			timeHolder.put(key, finishTime) ;
@@ -49,7 +49,7 @@ public class GlobalTimmer
 		}
 		catch(Exception e)
 		{
-			System.out.println("Impossible to find " + key);
+			Utils_Debug.log("Impossible to find " + key);
 		}
 		
 		
