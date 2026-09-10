@@ -1,6 +1,6 @@
 # On Board
 
-A narrative point-and-click made in 2019 by **PIX MEN**. Ross travels through four
+A narrative point-and-click made in 2019 by **PIX MEN** for the **Jamming Assembly** jam. Ross travels through four
 carriages of a train, one for each stage of his life — child, teenager, soldier, married —
 solving a small puzzle in each. What you do along the way decides which of the two endings
 you get.
@@ -113,9 +113,6 @@ Cosmetic; no vis-ui release targets 1.14.2 yet.
 
 Left as the team left it, in case anyone wants to pick it up:
 
-- **The Credits screen.** There's a Credits button on the start menu and it does nothing.
-  For a project being handed back to the people who made it, this is the obvious first thing
-  to fill in — **nobody's name is anywhere in this repository.**
 - **Sound effects.** `Enum_Sounds_Game` names jump, run and idle, the loader for them is
   commented out, and there are no files — they were never recorded. Music does work
   (`musics/intro.mp3`, looping, volume-controlled); it is the effects that are missing.
@@ -126,6 +123,20 @@ Left as the team left it, in case anyone wants to pick it up:
   button art instead.
 - **A Load Game button image** with no save system behind it.
 - `JksTextureList`, 386 lines of texture-picker widget, referenced by nothing.
+
+## Credits
+
+| | |
+|---|---|
+| Programmation | Simon Bédard |
+| Art visuel | Carole Virginie, Claire Montagut, Clement Diolot |
+
+Edit `core/src/jks/index/Index_Credits.java` — that file is the whole of the credits
+content, and the screen follows it. Roles are plain strings so they can be reworded.
+
+The smoke in the intro (`ui/story/intro/smoke.jpg`) is a stock image and carries
+`dc:creator: AnnaFomina` in its own metadata. It is credited on the screen, and the licence
+is worth confirming before the game is distributed widely.
 
 ## Elsewhere
 

@@ -22,6 +22,7 @@ import com.badlogic.gdx.utils.Align;
 import jks.vars.GVars_Heart;
 import jks.vinterface.controlling.Controllable_Interface;
 import jks.vinterface.font.GVars_Font;
+import jks.vinterface.overlay.OverlayCredits;
 import jks.vinterface.overlay.OverlayOptions;
 import jks.vinterface.overlay.ReplayAction;
 import jks.vue.Utils_View;
@@ -134,7 +135,10 @@ public class StartScreen_SmoothSideSelect extends Table implements ReplayAction,
 			public void touchUp(InputEvent event, float x, float y, int pointer, int button)
 			{
 				if(onFocus)
-				{Utils_Debug.log("Must be implement " + button + " " + pointer) ;}
+				{
+					exitScene();
+					Utils_View.setOverlay(new OverlayCredits(ref));
+				}
 			}
 			
 			public void exit (InputEvent event, float x, float y, int pointer, Actor toActor) 

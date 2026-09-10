@@ -37,6 +37,10 @@ public class Index_Interface
 		
 	public static String empty = icon + "grayEmpty.png" ; 
 	public static String frame_Gray = frame + "grayFrame.png" ; 
+	
+	// The overlays were all using the Settings button art to mean "go back". This is the
+	// return arrow the project already had and never loaded.
+	public static String button_Return = pausePath + "boutonRetour.png" ; 
 	public static String frame_GraySmoke = frame + "borderSmokeGray.png" ; 
 	
 	public static String introLogo_Jam = preload + "logo_jam.png" ; 
@@ -151,6 +155,7 @@ public class Index_Interface
 		manager.load(empty, Texture.class);
 		manager.load(frame_Gray, Texture.class);
 		manager.load(frame_GraySmoke, Texture.class);
+		manager.load(button_Return, Texture.class);
 	}
 
 	public static void loadEnter()
