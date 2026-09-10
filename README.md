@@ -45,14 +45,31 @@ machine required. `packageLinuxX64` does the same for Linux.
 ## Tests
 
 ```bash
-./gradlew build                     # 39 fast tests, no display needed
-./gradlew :verify:test -PwithGl     # + 10 that boot the real game on a GL context
+./gradlew build                                        # 39 fast tests, no display needed
+tools/offscreen.sh ./gradlew :verify:test -PwithGl     # + 10 that boot the real game
 ```
 
-The GL tests render the game and compare against golden frames recorded on the original
-1.9.10 build, which is how the engine upgrade was kept honest. To re-record after an
+The GL tests each open a real window to get a GPU surface. `tools/offscreen.sh` runs them
+inside [`cage`](https://www.hjdskes.nl/projects/cage/), a headless wlroots compositor, so
+they get their own invisible display instead of five windows opening on top of whatever you
+were doing. GPU rendering is preserved. Drop the wrapper — or set `ONBOARD_NO_OFFSCREEN=1` —
+when you want to watch. It also works for the game itself:
+`tools/offscreen.sh ./gradlew :desktop:runGame`.
+
+Two consequences worth knowing. The GL tests run at **1280x720**, because that is the size
+of cage's headless output and neither cage nor wlroots lets you change it. And they capture
+frames on **the game's own clock** rather than at a frame index: anything driven by a timer —
+a fade, the typing effect, the parallax scroll — sits somewhere different at frame N
+depending on how fast the machine drew those N frames, which made the goldens flap between
+an idle run and a busy one.
+
+The GL tests render the game and compare against golden frames. To re-record after an
 intentional visual change: `-PwithGl -PrecordGolden`, and look at the images before you
 commit them.
+
+`verify/src/test/resources/golden/reference-1.9.10/` holds the frame the game drew on
+libGDX 1.9.10, before any migration work. Nothing compares against it now; it is the
+evidence that 1.14.2 renders level 1 the same way it always did.
 
 ## Layout
 

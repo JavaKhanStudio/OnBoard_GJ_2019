@@ -30,8 +30,12 @@ import jks.amain.Main_Application;
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class GameRunTest
 {
-	private static final int CAPTURE_FRAME = 150;
-	private static final int EXIT_FRAME    = 170;
+	// On the game's clock, not a frame index. Frame 150 was 2.5s at the 60fps this was
+	// first recorded at; on a faster or slower surface - a headless compositor, say - the
+	// same frame number lands somewhere else entirely in the parallax scroll.
+	private static final double CAPTURE_AFTER_SECONDS = 2.5;
+	private static final double EXIT_AFTER_SECONDS    = 2.9;
+	private static final int    EXIT_FRAME            = 100_000;
 
 	/** Loose on purpose - see Frames. This catches "the scene broke", not "a pixel moved". */
 	private static final double MAX_DIFFERENCE = 0.12;
@@ -47,7 +51,7 @@ class GameRunTest
 	void runTheGame()
 	{
 		Lwjgl3ApplicationConfiguration config = new Lwjgl3ApplicationConfiguration();
-		config.setWindowedMode(1600, 900);
+		config.setWindowedMode(1280, 720);   // cage's headless output size; fits any real display too
 		config.setTitle("On Board - verification run");
 		config.setResizable(false);
 
@@ -56,7 +60,9 @@ class GameRunTest
 		// the same thing.
 		Main_Application.startPoint = Main_Application.StartPoint.GAME;
 
-		harness = new GameHarness(new Main_Application(), CAPTURE_FRAME, EXIT_FRAME);
+		harness = new GameHarness(new Main_Application(), Integer.MAX_VALUE, EXIT_FRAME);
+		harness.captureAfterSeconds = CAPTURE_AFTER_SECONDS;
+		harness.exitAfterSeconds = EXIT_AFTER_SECONDS;
 		new Lwjgl3Application(harness, config);
 	}
 
@@ -69,8 +75,8 @@ class GameRunTest
 
 		assertNull(harness.error, harness.error == null ? null
 			: "the game threw during startup or rendering: " + harness.error);
-		assertTrue(harness.framesRendered >= CAPTURE_FRAME,
-			"only rendered " + harness.framesRendered + " frames, expected at least " + CAPTURE_FRAME);
+		assertTrue(harness.gameSeconds >= CAPTURE_AFTER_SECONDS,
+			"only simulated " + harness.gameSeconds + "s, expected at least " + CAPTURE_AFTER_SECONDS);
 	}
 
 	@Test

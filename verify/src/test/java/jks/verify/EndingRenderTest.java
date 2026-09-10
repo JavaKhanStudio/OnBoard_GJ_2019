@@ -27,8 +27,12 @@ import jks.amain.Main_Application;
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class EndingRenderTest
 {
-	private static final int CAPTURE_FRAME = 400;
-	private static final int EXIT_FRAME    = 420;
+	// The ending fades up from black, so capture on the game's clock rather than a frame
+	// index: at a fixed frame the fade sits wherever the machine's frame rate left it, and
+	// the golden then swings by 40% between an idle run and a busy one.
+	private static final double CAPTURE_AFTER_SECONDS = 4.0;
+	private static final double EXIT_AFTER_SECONDS    = 4.5;
+	private static final int    EXIT_FRAME            = 100_000;
 
 	private static final double MAX_DIFFERENCE = 0.12;
 
@@ -44,11 +48,13 @@ class EndingRenderTest
 		Main_Application.startPoint = Main_Application.StartPoint.OUTRO;
 
 		Lwjgl3ApplicationConfiguration config = new Lwjgl3ApplicationConfiguration();
-		config.setWindowedMode(1600, 900);
+		config.setWindowedMode(1280, 720);   // cage's headless output size; fits any real display too
 		config.setTitle("On Board - ending verification");
 		config.setResizable(false);
 
-		harness = new GameHarness(new Main_Application(), CAPTURE_FRAME, EXIT_FRAME);
+		harness = new GameHarness(new Main_Application(), Integer.MAX_VALUE, EXIT_FRAME);
+		harness.captureAfterSeconds = CAPTURE_AFTER_SECONDS;
+		harness.exitAfterSeconds = EXIT_AFTER_SECONDS;
 		new Lwjgl3Application(harness, config);
 	}
 

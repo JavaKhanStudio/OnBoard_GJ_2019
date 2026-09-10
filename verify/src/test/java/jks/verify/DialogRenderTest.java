@@ -39,9 +39,12 @@ class DialogRenderTest
 	private static final String SAMPLE =
 		DialogBubble.textStartUp + "Voila qui devrait remplir son {WAVE}estomac{ENDWAVE} !";
 
-	private static final int SHOW_FRAME    = 30;
-	private static final int CAPTURE_FRAME = 200;
-	private static final int EXIT_FRAME    = 215;
+	// Timings on the game's clock rather than frame indices - the typing effect advances
+	// on delta, so a frame number means different things at different frame rates.
+	private static final double SHOW_AFTER_SECONDS    = 0.5;
+	private static final double CAPTURE_AFTER_SECONDS = 3.3;
+	private static final double EXIT_AFTER_SECONDS    = 3.7;
+	private static final int    EXIT_FRAME            = 100_000;
 
 	private static final double MAX_DIFFERENCE = 0.12;
 
@@ -51,21 +54,25 @@ class DialogRenderTest
 
 	private static GameHarness harness;
 	private static volatile Throwable bubbleError;
+	private static volatile boolean shown;
 
 	@BeforeAll
 	void runTheGame()
 	{
 		Lwjgl3ApplicationConfiguration config = new Lwjgl3ApplicationConfiguration();
-		config.setWindowedMode(1600, 900);
+		config.setWindowedMode(1280, 720);   // cage's headless output size; fits any real display too
 		config.setTitle("On Board - dialogue verification");
 		config.setResizable(false);
 
 		Main_Application.startPoint = Main_Application.StartPoint.GAME;
 
-		harness = new GameHarness(new Main_Application(), CAPTURE_FRAME, EXIT_FRAME);
+		harness = new GameHarness(new Main_Application(), Integer.MAX_VALUE, EXIT_FRAME);
+		harness.captureAfterSeconds = CAPTURE_AFTER_SECONDS;
+		harness.exitAfterSeconds = EXIT_AFTER_SECONDS;
 		harness.frameHook = frame ->
 		{
-			if (frame != SHOW_FRAME) return;
+			if (shown || harness.gameSeconds < SHOW_AFTER_SECONDS) return;
+			shown = true;
 			try
 			{
 				DialogBubble bubble = new DialogBubble(SAMPLE, DialogSize.BUBBLE_LARGE_TEXT_LARGE, true);

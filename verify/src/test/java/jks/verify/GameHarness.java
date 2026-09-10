@@ -20,6 +20,18 @@ public class GameHarness implements ApplicationListener
 
 	private int frame;
 
+	/** The game's own clock: seconds of simulated time, not frames or wall time. */
+	public volatile double gameSeconds;
+
+	/**
+	 * When set, capture once this much of the game's own clock has passed rather than at a
+	 * frame index. Anything driven by a timer - a fade, a typing effect - is at a different
+	 * point at frame N depending on how fast the machine drew those N frames, which makes a
+	 * frame-indexed golden of a fade flap between runs.
+	 */
+	public double captureAfterSeconds = -1;
+	public double exitAfterSeconds = -1;
+
 	/** Whatever the game threw, on whichever lifecycle method. Null means a clean run. */
 	public volatile Throwable error;
 	/** The captured frame, already flipped the right way up. */
@@ -60,10 +72,23 @@ public class GameHarness implements ApplicationListener
 			frame++;
 			framesRendered = frame;
 
+			// The same clamp Main_Application applies, so this clock matches the one the
+			// game's own animations advance on.
+			gameSeconds += Math.min(Gdx.graphics.getDeltaTime(), 1 / 30f);
+
 			if (frameHook != null) frameHook.accept(frame);
 
-			if (frame == captureFrame) capture = grab();
-			if (frame >= exitFrame) Gdx.app.exit();
+			if (captureAfterSeconds > 0)
+			{
+				if (capture == null && gameSeconds >= captureAfterSeconds) capture = grab();
+			}
+			else if (frame == captureFrame) capture = grab();
+
+			boolean done = exitAfterSeconds > 0
+				? gameSeconds >= exitAfterSeconds
+				: frame >= exitFrame;
+			if (done && capture != null) Gdx.app.exit();
+			else if (frame >= exitFrame) Gdx.app.exit();
 		}
 		catch (Throwable t)
 		{

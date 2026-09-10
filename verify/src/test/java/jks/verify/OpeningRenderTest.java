@@ -65,7 +65,7 @@ class OpeningRenderTest
 		Main_Application.startPoint = Main_Application.StartPoint.LOGO;
 
 		Lwjgl3ApplicationConfiguration config = new Lwjgl3ApplicationConfiguration();
-		config.setWindowedMode(1600, 900);
+		config.setWindowedMode(1280, 720);   // cage's headless output size; fits any real display too
 		config.setTitle("On Board - opening verification");
 		config.setResizable(false);
 		// Unlike the frame-indexed tests, this one waits on a wall clock. With vsync on, a
