@@ -7,6 +7,7 @@ import com.badlogic.gdx.graphics.GL20;
 
 import java.util.Locale;
 
+import jks.sounds.GVars_AudioManager;
 import jks.tools.Utils_Debug;
 
 import jks.camera.GVars_Camera;
@@ -160,6 +161,8 @@ public class Main_Application extends ApplicationAdapter
     @Override
 	public void dispose() 
 	{
-    
+		// Music holds a decoder and an OpenAL source. Nothing released them, which was
+		// invisible while the game only ever exited by having its process killed.
+		GVars_AudioManager.StopAndDisposeMusic() ;
     }
 }

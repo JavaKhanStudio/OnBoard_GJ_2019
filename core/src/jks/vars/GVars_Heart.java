@@ -59,7 +59,10 @@ public class GVars_Heart
 	{
 		if(cleanAll) 
 		{
-			GVars_AudioManager.StopAndDisposeMusic();
+			// The music is deliberately NOT stopped here. Every view asks for its track in
+			// init(), so tearing the music down on each change restarted the same recording
+			// from zero at every screen. PlayMusic now decides whether a change is needed,
+			// which lets one track carry across the logos, the intro and the menu.
 			GVars_Heart.isPaused = false ; 
 			GVars_UI.reset() ; 
 		}
