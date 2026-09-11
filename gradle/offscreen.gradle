@@ -14,9 +14,10 @@
 //                                   (ATELIER_AGENT set); on the screen for anyone else,
 //                                   including the board's own "Play it" buttons
 //
-// ONBOARD_NO_OFFSCREEN=1 puts the windows back when you want to watch; ONBOARD_OFFSCREEN=1
-// sends an 'unattended' task offscreen for you too. Without cage (Windows, macOS, a Linux
-// machine that lacks it) everything opens on the screen as it always did.
+// ONBOARD_NO_OFFSCREEN=1 puts the windows back when you want to watch, and the sound with
+// them; ONBOARD_OFFSCREEN=1 sends an 'unattended' task offscreen for you too. Without cage
+// (Windows, macOS, a Linux machine that lacks it) everything opens on the screen as it
+// always did - but the sound still goes to a file, see captureAudio below.
 
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.TimeUnit
@@ -87,14 +88,42 @@ abstract class OffscreenDisplay implements BuildService<BuildServiceParameters.N
 
 def offscreenDisplay = gradle.sharedServices.registerIfAbsent('onboardOffscreenDisplay', OffscreenDisplay) {}
 
+// Nobody is listening either. The music played out of Simon's speakers on every test that
+// unmuted it, and on every run of the game an agent made to check its work.
+//
+// LWJGL ships OpenAL Soft, which takes its output from the environment: ALSOFT_DRIVERS=wave
+// is a real playback device, running in real time, that writes a WAV file instead of
+// reaching the sound card. The task hears nothing different - music plays, isPlaying()
+// answers as it would - and what it played is left in build/audio/<task>.wav, where a test
+// can check that sound came out (MusicTest does) and an agent can hand it back. The path
+// is in ONBOARD_AUDIO_CAPTURE. It works on every OS, cage or not.
+//
+// A file per task, overwritten each run: about 10 MB a minute of play.
+def captureAudio = { Task task, File dir ->
+	dir.mkdirs()
+	File wav = new File(dir, "${task.name}.wav")
+	File conf = new File(dir, "${task.name}.alsoft.conf")
+	// 16-bit stereo, so the file is simple to read back; the backend's default is float.
+	conf.text = "# Written by gradle/offscreen.gradle for ${task.path}.\n" +
+		"[general]\nsample-type = int16\nchannels = stereo\nfrequency = 44100\n\n" +
+		"[wave]\nfile = ${wav.absolutePath}\n"
+	task.environment(ALSOFT_DRIVERS: 'wave', ALSOFT_CONF: conf.absolutePath,
+		ONBOARD_AUDIO_CAPTURE: wav.absolutePath)
+	task.logger.lifecycle("offscreen: ${task.path} plays its sound into ${wav} rather than your speakers")
+}
+
 ext.offscreen = { Task task, String when ->
 	task.usesService(offscreenDisplay)
+	File audioDir = task.project.layout.buildDirectory.dir('audio').get().asFile
 	task.doFirst {
 		def env = System.getenv()
-		if (env.ONBOARD_NO_OFFSCREEN == '1') return
+		if (env.ONBOARD_NO_OFFSCREEN == '1') return   // watching, and listening
+		if (when == 'unattended' && !env.ATELIER_AGENT && env.ONBOARD_OFFSCREEN != '1') return
+
+		captureAudio(task, audioDir)
+
 		if (env.ONBOARD_INSIDE_CAGE == '1') return   // tools/offscreen.sh already put us in one
 		if (!System.getProperty('os.name').toLowerCase().contains('linux')) return
-		if (when == 'unattended' && !env.ATELIER_AGENT && env.ONBOARD_OFFSCREEN != '1') return
 
 		Map<String, String> display = offscreenDisplay.get().display()
 		if (display == null)

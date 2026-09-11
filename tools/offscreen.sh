@@ -6,6 +6,9 @@
 # them inside `cage` (a headless wlroots compositor) gives them their own invisible
 # display — GPU rendering is preserved, you just never see the windows.
 #
+# The sound goes nowhere too (ALSOFT_DRIVERS=null), so the game's music stays off your
+# speakers.
+#
 # Falls back to running normally if cage is missing, or if you set ONBOARD_NO_OFFSCREEN=1
 # because you actually want to watch.
 #
@@ -29,7 +32,9 @@ if [[ "${ONBOARD_NO_OFFSCREEN:-0}" != "1" ]] && command -v cage >/dev/null 2>&1;
 	# WLR_BACKENDS=headless: no DRM lease, no physical output, nothing on screen.
 	# cage brings up its own XWayland, which is what LWJGL's GLFW connects to.
 	# ONBOARD_INSIDE_CAGE tells gradle/offscreen.gradle not to start a second one inside.
-	exec env WLR_BACKENDS=headless ONBOARD_INSIDE_CAGE=1 cage -- "$@"
+	# ALSOFT_DRIVERS=null: nobody is listening either. OpenAL Soft, which LWJGL ships, plays
+	# into a device that discards it; a Gradle task inside still writes its own WAV.
+	exec env WLR_BACKENDS=headless ONBOARD_INSIDE_CAGE=1 ALSOFT_DRIVERS=null cage -- "$@"
 fi
 
 if [[ "${ONBOARD_NO_OFFSCREEN:-0}" != "1" ]]; then

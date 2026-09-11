@@ -7,8 +7,11 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.io.File;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.BeforeAll;
@@ -33,6 +36,10 @@ import jks.sounds.GVars_AudioManager;
  * If the machine has no working output the assertions are skipped rather than failed -
  * a build agent without a sound card should not fail the build - but the playback state
  * machine below is checked regardless of whether anything is audible.
+ *
+ * The device is OpenAL Soft's WAV writer, not the speakers (gradle/offscreen.gradle), so
+ * the last test reads back what actually came out: the music, a silence where it was
+ * muted, then the music again.
  */
 @Tag("gl")
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -53,9 +60,17 @@ class MusicTest
 	private static Boolean playingAfterMute;
 	private static Boolean playingAfterUnmute;
 
+	/** What came out of the audio device; null when it went to the speakers instead. */
+	private static AudioCapture capture;
+	private static Throwable captureError;
+
 	@BeforeAll
-	void runTheGame()
+	void runTheGame() throws Exception
 	{
+		// Whatever the last test class played is in there too. Only this run's sound counts.
+		File captured = AudioCapture.configuredFile();
+		if (captured != null) Files.deleteIfExists(captured.toPath());
+
 		GVars_Audio.muted = false;
 		GVars_Audio.masterVolume = 1f;
 		GVars_Audio.musiqueVolume = 1f;
@@ -111,6 +126,35 @@ class MusicTest
 
 		new Lwjgl3Application(harness, config);
 		observations.forEach(System.out::println);
+
+		// The application has closed its audio device by now, so the file is complete.
+		if (captured != null && captured.isFile())
+		{
+			try
+			{
+				capture = AudioCapture.read(captured);
+				System.out.println("captured " + String.format("%.1f", capture.seconds()) + "s: " + profile(capture));
+			}
+			catch (Throwable t)
+			{
+				captureError = t;
+			}
+		}
+	}
+
+	// Loudness bands for the capture. intro.mp3 never drops below about -56 dB in its first
+	// seconds; a muted device writes digital silence.
+	private static final double WINDOW_SECONDS = 0.05;
+	private static final double LOUD = 1e-3;     // -60 dB
+	private static final double SILENT = 1e-4;   // -80 dB
+
+	/** One character per 50 ms: '#' music, '.' silence, '-' in between. */
+	private static String profile(AudioCapture capture)
+	{
+		StringBuilder out = new StringBuilder();
+		for (double level : capture.rms(WINDOW_SECONDS))
+			out.append(level >= LOUD ? '#' : level < SILENT ? '.' : '-');
+		return out.toString();
 	}
 
 	/** The Music instance itself, so the test can tell "still playing" from "restarted". */
@@ -189,5 +233,24 @@ class MusicTest
 		assertNull(GVars_AudioManager.currentMusic(),
 			"muted, so nothing should be reported as playing");
 		GVars_Audio.muted = false;
+	}
+
+	@Test
+	@DisplayName("the music comes out of the audio device, and muting silences it there")
+	void theOutputIsHeard()
+	{
+		File file = AudioCapture.configuredFile();
+		Assumptions.assumeTrue(file != null,
+			"the sound went to the speakers (ONBOARD_NO_OFFSCREEN=1), so there is nothing to read back");
+		Assumptions.assumeTrue(audioAvailable, "no audio device on this machine");
+		assertNull(captureError, captureError == null ? null : "could not read the capture: " + captureError);
+		assertNotNull(capture, "nothing was written to " + file + ": OpenAL Soft did not open its WAV device");
+
+		String profile = profile(capture);
+		assertTrue(profile.contains("#"), "the audio device never received any music: " + profile);
+		// Music, at least 200 ms of silence while muted (it is muted for 400), then music.
+		assertTrue(Pattern.compile("#.*\\.{4,}.*#").matcher(profile).find(),
+			"muting did not silence the output, or unmuting did not bring it back.\n"
+			+ "Each character is 50 ms, '#' music, '.' silence: " + profile);
 	}
 }

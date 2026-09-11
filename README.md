@@ -98,6 +98,15 @@ sends them offscreen anyway. The mechanism is in `gradle/offscreen.gradle`. Anyt
 opens a window without going through Gradle, such as a packaged build or a fat jar, still
 needs the wrapper: `tools/offscreen.sh <command>`.
 
+The sound goes with the windows. Whenever a task goes offscreen, the game's audio plays into
+a WAV file instead of your speakers: `verify/build/audio/test.wav` for the GL tests,
+`desktop/build/audio/runGame.wav` for an agent's run. That uses OpenAL Soft's WAV writer,
+which LWJGL ships, so it works with or without cage and on every OS. MusicTest reads its
+file back to check the music really came out, and that muting silenced it. The files are
+overwritten on each run, at about 10 MB a minute of play. `ONBOARD_NO_OFFSCREEN=1` brings the
+speakers back along with the windows. `tools/offscreen.sh` discards the sound
+(`ALSOFT_DRIVERS=null`).
+
 Two consequences worth knowing. The GL tests run at **1280x720**, because that is the size
 of cage's headless output and neither cage nor wlroots lets you change it. And they capture
 frames on **the game's own clock** rather than at a frame index: anything driven by a timer —
