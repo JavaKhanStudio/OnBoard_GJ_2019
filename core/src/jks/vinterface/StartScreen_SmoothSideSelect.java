@@ -17,6 +17,7 @@ import com.badlogic.gdx.scenes.scene2d.actions.SequenceAction;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.Align;
 
 import jks.vars.GVars_Heart;
@@ -39,8 +40,8 @@ public class StartScreen_SmoothSideSelect extends Table implements ReplayAction,
 	float topPosY ;
 	
 	ArrayList<Table> buttonContainerList ;
-	ArrayList<Button> selectableOptionsX ;
-	ArrayList<ArrayList<Button>> selectableOptionsMapped ;
+	ArrayList<Actor> selectableOptionsX ;
+	ArrayList<ArrayList<Actor>> selectableOptionsMapped ;
 	int index = 0; 
 	Integer movingBy = 0; 
 	
@@ -65,117 +66,55 @@ public class StartScreen_SmoothSideSelect extends Table implements ReplayAction,
 		
 		Button jouer = buildButton("Jouer") ;
 		selectableOptionsX.add(jouer) ; 
-		jouer.addListener(new InputListener()
+		jouer.addListener(new ChangeListener()
 		{
-			boolean onFocus ; 
-			
 			@Override
-			public boolean touchDown(InputEvent event, float x, float y, int pointer, int button)
-			{return true ;}
-			
-			@Override
-			public void touchUp(InputEvent event, float x, float y, int pointer, int button)
+			public void changed(ChangeEvent event, Actor actor)
 			{
-				if(onFocus)
-				{
-					// Was building two Vue_Game instances and discarding the first.
-					Vue_Game myGame = new Vue_Game() ; 
-					GVars_Heart.changeVue(myGame,true) ; 
-					GVars_Game.loadLevel(1);
-				}
+				// Was building two Vue_Game instances and discarding the first.
+				Vue_Game myGame = new Vue_Game() ; 
+				GVars_Heart.changeVue(myGame,true) ; 
+				GVars_Game.loadLevel(1);
 			}
-			
-			public void exit (InputEvent event, float x, float y, int pointer, Actor toActor) 
-			{onFocus = false ;}
-			
-			public void enter (InputEvent event, float x, float y, int pointer, Actor fromActor)
-			{onFocus = true ;}
-			
 		}) ;
 		
 		Button options = buildButton("Options") ;
 		selectableOptionsX.add(options) ; 
-		options.addListener(new InputListener()
+		options.addListener(new ChangeListener()
 		{
-			boolean onFocus ; 
-			
 			@Override
-			public boolean touchDown(InputEvent event, float x, float y, int pointer, int button)
-			{return true ;}
-			
-			@Override
-			public void touchUp(InputEvent event, float x, float y, int pointer, int button)
+			public void changed(ChangeEvent event, Actor actor)
 			{
-				if(onFocus)
-				{
-					exitScene();
-					Utils_View.setOverlay(new OverlayOptions(ref));
-				}
+				exitScene();
+				Utils_View.setOverlay(new OverlayOptions(ref));
 			}
-			
-			public void exit (InputEvent event, float x, float y, int pointer, Actor toActor) 
-			{onFocus = false ;}
-			
-			public void enter (InputEvent event, float x, float y, int pointer, Actor fromActor)
-			{onFocus = true ;}
-			
 		}) ;
 		
 		Button credits = buildButton("Credits") ;
 		selectableOptionsX.add(credits) ; 
-		credits.addListener(new InputListener()
+		credits.addListener(new ChangeListener()
 		{
-			boolean onFocus ; 
-			
 			@Override
-			public boolean touchDown(InputEvent event, float x, float y, int pointer, int button)
-			{return true ;}
-			
-			@Override
-			public void touchUp(InputEvent event, float x, float y, int pointer, int button)
+			public void changed(ChangeEvent event, Actor actor)
 			{
-				if(onFocus)
-				{
-					exitScene();
-					Utils_View.setOverlay(new OverlayCredits(ref));
-				}
+				exitScene();
+				Utils_View.setOverlay(new OverlayCredits(ref));
 			}
-			
-			public void exit (InputEvent event, float x, float y, int pointer, Actor toActor) 
-			{onFocus = false ;}
-			
-			public void enter (InputEvent event, float x, float y, int pointer, Actor fromActor)
-			{onFocus = true ;}
-			
 		}) ;
 		
 		Button quitter = buildButton("Quit") ;
 		selectableOptionsX.add(quitter) ; 
-		quitter.addListener(new InputListener()
+		quitter.addListener(new ChangeListener()
 		{
-			boolean onFocus ; 
-			
 			@Override
-			public boolean touchDown(InputEvent event, float x, float y, int pointer, int button)
-			{return true ;}
-			
-			@Override
-			public void touchUp(InputEvent event, float x, float y, int pointer, int button)
+			public void changed(ChangeEvent event, Actor actor)
 			{
 				// Not System.exit: that skips libGDX's shutdown, so the OpenAL device is still
 				// open when the process tears down, and on Windows OpenAL then aborts
 				// (c0000409) - a crash on every Quit. This ends the frame, runs dispose()
 				// and closes audio properly, exactly like the window's close button.
-				if(onFocus)
-					Gdx.app.exit();
+				Gdx.app.exit();
 			}
-			
-			public void exit (InputEvent event, float x, float y, int pointer, Actor toActor) 
-			{onFocus = false ;}
-			
-			public void enter (InputEvent event, float x, float y, int pointer, Actor fromActor)
-			{onFocus = true ;}
-			
 		}) ;
 		
 	}
@@ -338,9 +277,16 @@ public class StartScreen_SmoothSideSelect extends Table implements ReplayAction,
 	}
 
 	@Override
-	public ArrayList<ArrayList<Button>> mapInterface() 
+	public ArrayList<ArrayList<Actor>> mapInterface() 
 	{
 		return selectableOptionsMapped;
+	}
+	
+	/** The entries slide out and light up on hover, and the keyboard focus uses that. */
+	@Override
+	public boolean highlightsItself()
+	{
+		return true ;
 	}
 }
 

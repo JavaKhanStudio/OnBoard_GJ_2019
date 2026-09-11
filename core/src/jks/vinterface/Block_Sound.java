@@ -1,5 +1,7 @@
 package jks.vinterface;
 
+import java.util.ArrayList;
+
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.Align;
@@ -74,6 +76,15 @@ public class Block_Sound extends VisTable
 
 		Utils_Config.current.volume = chosen ;
 		Utils_Config.save() ;
+	}
+
+	/** The order the keyboard walks this block in, top to bottom. */
+	public ArrayList<Actor> focusOrder()
+	{
+		ArrayList<Actor> order = new ArrayList<>() ;
+		order.add(muted) ;
+		order.add(volume) ;
+		return order ;
 	}
 
 	/** The volume this block currently represents, for tests and for the caller. */

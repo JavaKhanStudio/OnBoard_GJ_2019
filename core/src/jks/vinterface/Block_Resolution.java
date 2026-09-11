@@ -9,8 +9,6 @@ import com.badlogic.gdx.Graphics.Monitor;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Graphics;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Window;
 import com.badlogic.gdx.scenes.scene2d.Actor;
-import com.badlogic.gdx.scenes.scene2d.InputEvent;
-import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.ui.Cell;
 import com.badlogic.gdx.scenes.scene2d.ui.SelectBox;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
@@ -35,6 +33,7 @@ public class Block_Resolution extends VisTable
 	VisCheckBox mipmapsCheckBox ; 
 	SelectBox<String> selectBox_Resolution ; 
 	SelectBox<String> selectBox_FPS ;
+	TextButton apply ; 
 	
 	HashMap<String,DisplayMode> displayMap ;
 	ArrayList<String> displayList ;
@@ -58,18 +57,15 @@ public class Block_Resolution extends VisTable
 		
 		fullScreenCheckBox = new VisCheckBox("Full screen") ; 
 		fullScreenCheckBox.getLabel().setStyle(GVars_Font.labelStyle_Second);
-		fullScreenCheckBox.addListener(new InputListener()
+		// ChangeListeners, not touchUp: a keyboard press has to reach them too, and touchUp
+		// also fired when the press started on the button and ended somewhere else.
+		fullScreenCheckBox.addListener(new ChangeListener()
 		{		
 			@Override
-			public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) 
-			{return true ;}
-			
-			@Override
-			public void touchUp(InputEvent event, float x, float y, int pointer, int button)
+			public void changed(ChangeEvent event, Actor actor)
 			{
 				setMaxResolution(fullScreenCheckBox.isChecked()) ;
 			}
-
 		}) ; 
 		
 		// Applied and saved the moment it is ticked, like the sound block, rather than waiting
@@ -90,16 +86,12 @@ public class Block_Resolution extends VisTable
 			}
 		}) ; 
 		
-		TextButton apply = new TextButton("Apply",GVars_UI.baseSkin) ;
+		apply = new TextButton("Apply",GVars_UI.baseSkin) ;
 		apply.getLabel().setStyle(GVars_Font.labelStyle_OptionsTitle);
-		apply.addListener(new InputListener()
+		apply.addListener(new ChangeListener()
 		{		
 			@Override
-			public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) 
-			{return true ;}
-			
-			@Override
-			public void touchUp(InputEvent event, float x, float y, int pointer, int button)
+			public void changed(ChangeEvent event, Actor actor)
 			{applyNewResolution() ;}
 		}) ; 
 		
@@ -133,6 +125,19 @@ public class Block_Resolution extends VisTable
 		this.row() ;
 		
 		this.add(apply).colspan(4).align(Align.center) ; 
+	}
+	
+	/** The order the keyboard walks this block in, top to bottom. */
+	public ArrayList<Actor> focusOrder()
+	{
+		ArrayList<Actor> order = new ArrayList<>() ;
+		order.add(selectBox_Resolution) ;
+		order.add(selectBox_FPS) ;
+		order.add(fullScreenCheckBox) ;
+		order.add(vSynchCheckBox) ;
+		order.add(mipmapsCheckBox) ;
+		order.add(apply) ;
+		return order ;
 	}
 	
 	public SelectBox<String> buildResolutionBox() 

@@ -3,11 +3,11 @@ package jks.vinterface.overlay;
 import java.util.ArrayList;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.scenes.scene2d.InputEvent;
-import com.badlogic.gdx.scenes.scene2d.InputListener;
+import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
+import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.Align;
 import com.kotcrab.vis.ui.widget.VisLabel;
 import com.kotcrab.vis.ui.widget.VisTable;
@@ -36,9 +36,6 @@ public class OverlayCredits extends OverlayModel
 	private final VisTable mainTable ;
 	private final ReplayAction backway ;
 
-	/** boutonRetour.png is 1268x546; keep its shape when scaling it down to a button. */
-	private static final float RETOUR_ASPECT = 1268f / 546f ;
-
 	public OverlayCredits(ReplayAction ref)
 	{
 		super(GVars_UI.baseSkin) ;
@@ -48,15 +45,14 @@ public class OverlayCredits extends OverlayModel
 		retour = new ImageButton(
 			Utils_TexturesAcess.buildDrawingRegionTexture(Index_Interface.button_Return),
 			Utils_TexturesAcess.buildDrawingRegionTexture(Index_Interface.button_Return)) ;
-		retour.addListener(new InputListener()
+		retour.addListener(new ChangeListener()
 		{
 			@Override
-			public boolean touchDown(InputEvent event, float x, float y, int pointer, int button)
+			public void changed(ChangeEvent event, Actor actor)
 			{
 				Utils_View.removeCurrentOverlay() ;
 				Utils_View.removeFilter() ;
 				backway.enterScene(0) ;
-				return true ;
 			}
 		}) ;
 
@@ -126,7 +122,7 @@ public class OverlayCredits extends OverlayModel
 		// The return sign is a full-size painted asset. An ImageButton left to its own
 		// devices draws it at its natural size, which is most of the screen.
 		float buttonWidth = sizebuttonX ;
-		float buttonHeight = buttonWidth / RETOUR_ASPECT ;
+		float buttonHeight = buttonWidth / Index_Interface.button_Return_Aspect ;
 		retour.setSize(buttonWidth, buttonHeight) ;
 		retour.getImageCell().size(buttonWidth, buttonHeight) ;
 		retour.setPosition(decalSideX / 2f, (Gdx.graphics.getHeight() - buttonHeight) / 2f) ;
@@ -141,10 +137,10 @@ public class OverlayCredits extends OverlayModel
 	{return true ;}
 
 	@Override
-	public ArrayList<ArrayList<Button>> mapInterface()
+	public ArrayList<ArrayList<Actor>> mapInterface()
 	{
-		ArrayList<ArrayList<Button>> rows = new ArrayList<ArrayList<Button>>() ;
-		ArrayList<Button> row = new ArrayList<Button>() ;
+		ArrayList<ArrayList<Actor>> rows = new ArrayList<ArrayList<Actor>>() ;
+		ArrayList<Actor> row = new ArrayList<Actor>() ;
 		row.add(retour) ;
 		rows.add(row) ;
 		return rows ;
@@ -153,5 +149,9 @@ public class OverlayCredits extends OverlayModel
 	@Override
 	public Vector2Int startAt()
 	{return new Vector2Int(0,0) ;}
+
+	@Override
+	public Button getBackButton()
+	{return retour ;}
 
 }

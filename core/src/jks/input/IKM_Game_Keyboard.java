@@ -11,6 +11,7 @@ import com.badlogic.gdx.math.Vector3;
 
 import jks.camera.GVars_Camera;
 import jks.vars.GVars_Heart;
+import jks.vinterface.GVars_UI;
 import jks.vinterface.controlling.Utils_Controllable;
 import jks.vue.models.game.GVars_Game;
 import jks.vue.models.game.GameItem;
@@ -30,6 +31,10 @@ public class IKM_Game_Keyboard extends InputAdapter
 			}
 			
 			Utils_Debug.log(Keys.toString(keycode));
+			
+			// While a menu is on screen it owns the arrows, Enter, Space and Escape.
+			if(Utils_Controllable.decodeInterfaceKeybord(keycode))
+				return true ;
 			
 			if(Keys.D == keycode || Keys.RIGHT == keycode)
 			{
@@ -182,6 +187,15 @@ public class IKM_Game_Keyboard extends InputAdapter
 				return true ;
 			
 			return false; 
+		}
+		
+		@Override
+		public boolean mouseMoved(int screenX, int screenY)
+		{
+			// The mouse is back in use: put the keyboard focus away so it does not sit
+			// beside the hover.
+			GVars_UI.showFocus(false) ;
+			return false ;
 		}
 		
 		@Override

@@ -103,7 +103,7 @@ public class GameHarness implements ApplicationListener
 	}
 
 	/** Reads the framebuffer and flips it: GL's origin is bottom-left, an image's is top-left. */
-	private static BufferedImage grab()
+	static BufferedImage grab()
 	{
 		int w = Gdx.graphics.getBackBufferWidth();
 		int h = Gdx.graphics.getBackBufferHeight();

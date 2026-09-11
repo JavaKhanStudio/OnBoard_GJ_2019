@@ -3,12 +3,12 @@ package jks.vinterface.overlay;
 import java.util.ArrayList;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.scenes.scene2d.InputEvent;
-import com.badlogic.gdx.scenes.scene2d.InputListener;
+import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.actions.MoveToAction;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
+import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.kotcrab.vis.ui.widget.VisTable;
 
 import jks.index.Index_Interface;
@@ -42,18 +42,18 @@ public class OverlayOptions extends OverlayModel
 		backway = ref ; 
 		this.setLayoutEnabled(false);
 			
-		retour = new ImageButton(Utils_TexturesAcess.buildDrawingRegionTexture(Index_Interface.mainMenus_Settings),
-				Utils_TexturesAcess.buildDrawingRegionTexture(Index_Interface.mainMenus_SettingsON));
-		retour.addListener(new InputListener()
+		// The return sign, as on the credits: this was the Settings button art.
+		retour = new ImageButton(Utils_TexturesAcess.buildDrawingRegionTexture(Index_Interface.button_Return),
+				Utils_TexturesAcess.buildDrawingRegionTexture(Index_Interface.button_Return));
+		retour.addListener(new ChangeListener()
 		{
 			@Override
-	        public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) 
-	        {
+			public void changed(ChangeEvent event, Actor actor)
+			{
 				Utils_View.removeCurrentOverlay() ;
 				Utils_View.removeFilter() ;
 				backway.enterScene(0);
-				return true;
-	        }
+			}
 		}) ;
 			
 		mainTable = new VisTable() ;
@@ -124,7 +124,9 @@ public class OverlayOptions extends OverlayModel
 		languageBloc.setHeight(bloc_Height);
 		languageBloc.setPosition(decalSideX, decalY);
 		
-		retour.setSize(sizebuttonX, Gdx.graphics.getHeight() / 9.0f);
+		float buttonHeight = sizebuttonX / Index_Interface.button_Return_Aspect ;
+		retour.setSize(sizebuttonX, buttonHeight);
+		retour.getImageCell().size(sizebuttonX, buttonHeight);
 		returnButtonPositionY = Gdx.graphics.getHeight() / 3.8f ; 
 		
 		if(retour.getX() < 0) 
@@ -160,17 +162,25 @@ public class OverlayOptions extends OverlayModel
 	{return true;}
 
 	@Override
-	public ArrayList<ArrayList<Button>> mapInterface() 
+	public ArrayList<ArrayList<Actor>> mapInterface() 
 	{
-		ArrayList<ArrayList<Button>> returningList = new ArrayList<ArrayList<Button>>(); 
-		ArrayList<Button> buttonList = new ArrayList<>() ;
+		// Three columns, left to right as they sit on screen: the return sign, the
+		// graphics settings, the sound settings.
+		ArrayList<ArrayList<Actor>> returningList = new ArrayList<ArrayList<Actor>>(); 
+		ArrayList<Actor> buttonList = new ArrayList<>() ;
 		buttonList.add(retour) ;
 		returningList.add(buttonList) ; 
+		returningList.add(graphicBloc.focusOrder()) ;
+		returningList.add(soundBloc.focusOrder()) ;
 		return returningList;
 	}
 	
 	
 	@Override
 	public Vector2Int startAt()
-	{return new Vector2Int(0,0);}
+	{return new Vector2Int(1,0);}
+	
+	@Override
+	public Button getBackButton()
+	{return retour ;}
 }

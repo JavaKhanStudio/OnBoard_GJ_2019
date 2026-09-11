@@ -3,10 +3,10 @@ package jks.vinterface.overlay;
 import java.util.ArrayList;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.scenes.scene2d.InputEvent;
-import com.badlogic.gdx.scenes.scene2d.InputListener;
+import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
+import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 
 import jks.index.Index_Interface;
 import jks.tools.Vector2Int;
@@ -27,19 +27,22 @@ public class OverlayPause extends OverlayModel
 		float yposition = Gdx.graphics.getHeight() / 2.8f;
 //		coupeSonLibelle.setPosition(xPosition, yposition);
 		
-		retour = new ImageButton(Utils_TexturesAcess.buildDrawingRegionTexture(Index_Interface.mainMenus_Settings),
-				Utils_TexturesAcess.buildDrawingRegionTexture(Index_Interface.mainMenus_SettingsON));
-		retour.addListener(new InputListener()
+		// The return sign, as on the credits: this was the Settings button art.
+		retour = new ImageButton(Utils_TexturesAcess.buildDrawingRegionTexture(Index_Interface.button_Return),
+				Utils_TexturesAcess.buildDrawingRegionTexture(Index_Interface.button_Return));
+		retour.addListener(new ChangeListener()
 		{
 			@Override
-	        public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) 
-	        {
+			public void changed(ChangeEvent event, Actor actor)
+			{
 				GVars_Heart.togglePauseMenu();
-				return true;
-	        }
+			}
 		}) ;
 		
-		retour.setSize(Gdx.graphics.getWidth() / 7.5f, Gdx.graphics.getHeight() / 9.0f);
+		float buttonWidth = Gdx.graphics.getWidth() / 7.5f ;
+		float buttonHeight = buttonWidth / Index_Interface.button_Return_Aspect ;
+		retour.setSize(buttonWidth, buttonHeight);
+		retour.getImageCell().size(buttonWidth, buttonHeight);
 		retour.setPosition(Gdx.graphics.getWidth() / 2 - retour.getWidth() / 2, Gdx.graphics.getHeight() / 2.8f);
 		
 		this.setLayoutEnabled(false);
@@ -58,10 +61,10 @@ public class OverlayPause extends OverlayModel
 	{return true;}
 
 	@Override
-	public ArrayList<ArrayList<Button>> mapInterface() 
+	public ArrayList<ArrayList<Actor>> mapInterface() 
 	{
-		ArrayList<ArrayList<Button>> returningList = new ArrayList<ArrayList<Button>>(); 
-		ArrayList<Button> buttonList = new ArrayList<>() ;
+		ArrayList<ArrayList<Actor>> returningList = new ArrayList<ArrayList<Actor>>(); 
+		ArrayList<Actor> buttonList = new ArrayList<>() ;
 		buttonList.add(retour) ;
 		returningList.add(buttonList) ; 
 		return returningList;
@@ -70,6 +73,10 @@ public class OverlayPause extends OverlayModel
 	@Override
 	public Vector2Int startAt()
 	{return new Vector2Int(0,0) ;}
+
+	@Override
+	public Button getBackButton()
+	{return retour ;}
 
 	@Override
 	public void resize() 
