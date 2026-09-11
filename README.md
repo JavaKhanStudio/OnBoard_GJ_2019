@@ -152,9 +152,12 @@ Left as the team left it, in case anyone wants to pick it up:
 - **Sound effects.** `Enum_Sounds_Game` names jump, run and idle, the loader for them is
   commented out, and there are no files — they were never recorded. Music does work
   (`musics/intro.mp3`, looping, volume-controlled); it is the effects that are missing.
-- **A second UI skin**, `assets/ui/skins/freezing/` — 31 atlas regions and 17 widget styles,
-  never loaded. The game uses libGDX's stock skin instead. Two of its three bitmap-font
-  pages are missing, so it needs those regenerated before it can be switched on.
+- **A second UI skin**, removed in 2026. `assets/ui/skins/freezing/` was never loaded; the
+  game uses libGDX's stock skin. It wasn't the team's art: it was Raymond Buckley's
+  *Freezing UI* (CC BY 4.0, which requires crediting him), unmodified, and
+  [czyzby/gdx-skins](https://github.com/czyzby/gdx-skins/tree/master/freezing) still hosts
+  it. Its fonts are ASCII only, so it could not have shown French accents without
+  regenerating them.
 - **A pause menu, and its art.** Nothing opens `OverlayPause` — no key or pad button calls
   `togglePauseMenu()`, and it has been that way since 2019. `ui/icon/pause/` holds the kit
   drawn for it: the PAUSE panel, a "Couper le son :" label with its two checkbox states, and
