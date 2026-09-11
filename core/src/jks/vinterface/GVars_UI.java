@@ -54,6 +54,9 @@ public class GVars_UI implements Runnable
 	public static void init() 
 	{
 		baseSkin = new Skin(Gdx.files.internal("ui/skins/basic/uiskin.json"));
+		// vis-ui 1.5.9 was built against libGDX 1.14.1 and warns on startup that we run 1.14.2.
+		// No vis-ui release targets 1.14.2 yet; drop this once visuiVersion catches up.
+		VisUI.setSkipGdxVersionCheck(true);
 		VisUI.load(GVars_UI.baseSkin);
 		mainUi = new Stage(new ScreenViewport());
 		Gdx.input.setInputProcessor(mainUi);
