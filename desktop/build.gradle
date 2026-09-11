@@ -32,6 +32,12 @@ tasks.register('runGame', JavaExec) {
     classpath = sourceSets.main.runtimeClasspath
     workingDir = projectDir
     ignoreExitValue = true
+    // The game runs in a JVM of its own, which does not inherit the -D flags given to
+    // Gradle. Without this, `runGame -Donboard.start=game` quietly started at the logos -
+    // and so did the board's "Play it from a screen" button, which runs exactly that.
+    doFirst {
+        systemProperties System.properties.findAll { it.key.toString().startsWith('onboard.') }
+    }
 }
 
 
