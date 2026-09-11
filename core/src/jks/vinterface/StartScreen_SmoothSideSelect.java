@@ -162,8 +162,12 @@ public class StartScreen_SmoothSideSelect extends Table implements ReplayAction,
 			@Override
 			public void touchUp(InputEvent event, float x, float y, int pointer, int button)
 			{
+				// Not System.exit: that skips libGDX's shutdown, so the OpenAL device is still
+				// open when the process tears down, and on Windows OpenAL then aborts
+				// (c0000409) - a crash on every Quit. This ends the frame, runs dispose()
+				// and closes audio properly, exactly like the window's close button.
 				if(onFocus)
-					System.exit(0);
+					Gdx.app.exit();
 			}
 			
 			public void exit (InputEvent event, float x, float y, int pointer, Actor toActor) 
