@@ -176,6 +176,15 @@ The smoke in the intro (`ui/story/intro/smoke.jpg`) is a stock image and carries
 `dc:creator: AnnaFomina` in its own metadata. It is credited on the screen, and the licence
 is worth confirming before the game is distributed widely.
 
+Its metadata says where it came from: **iStock (Getty Images) asset 511936068**, "white
+smoke cloud" by AnnaFomina, marked copyrighted, with Getty's download reference still
+embedded (`exiv2 -pa smoke.jpg` shows it). iStock still sells it, royalty-free, for a fee.
+It is not a free image. iStock's licence belongs to whoever bought the image, so the game may
+use it only if someone on the team paid for it. Nothing in the repository records a purchase.
+The file was last edited in Photoshop in March 2017, two years before the jam, so it was
+not downloaded for this game. It came from an earlier project or from the web. Until someone
+finds a receipt, treat it as unlicensed and replace it before a wide release.
+
 ## Elsewhere
 
 `imageReserve/` — 29 MB of unused button art — was moved out to
