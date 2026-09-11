@@ -13,11 +13,12 @@ import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Graphics;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Window;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.ui.Cell;
+import com.badlogic.gdx.scenes.scene2d.ui.Label.LabelStyle;
 import com.badlogic.gdx.scenes.scene2d.ui.SelectBox;
+import com.badlogic.gdx.scenes.scene2d.ui.SelectBox.SelectBoxStyle;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.Align;
-import com.kotcrab.vis.ui.widget.VisCheckBox;
 import com.kotcrab.vis.ui.widget.VisLabel;
 import com.kotcrab.vis.ui.widget.VisTable;
 
@@ -25,15 +26,15 @@ import jks.vars.GVars_Heart;
 import jks.amain.Utils_Config;
 import jks.index.Index_Interface;
 import jks.vinterface.font.GVars_Font;
+import jks.vinterface.tools.PaintedCheckBox;
 
 public class Block_Resolution extends VisTable
 {
 
 	VisLabel graphicLabel,resolutionLabel,fpsLabel ;
-	VisLabel leftDecalX , rightDecalX ; 
-	VisCheckBox vSynchCheckBox ; 
-	VisCheckBox fullScreenCheckBox ;
-	VisCheckBox mipmapsCheckBox ; 
+	PaintedCheckBox vSynchCheckBox ; 
+	PaintedCheckBox fullScreenCheckBox ;
+	PaintedCheckBox mipmapsCheckBox ; 
 	SelectBox<String> selectBox_Resolution ; 
 	SelectBox<String> selectBox_FPS ;
 	TextButton apply ;
@@ -41,27 +42,34 @@ public class Block_Resolution extends VisTable
 	/** Window sizes a 16:9 game can sensibly be shown in, whatever the monitor lists. */
 	static final String[] STANDARD_SIZES = {"1280x720", "1366x768", "1600x900", "1920x1080", "2560x1440", "3840x2160"} ;
 	static final String[] FPS_CHOICES = {"30", "60"} ;
-
-	Cell<VisLabel> leftDecalXCell, rightDecalXCell ;
+	
+	// Copies of GVars_Font's styles in ink, refreshed in resize() when the fonts are rebuilt.
+	private final LabelStyle titleStyle = Utils_Board.ink(GVars_Font.labelStyle_ScreenTitle) ;
+	private final LabelStyle textStyle = Utils_Board.ink(GVars_Font.labelStyle_Second) ;
+	private final SelectBoxStyle selectStyle = Utils_Board.selectBox() ;
+	
+	private Cell<VisLabel> titleCell ;
+	private final ArrayList<Cell<?>> rowCells = new ArrayList<>() ;
+	private Cell<TextButton> applyCell ;
+	private float rowHeight ;
 	
 	public Block_Resolution()
 	{		
-//		this.setLayoutEnabled(false);
-		leftDecalX = new VisLabel("    ") ; rightDecalX = new VisLabel("    ") ;
-		graphicLabel = new VisLabel("Graphics",GVars_Font.labelStyle_OptionsTitle) ;
+		setBackground(Utils_Board.board()) ;
+		align(Align.top) ;
+		
+		graphicLabel = new VisLabel("Graphismes",titleStyle) ;
 		graphicLabel.setAlignment(Align.center);
-		resolutionLabel = new VisLabel("Resolution:",GVars_Font.labelStyle_Second) ; 
-		fpsLabel = new VisLabel("Frame Per Sec:",GVars_Font.labelStyle_Second) ; 
+		resolutionLabel = new VisLabel("Résolution",textStyle) ; 
+		fpsLabel = new VisLabel("Images par seconde",textStyle) ; 
 		
 		selectBox_Resolution = buildResolutionBox() ; 	
 		selectBox_FPS = buildFpsBox() ;
 		
-		vSynchCheckBox = new VisCheckBox("Is VSynch") ;
-		vSynchCheckBox.getLabel().setStyle(GVars_Font.labelStyle_Second);
+		vSynchCheckBox = new PaintedCheckBox("Synchro verticale", GVars_Font.font_Second, Utils_Board.INK) ;
 		vSynchCheckBox.setChecked(Utils_Config.current.useVsynch);
 
-		fullScreenCheckBox = new VisCheckBox("Full screen") ;
-		fullScreenCheckBox.getLabel().setStyle(GVars_Font.labelStyle_Second);
+		fullScreenCheckBox = new PaintedCheckBox("Plein écran", GVars_Font.font_Second, Utils_Board.INK) ;
 		// ChangeListeners, not touchUp: a keyboard press has to reach them too, and touchUp
 		// also fired when the press started on the button and ended somewhere else.
 		fullScreenCheckBox.addListener(new ChangeListener()
@@ -79,8 +87,7 @@ public class Block_Resolution extends VisTable
 		
 		// Applied and saved the moment it is ticked, like the sound block, rather than waiting
 		// for Apply.
-		mipmapsCheckBox = new VisCheckBox("Mipmaps (smoother when shrunk)") ; 
-		mipmapsCheckBox.getLabel().setStyle(GVars_Font.labelStyle_Second);
+		mipmapsCheckBox = new PaintedCheckBox("Mipmaps (plus lisse en petit)", GVars_Font.font_Second, Utils_Board.INK) ; 
 		mipmapsCheckBox.setChecked(Utils_Config.current.useMipmaps);
 		mipmapsCheckBox.setName("mipmaps");
 		mipmapsCheckBox.addListener(new ChangeListener()
@@ -94,8 +101,7 @@ public class Block_Resolution extends VisTable
 			}
 		}) ; 
 		
-		apply = new TextButton("Apply",GVars_UI.baseSkin) ;
-		apply.getLabel().setStyle(GVars_Font.labelStyle_OptionsTitle);
+		apply = new TextButton("Appliquer",Utils_Board.tagButton()) ;
 		apply.addListener(new ChangeListener()
 		{		
 			@Override
@@ -103,36 +109,75 @@ public class Block_Resolution extends VisTable
 			{applyNewResolution() ;}
 		}) ; 
 		
-		this.add(graphicLabel).colspan(4) ;
+		// On the plank, then a two-column form on the board: words left, controls right.
+		titleCell = this.add(graphicLabel).colspan(2).expandX().fillX() ;
 		this.row() ; 
 		
-		leftDecalXCell = this.add(leftDecalX) ; 
-		this.add(resolutionLabel).align(Align.left).expandX() ; 
-		this.add(selectBox_Resolution).align(Align.right) ;
-		rightDecalXCell = this.add(rightDecalX) ; 
+		rowCells.add(this.add(resolutionLabel).left().expandX()) ; 
+		this.add(selectBox_Resolution).right() ;
 		this.row() ; 
 		
-		this.add() ; 
-		this.add(fpsLabel).align(Align.left) ; 
-		this.add(selectBox_FPS).align(Align.right).expandX() ;
+		rowCells.add(this.add(fpsLabel).left().expandX()) ; 
+		this.add(selectBox_FPS).right() ;
 		this.row() ;
 		
-		this.add() ; 
-		this.add(fullScreenCheckBox).colspan(2).align(Align.left).expandX() ; 
-		this.add() ; 
+		rowCells.add(this.add(fullScreenCheckBox).colspan(2).fillX()) ; 
 		this.row() ;
 		
-		this.add() ; 
-		this.add(vSynchCheckBox).colspan(2).align(Align.left).expandX() ; 
-		this.add() ; 
+		rowCells.add(this.add(vSynchCheckBox).colspan(2).fillX()) ; 
 		this.row() ;
 		
-		this.add() ; 
-		this.add(mipmapsCheckBox).colspan(2).align(Align.left).expandX() ; 
-		this.add() ; 
+		rowCells.add(this.add(mipmapsCheckBox).colspan(2).fillX()) ; 
 		this.row() ;
 		
-		this.add(apply).colspan(4).align(Align.center) ; 
+		applyCell = this.add(apply).colspan(2).center() ; 
+	}
+	
+	/** Fits the block to a board of this size: the title on the plank, the rest on the wood. */
+	public void resize(float width, float height)
+	{
+		refreshFonts() ;
+		setSize(width, height) ;
+		
+		float scale = Utils_Board.scale(width) ;
+		Utils_Board.pad(this, scale) ;
+		float plank = Utils_Board.plankHeight(scale) ;
+		titleCell.height(plank).padBottom(Utils_Board.gapBelowPlank(scale)) ;
+		
+		// Five rows and the Apply tag, which gets a row and a half.
+		float body = height - getPadTop() - getPadBottom() - plank - Utils_Board.gapBelowPlank(scale) ;
+		float row = body / 6.5f ;
+		rowHeight = row ;
+		for(Cell<?> cell : rowCells)
+			cell.height(row) ;
+		for(PaintedCheckBox box : new PaintedCheckBox[] {fullScreenCheckBox, vSynchCheckBox, mipmapsCheckBox})
+			box.setBoxHeight(row * 0.8f) ;
+		applyCell.padTop(row * 0.5f).height(row).minWidth(width / 3f) ;
+		invalidateHierarchy() ;
+	}
+	
+	/** How tall resize() made each row, so the sound board can line its rows up with these. */
+	public float rowHeight()
+	{return rowHeight ;}
+	
+	/**
+	 * GVars_Font builds new fonts when the window width changes - which is what Apply does -
+	 * and these styles are copies, so they have to be pointed at the new ones.
+	 */
+	private void refreshFonts()
+	{
+		titleStyle.font = GVars_Font.font_MainMenu ;
+		graphicLabel.setStyle(titleStyle) ;
+		textStyle.font = GVars_Font.font_Second ;
+		resolutionLabel.setStyle(textStyle) ;
+		fpsLabel.setStyle(textStyle) ;
+		for(PaintedCheckBox box : new PaintedCheckBox[] {fullScreenCheckBox, vSynchCheckBox, mipmapsCheckBox})
+			box.setFont(GVars_Font.font_Second) ;
+		selectStyle.font = selectStyle.listStyle.font = GVars_Font.fontont_SelectBox ;
+		selectBox_Resolution.setStyle(selectStyle) ;
+		selectBox_FPS.setStyle(selectStyle) ;
+		apply.getStyle().font = GVars_Font.font_Title ;
+		apply.setStyle(apply.getStyle()) ;
 	}
 	
 	/** The order the keyboard walks this block in, top to bottom. */
@@ -150,7 +195,7 @@ public class Block_Resolution extends VisTable
 	
 	public SelectBox<String> buildResolutionBox()
 	{
-		SelectBox<String> selectBox = new SelectBox<String>(GVars_UI.baseSkin);
+		SelectBox<String> selectBox = new SelectBox<String>(selectStyle);
 		List<String> resolutions = resolutionChoices(Gdx.graphics.getDisplayModes(), Gdx.graphics.getDisplayMode(),
 				Utils_Config.current.width, Utils_Config.current.height) ;
 		selectBox.setItems(resolutions.toArray(new String[0]));
@@ -160,7 +205,7 @@ public class Block_Resolution extends VisTable
 
 	public SelectBox<String> buildFpsBox()
 	{
-		SelectBox<String> returning = new SelectBox<String>(GVars_UI.baseSkin);
+		SelectBox<String> returning = new SelectBox<String>(selectStyle);
 
 		ArrayList<String> fpsChoice = new ArrayList<>(Arrays.asList(FPS_CHOICES)) ;
 		String saved = String.valueOf(Utils_Config.current.fps) ;
@@ -316,14 +361,6 @@ public class Block_Resolution extends VisTable
 		{
 			return null ;
 		}
-	}
-	
-	public void resize()
-	{
-		int decalX = Gdx.graphics.getWidth()/40; 
-		leftDecalXCell.minWidth(decalX) ;
-		rightDecalXCell.minWidth(decalX) ; 
-		this.invalidate();
 	}
 	
 //	graphicLabel.setStyle(GVars_UI.labelStyle_Title) ; 

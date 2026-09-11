@@ -135,8 +135,11 @@ class SettingsTest
 			record("and the frame rate", saved.fps == 30);
 			record("and vsync and full screen", !saved.useVsynch && !saved.isFullScreen);
 			record("and the mipmaps and volume", saved.useMipmaps && Math.abs(saved.volume - 0.4f) < 1e-4);
+			resolution.showScrollPane();
 		}));
 		steps.add(new Timed(0.8, () -> {
+			Frames.write(GameHarness.grab(), new File(OUTPUT, "settings-dropdown.png"));
+			resolution.hideScrollPane();
 			mipmaps.setChecked(false);
 			record("mipmaps save the moment they change", !reread().useMipmaps);
 

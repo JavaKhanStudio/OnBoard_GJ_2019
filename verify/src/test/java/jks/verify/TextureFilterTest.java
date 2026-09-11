@@ -22,7 +22,7 @@ import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.utils.Array;
-import com.kotcrab.vis.ui.widget.VisCheckBox;
+import com.badlogic.gdx.scenes.scene2d.ui.Button;
 
 import jks.amain.Main_Application;
 import jks.amain.Utils_Config;
@@ -81,7 +81,7 @@ class TextureFilterTest
 
 				Block_Resolution graphics = new Block_Resolution();
 				GVars_UI.mainUi.addActor(graphics);
-				VisCheckBox mipmaps = graphics.findActor("mipmaps");
+				Button mipmaps = graphics.findActor("mipmaps");
 
 				mipmaps.setChecked(true);
 				glError = Gdx.gl.glGetError();

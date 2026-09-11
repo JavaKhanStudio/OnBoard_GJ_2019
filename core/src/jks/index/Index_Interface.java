@@ -54,7 +54,9 @@ public class Index_Interface
 	public static String pause_Panel = pausePath + "pauseMenu.png" ; 
 	public static String pause_Label_Mute = pausePath + "libelleCoupeSon.png" ; 
 	public static String pause_Box_Empty = pausePath + "cocheVide.png" ; 
-	public static String pause_Box_Ticked = pausePath + "cocheOk.png" ; 
+	public static String pause_Box_Ticked = pausePath + "cocheOk.png" ;
+	/** The same board with PAUSE taken off its plank, for the options screen's titles. See tools/make_blank_panel.py. */
+	public static String board_Blank = pausePath + "panneauVide.png" ;
 	public static String frame_GraySmoke = frame + "borderSmokeGray.png" ; 
 	
 	public static String introLogo_Jam = preload + "logo_jam.png" ; 
@@ -229,6 +231,7 @@ public class Index_Interface
 		loadTexture(pause_Label_Mute);
 		loadTexture(pause_Box_Empty);
 		loadTexture(pause_Box_Ticked);
+		loadTexture(board_Blank);
 	}
 
 	public static void loadEnter()

@@ -9,13 +9,13 @@ import com.badlogic.gdx.scenes.scene2d.actions.MoveToAction;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
-import com.kotcrab.vis.ui.widget.VisTable;
 
 import jks.index.Index_Interface;
 import jks.tools.Vector2Int;
 import jks.vinterface.GVars_UI;
 import jks.vinterface.Block_Resolution;
 import jks.vinterface.Block_Sound;
+import jks.vinterface.Utils_Board;
 import jks.vinterface.Utils_TexturesAcess;
 import jks.vue.Utils_View;
 
@@ -25,22 +25,21 @@ public class OverlayOptions extends OverlayModel
 	ImageButton retour ;
 	float returnButtonPositionY = 0 ;
 	
-	VisTable mainTable ; 
-	
+	// Two sign boards, the pause screen's, side by side. They were two gray boxes in a gray
+	// frame, with an empty third one where preferences were meant to go and never were.
 	Block_Resolution graphicBloc ; 
-	Block_Sound soundBloc ; 
-	VisTable prefBloc ; 
-	VisTable languageBloc ; 
-	
-	String frames = Index_Interface.frame_Gray ;
-	
+	Block_Sound soundBloc ;
+	private static final float SOUND_BOARD_SCALE = 0.72f ;
+
 	ReplayAction backway ;
 	
 	public OverlayOptions(ReplayAction ref) 
 	{
 		super(GVars_UI.baseSkin) ;
-		backway = ref ; 
+		backway = ref ;
 		this.setLayoutEnabled(false);
+		// Darker than the other overlays: the start screen's logo showed between the boards.
+		backgroundColor.a = 0.7f ;
 			
 		// The return sign, as on the credits: this was the Settings button art.
 		retour = new ImageButton(Utils_TexturesAcess.buildDrawingRegionTexture(Index_Interface.button_Return),
@@ -55,28 +54,12 @@ public class OverlayOptions extends OverlayModel
 				backway.enterScene(0);
 			}
 		}) ;
-			
-		mainTable = new VisTable() ;
-		mainTable.setTouchable(Touchable.childrenOnly);
-		mainTable.setBackground(Utils_TexturesAcess.buildDrawingRegionTexture(frames));
 		
 		graphicBloc = new Block_Resolution(); 
-		graphicBloc.setBackground(Utils_TexturesAcess.buildDrawingRegionTexture(frames));
-		
+		graphicBloc.setTouchable(Touchable.childrenOnly);
 		soundBloc = new Block_Sound() ; 
-		soundBloc.setBackground(Utils_TexturesAcess.buildDrawingRegionTexture(frames));
+		soundBloc.setTouchable(Touchable.childrenOnly);
 		
-		// Preferences and language were never designed. They build empty boxes, same as
-		// before - but they no longer borrow the sound section's builder to do it.
-		prefBloc = new VisTable() ; 
-		prefBloc.setBackground(Utils_TexturesAcess.buildDrawingRegionTexture(frames));
-		
-		languageBloc = new VisTable() ; 
-		languageBloc.setBackground(Utils_TexturesAcess.buildDrawingRegionTexture(frames));
-		
-		mainTable.addActor(graphicBloc);
-		mainTable.addActor(soundBloc);
-		mainTable.addActor(prefBloc);
 		retour.setPosition(-5, 0);
 		resize() ; 
 		
@@ -85,72 +68,50 @@ public class OverlayOptions extends OverlayModel
 	    getIn.setDuration(0.3f);
 	    retour.addAction(getIn); 
 	    
-		this.addActor(mainTable);
+		this.addActor(graphicBloc);
+		this.addActor(soundBloc);
 		this.addActor(retour);
 	}
 	
-	float widthPercent = 4f/5 ;
-	float heightPercent = 3.5f/5 ;
-	
 	public void resize() 
 	{
-		float sizebuttonX = Gdx.graphics.getWidth() / 7.5f ;
-		float decalSideX = Gdx.graphics.getWidth() / 23f ;
-		float size_Main_Width = Gdx.graphics.getWidth() - (decalSideX * 2) - sizebuttonX * 1.5f ; 
-		float size_Main_Height = Gdx.graphics.getHeight() * heightPercent ; 
-		float decalY = size_Main_Height / 20f ;
+		float screenWidth = Gdx.graphics.getWidth(), screenHeight = Gdx.graphics.getHeight() ;
+		float sizebuttonX = screenWidth / 7.5f ;
+		float margin = screenWidth / 40f ;
 		
-		mainTable.setWidth(size_Main_Width);
-		mainTable.setHeight(size_Main_Height);
-		mainTable.setPosition((Gdx.graphics.getWidth() - size_Main_Width)/2, (Gdx.graphics.getHeight() - size_Main_Height)/2);
-		
-		float bloc_Width = (size_Main_Width/2) - (decalSideX * 1.5f) ; 
-		float bloc_Height = (size_Main_Height/2) - (decalY * 1.5f) ; 
-		
-		graphicBloc.resize();
-		graphicBloc.setWidth(bloc_Width);
-		graphicBloc.setHeight(bloc_Height);
-		graphicBloc.setPosition(decalSideX, graphicBloc.getHeight() + decalY * 2);
-		
-		soundBloc.setWidth(bloc_Width);
-		soundBloc.setHeight(bloc_Height);
-		soundBloc.setPosition((decalSideX * 2) + bloc_Width, graphicBloc.getHeight() + decalY * 2);
-	
-		prefBloc.setWidth(bloc_Width);
-		prefBloc.setHeight(bloc_Height);
-		prefBloc.setPosition(decalSideX, decalY);
-		
-		languageBloc.setWidth(bloc_Width);
-		languageBloc.setHeight(bloc_Height);
-		languageBloc.setPosition(decalSideX, decalY);
+		// The boards share what the Retour sign leaves, at the painted board's own shape.
+		float left = sizebuttonX + margin ;
+		float room = screenWidth - left - margin ;
+		float boardWidth = (room - margin) / 2f ;
+		float boardHeight = boardWidth * Utils_Board.BOARD_HEIGHT / Utils_Board.BOARD_WIDTH ;
+		float tallest = screenHeight * 0.86f ;
+		if(boardHeight > tallest)
+		{
+			boardHeight = tallest ;
+			boardWidth = boardHeight * Utils_Board.BOARD_WIDTH / Utils_Board.BOARD_HEIGHT ;
+		}
+		// Sound has two rows, not six: a smaller board, hung level with the first.
+		float soundWidth = boardWidth * SOUND_BOARD_SCALE, soundHeight = boardHeight * SOUND_BOARD_SCALE ;
+		float x = left + (room - (boardWidth + margin + soundWidth)) / 2f ;
+		float y = (screenHeight - boardHeight) / 2f ;
+
+		graphicBloc.resize(boardWidth, boardHeight);
+		graphicBloc.setPosition(x, y);
+
+		soundBloc.resize(soundWidth, soundHeight, graphicBloc.rowHeight());
+		soundBloc.setPosition(x + boardWidth + margin, y + boardHeight - soundHeight);
 		
 		float buttonHeight = sizebuttonX / Index_Interface.button_Return_Aspect ;
 		retour.setSize(sizebuttonX, buttonHeight);
 		retour.getImageCell().size(sizebuttonX, buttonHeight);
-		returnButtonPositionY = Gdx.graphics.getHeight() / 3.8f ; 
+		returnButtonPositionY = screenHeight / 3.8f ; 
 		
 		if(retour.getX() < 0) 
 			retour.setPosition(-sizebuttonX, returnButtonPositionY);
 		else
 			retour.setPosition(0, returnButtonPositionY);
 			
-		this.setBounds(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-	}
-	
-	
-
-
-	
-	public VisTable buildPerfBloc()
-	{
-		VisTable table = new VisTable() ;
-		return table ; 
-	}
-	
-	public VisTable buildLanguageBloc()
-	{
-		VisTable table = new VisTable() ;
-		return table ; 
+		this.setBounds(0, 0, screenWidth, screenHeight);
 	}
 
 	@Override
