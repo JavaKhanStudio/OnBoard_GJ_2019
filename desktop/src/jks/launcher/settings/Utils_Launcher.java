@@ -49,6 +49,9 @@ public class Utils_Launcher
 		GameConfigs gameConfig = Utils_Config.load() ;
 		
 		config.useVsync(gameConfig.useVsynch) ;
+		// Saved by the options screen, and until r14 never read back by anything.
+		if(gameConfig.fps > 0)
+			config.setForegroundFPS(gameConfig.fps) ;
 		applyVolume(gameConfig.volume) ;
 		
 		if(gameConfig.isFullScreen)
