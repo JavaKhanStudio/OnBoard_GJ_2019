@@ -26,9 +26,16 @@ public class Launcher_Game
 		config.setOpenGLEmulation(Lwjgl3ApplicationConfiguration.GLEmulation.GL30, 3, 2);
 		config.setTitle("On Board");
 		config.setResizable(false);
-//		config.setWindowIcon("ui/icon/logo_onboard.png");
-//		config.setWindowIcon(filePaths);
-		
+		// The window's own icon: title bar, taskbar, Alt-Tab. The .ico baked into onboard.exe
+		// only reaches Explorer, so without this Windows shows its generic application icon.
+		// GLFW picks the closest size for each use. Ignored on macOS, where the .icns does it.
+		// Regenerate with tools/make_window_icons.py.
+		config.setWindowIcon(
+			"ui/icon/window/logo_onboard_16.png",
+			"ui/icon/window/logo_onboard_32.png",
+			"ui/icon/window/logo_onboard_48.png",
+			"ui/icon/window/logo_onboard_128.png");
+
 //		config.setBackBufferConfig(8, 8, 8, 8, 32, 2, 4);
 		Lwjgl3Application application = new Lwjgl3Application(new Main_Application(), config);
 	
