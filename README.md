@@ -18,7 +18,9 @@ Built with libGDX. Originally Java 8 and libGDX 1.9.10; brought up to Java 21 an
 ./gradlew :editor:runEditor                       # the level editor
 ```
 
-`-Donboard.start=` accepts `logo`, `intro`, `start_screen`, `game`, `outro`.
+`-Donboard.start=` accepts `logo`, `intro`, `start_screen`, `game`, `outro`, and
+`sound_lab` — a development screen, not part of the game, listing every music track and
+sound effect the game names, with Play/Stop through the game's own audio path.
 
 Nothing needs to be installed first — Gradle fetches its own Java 21.
 

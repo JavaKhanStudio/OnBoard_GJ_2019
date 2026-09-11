@@ -21,6 +21,7 @@ import jks.vinterface.font.GVars_Font;
 import jks.vue.models.Vue_Preloading;
 import jks.vue.models.Vue_Scenematic_Intro;
 import jks.vue.models.Vue_Scenematic_Outro;
+import jks.vue.models.Vue_SoundLab;
 import jks.vue.models.Vue_StartScreen;
 import jks.vue.models.game.GVars_Game;
 import jks.vue.models.game.Vue_Game;
@@ -38,10 +39,13 @@ public class Main_Application extends ApplicationAdapter
 	 * This used to be five lines with four of them commented out, which meant jumping past
 	 * the intro during development left the shipped game starting mid-story. Override it
 	 * with -Donboard.start=game when you are working on a level.
+	 *
+	 * SOUND_LAB is not part of the game - nothing leads there. It is a development screen
+	 * listing every track and sound effect the game names; see Vue_SoundLab.
 	 */
 	public enum StartPoint
 	{
-		LOGO, INTRO, START_SCREEN, GAME, OUTRO
+		LOGO, INTRO, START_SCREEN, GAME, OUTRO, SOUND_LAB
 	}
 	
 	public static StartPoint startPoint = fromSystemProperty() ; 
@@ -79,7 +83,8 @@ public class Main_Application extends ApplicationAdapter
 			case INTRO:        startAtIntro() ;       break ; 
 			case START_SCREEN: startAtStartScreen() ; break ; 
 			case GAME:         startAtGame() ;        break ; 
-			case OUTRO:        startAtOutro() ;       break ; 
+			case OUTRO:        startAtOutro() ;       break ;
+			case SOUND_LAB:    GVars_Heart.changeVue(new Vue_SoundLab(),true) ; break ;
 		}
 	}
 	

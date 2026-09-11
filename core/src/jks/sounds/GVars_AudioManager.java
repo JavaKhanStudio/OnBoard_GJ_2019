@@ -119,7 +119,7 @@ public class GVars_AudioManager
 	 * only music that was ever made for this - but this is the one place to change when
 	 * there is more of it.
 	 */
-	private static FileHandle fileFor(Enum_Music whichOne)
+	public static FileHandle fileFor(Enum_Music whichOne)
 	{
 		switch(whichOne)
 		{
@@ -216,6 +216,22 @@ public class GVars_AudioManager
 	public static Enum_Music currentMusic()
 	{
 		return currentlyRunningMusic == null ? null : requestedTrack ;
+	}
+
+	/** Seconds into the track that is playing, or -1 when nothing is. */
+	public static float musicPosition()
+	{
+		return currentlyRunningMusic == null ? -1f : currentlyRunningMusic.getPosition() ;
+	}
+
+	/**
+	 * Stop and forget the request. StopAndDisposeMusic alone keeps it, so the next volume
+	 * change would start the track again - right for muting, wrong for a Stop button.
+	 */
+	public static void StopMusic()
+	{
+		requestedTrack = null ;
+		StopAndDisposeMusic() ;
 	}
 
 	public static void StopAndDisposeMusic() 
