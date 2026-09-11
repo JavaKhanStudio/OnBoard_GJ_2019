@@ -24,6 +24,7 @@ import com.badlogic.gdx.graphics.g2d.TextureAtlas.TextureAtlasData;
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
 
+import jks.tools2d.parallax.pages.Parallax_Model;
 import jks.tools2d.parallax.pages.WholePage_Model;
 import jks.vars.GVars_Serialization;
 
@@ -35,7 +36,10 @@ import jks.vars.GVars_Serialization;
  *
  * The jar carries its own .java files, and its upstream (JavaKhanStudio/
  * JKS_Tools2D_ParallaxBackground) holds the editor that writes .plax - but upstream has moved
- * to kryo 5.6.2 and renamed its classes, so re-serialising these files is a migration.
+ * to kryo 5.6.2 and renamed its classes, so re-saving these files from its editor is a
+ * migration. (r24 edited ete.plax the other way: read and written back through the jar's own
+ * GVars_Serialization on the pinned Kryo, after checking an unchanged page came back
+ * byte-identical.)
  *
  * A fresh write-then-read round-trip passes on any Kryo version, so it proves nothing here.
  * These tests read the actual shipped bytes.
@@ -94,6 +98,28 @@ class ParallaxAssetTest
 			                                 .toString().replace(File.separatorChar, '/')))
 				missing.add(atlasPage.textureFile.path());
 		assertTrue(missing.isEmpty(), atlasName + ": missing page image(s) " + missing);
+
+		// Each layer is drawn from atlas.findRegions(regionName).get(regionPosition). libGDX reads
+		// the atlas in the platform's default charset (UTF-8 since Java 18, cp1252 on Windows
+		// before that), so a non-ASCII name only matches on the machine it was written on: ete.plax
+		// once said "Ã©tÃ©" - "été" as cp1252 saw it - and level 2 died on "index can't be >= size".
+		List<String> unreachable = new ArrayList<>();
+		for (Parallax_Model layer : page.pageModel.pageList)
+		{
+			String name = layer.regionName;
+			assertNotNull(name, plax.getName() + ": a layer has no region name");
+			assertTrue(name.chars().allMatch(c -> c >= 0x20 && c < 0x7F), plax.getName()
+				+ ": region name \"" + name + "\" is not plain ASCII, so whether it matches the atlas"
+				+ " depends on the JVM's default charset. Rename the region in the atlas AND the .plax.");
+			int found = 0;
+			for (TextureAtlasData.Region region : data.getRegions())
+				if (name.equals(region.name))
+					found++;
+			if (layer.regionPosition >= found)
+				unreachable.add(name + "#" + layer.regionPosition + " (atlas has " + found + ")");
+		}
+		assertTrue(unreachable.isEmpty(), plax.getName() + ": layers the game cannot find in "
+			+ atlasName + " -> " + unreachable);
 
 		// Two copies that must say the same thing: edit only the one beside the .plax and the
 		// change never reaches the game, and nothing else would notice. Removing that copy is fine.

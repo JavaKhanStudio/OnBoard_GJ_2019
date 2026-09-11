@@ -151,8 +151,18 @@ and it also owns the `.plax` format above. It survives the engine upgrade becaus
 touches stable libGDX API. The jar carries its own `.java` files (`unzip -l` it), and its
 upstream is [JKS_Tools2D_ParallaxBackground](https://github.com/JavaKhanStudio/JKS_Tools2D_ParallaxBackground),
 which also holds the editor that writes `.plax`. Upstream has moved on to kryo 5.6.2 with
-renamed classes, so it is not a drop-in: swapping it in, or re-serialising the `.plax` files,
-is a migration.
+renamed classes, so it is not a drop-in: swapping it in, or re-saving the `.plax` files from
+its editor, is a migration. A small edit to one `.plax` is not: read it through the jar's own
+`GVars_Serialization` on the pinned Kryo, change the field and write it back. An unchanged
+page writes back byte-identical, which is how to check the round trip before trusting it.
+
+**Backdrop region names must be plain ASCII.** Each layer is looked up by name in the atlas,
+and libGDX reads an `.atlas` in the JVM's default charset: cp1252 on Windows before Java 18,
+UTF-8 since. Level 2's backdrop named its region `été` as cp1252 had decoded it, so on
+current JVMs nothing matched and the game crashed moving to level 2. It is `ete` now. The
+crash showed up as `Asset not loaded: game/wagon/wa2/WAGON.png`, because `WagonLevel.init`
+swallows the real exception. `ParallaxAssetTest` rejects non-ASCII names and layers the atlas
+lacks, and `LevelWalkTest` (GL) walks all four levels in order.
 
 **The backdrop atlas comes from the asset root.** The jar loads the atlas a `.plax` names by
 its bare name, so level 1 draws `desktop/assets/Printemps.atlas`, not the byte-identical copy
