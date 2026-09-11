@@ -15,6 +15,7 @@ import jks.vinterface.GVars_UI;
 import jks.vinterface.controlling.Utils_Controllable;
 import jks.vue.models.game.GVars_Game;
 import jks.vue.models.game.GameItem;
+import jks.vue.models.game.Vue_Game;
 
 public class IKM_Game_Keyboard extends InputAdapter 
 {
@@ -35,6 +36,14 @@ public class IKM_Game_Keyboard extends InputAdapter
 			// While a menu is on screen it owns the arrows, Enter, Space and Escape.
 			if(Utils_Controllable.decodeInterfaceKeybord(keycode))
 				return true ;
+			
+			// Escape pauses a level. Once the pause screen is up, the menu above has Escape
+			// and presses its Retour, which is what closes it again.
+			if(Keys.ESCAPE == keycode && GVars_Heart.vue instanceof Vue_Game)
+			{
+				GVars_Heart.togglePauseMenu() ;
+				return true ;
+			}
 			
 			if(Keys.D == keycode || Keys.RIGHT == keycode)
 			{
@@ -205,6 +214,10 @@ public class IKM_Game_Keyboard extends InputAdapter
 				GVars_Heart.inCinematic_Click = true ;
 				return true; 
 			}
+			
+			// The pause screen leaves the carriage visible under it; it must not be playable.
+			if(GVars_Heart.isPaused)
+				return true ;
 			
 			Vector3 tmp= new Vector3(Gdx.input.getX(),Gdx.input.getY(),0);
 			GVars_Camera.camera.unproject(tmp);

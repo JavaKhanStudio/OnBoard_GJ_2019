@@ -49,6 +49,12 @@ public class Index_Interface
 	public static String button_Return = pausePath + "boutonRetour.png" ; 
 	/** boutonRetour.png is 1268x546; keep its shape when scaling it down to a button. */
 	public static final float button_Return_Aspect = 1268f / 546f ;
+	
+	// The pause screen: the PAUSE panel and its "Couper le son" box.
+	public static String pause_Panel = pausePath + "pauseMenu.png" ; 
+	public static String pause_Label_Mute = pausePath + "libelleCoupeSon.png" ; 
+	public static String pause_Box_Empty = pausePath + "cocheVide.png" ; 
+	public static String pause_Box_Ticked = pausePath + "cocheOk.png" ; 
 	public static String frame_GraySmoke = frame + "borderSmokeGray.png" ; 
 	
 	public static String introLogo_Jam = preload + "logo_jam.png" ; 
@@ -219,6 +225,10 @@ public class Index_Interface
 		loadTexture(frame_Gray);
 		loadTexture(frame_GraySmoke);
 		loadTexture(button_Return);
+		loadTexture(pause_Panel);
+		loadTexture(pause_Label_Mute);
+		loadTexture(pause_Box_Empty);
+		loadTexture(pause_Box_Ticked);
 	}
 
 	public static void loadEnter()
