@@ -86,9 +86,6 @@ public class OverlayCredits extends OverlayModel
 		for(String line : Index_Credits.FOOTER)
 			table.add(label(line, GVars_Font.labelStyle_Second)).padTop(14f).row() ;
 
-		for(String line : Index_Credits.THIRD_PARTY)
-			table.add(label(line, GVars_Font.labelStyle_Second)).padTop(10f).row() ;
-
 		return table ;
 	}
 

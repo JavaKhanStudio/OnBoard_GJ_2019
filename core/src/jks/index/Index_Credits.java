@@ -38,17 +38,7 @@ public class Index_Credits
 		"Jamming Assembly - 2019",
 		"Réalisé avec libGDX",
 	} ;
-	
-	/**
-	 * Work in the game that is not the team's own. The smoke in the intro is a stock image
-	 * and carries its author in its own metadata; crediting it here keeps that visible now
-	 * that the file is one of many rather than something anyone would think to inspect.
-	 */
-	public static final String[] THIRD_PARTY = new String[]
-	{
-		"Fumée : AnnaFomina",
-	} ;
-	
+
 	public static class Section
 	{
 		public final String role ;
