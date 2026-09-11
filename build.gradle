@@ -30,8 +30,8 @@ allprojects {
         javaTarget = 21
         // Pinned deliberately. The .plax parallax assets are Kryo binaries written by this
         // exact version in 2019, and Kryo's wire format is not stable across releases - 5.6.2
-        // reads the strings back as garbage. The writer lives in parallaxReader0.7.jar, for
-        // which no source survives, so the content cannot simply be re-serialised.
+        // reads the strings back as garbage. The format lives in parallaxReader0.7.jar; its
+        // upstream has moved to 5.6.2 with renamed classes, so re-serialising is a migration.
         kryoVersion = '5.0.0-RC1'
         jacksonVersion = '2.22.2'
         junitVersion = '5.14.4'
@@ -142,7 +142,7 @@ project(":core") {
         api "com.github.tommyettinger:textratypist:$textratypistVersion"
         api "com.fasterxml.jackson.core:jackson-databind:$jacksonVersion"
 
-        // The parallax renderer ships as compiled classes only - no source survives.
+        // The parallax renderer, frozen at 0.7 (its .java files ride along inside the jar).
         // It binds to core libGDX (Batch, TextureAtlas, OrthographicCamera) which is stable.
         api fileTree(dir: 'jars', include: '*.jar')
     }

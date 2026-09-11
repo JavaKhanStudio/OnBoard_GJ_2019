@@ -146,9 +146,18 @@ failure is silent — the file still loads, the strings just come back as mojiba
 a missing-file error several frames later. `ParallaxAssetTest` reads the real files and fails
 loudly if the version drifts.
 
-**`core/jars/parallaxReader0.7.jar` has no source.** It draws every parallax backdrop and it
-also owns the `.plax` format above. It survives the engine upgrade because it only touches
-stable libGDX API. If it ever breaks, it has to be rewritten from scratch.
+**`core/jars/parallaxReader0.7.jar` is frozen, not lost.** It draws every parallax backdrop
+and it also owns the `.plax` format above. It survives the engine upgrade because it only
+touches stable libGDX API. The jar carries its own `.java` files (`unzip -l` it), and its
+upstream is [JKS_Tools2D_ParallaxBackground](https://github.com/JavaKhanStudio/JKS_Tools2D_ParallaxBackground),
+which also holds the editor that writes `.plax`. Upstream has moved on to kryo 5.6.2 with
+renamed classes, so it is not a drop-in: swapping it in, or re-serialising the `.plax` files,
+is a migration.
+
+**The backdrop atlas comes from the asset root.** The jar loads the atlas a `.plax` names by
+its bare name, so level 1 draws `desktop/assets/Printemps.atlas`, not the byte-identical copy
+beside the `.plax` in `game/wagon/wa1/`. Edit, recompress or delete the two together;
+`ParallaxAssetTest` fails if they drift apart.
 
 **The libGDX version is pinned by resolution strategy** in the root build. vis-ui declares
 its own libGDX and Gradle resolves conflicts by taking the highest, which silently gave the
