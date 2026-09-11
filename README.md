@@ -113,7 +113,7 @@ evidence that 1.14.2 renders level 1 the same way it always did.
 |---|---|
 | `core/` | the game — views, input, UI, level model |
 | `desktop/` | launcher, and `desktop/assets/` (all art, audio, levels) |
-| `editor/` | the level editor that produced the `.wa` files |
+| `editor/` | the level editor that produced the `.wa` files — its item palette, `JksTextureList`, lives in `core/` though the game never uses it |
 | `test/` | a scratch module for trying widgets out |
 | `verify/` | the test suite |
 
@@ -161,7 +161,6 @@ Left as the team left it, in case anyone wants to pick it up:
   the Retour sign (which the credits use). The overlay itself reuses the Settings button art
   instead. An older copy of the panel went to the art reserve (see below).
 - **A Load Game button image** with no save system behind it.
-- `JksTextureList`, 386 lines of texture-picker widget, referenced by nothing.
 
 ## Credits
 
