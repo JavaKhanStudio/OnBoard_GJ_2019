@@ -9,9 +9,13 @@
 # Falls back to running normally if cage is missing, or if you set ONBOARD_NO_OFFSCREEN=1
 # because you actually want to watch.
 #
+# The Gradle tasks do this by themselves now (gradle/offscreen.gradle): the GL tests always,
+# runGame and runEditor when a board agent runs them. This wrapper is for everything else
+# that opens a window - a packaged build, a fat jar, a scratch program.
+#
 # Usage:
-#   tools/offscreen.sh ./gradlew :verify:test -PwithGl
-#   tools/offscreen.sh ./gradlew :desktop:runGame
+#   tools/offscreen.sh dist/OnBoard-linux/onboard
+#   tools/offscreen.sh java -jar desktop/build/dist/OnBoard-1.0-linuxX64.jar
 #
 # Borrowed from the same trick in ~/Shadow/tools/grun.sh.
 set -uo pipefail
@@ -24,7 +28,8 @@ fi
 if [[ "${ONBOARD_NO_OFFSCREEN:-0}" != "1" ]] && command -v cage >/dev/null 2>&1; then
 	# WLR_BACKENDS=headless: no DRM lease, no physical output, nothing on screen.
 	# cage brings up its own XWayland, which is what LWJGL's GLFW connects to.
-	exec env WLR_BACKENDS=headless cage -- "$@"
+	# ONBOARD_INSIDE_CAGE tells gradle/offscreen.gradle not to start a second one inside.
+	exec env WLR_BACKENDS=headless ONBOARD_INSIDE_CAGE=1 cage -- "$@"
 fi
 
 if [[ "${ONBOARD_NO_OFFSCREEN:-0}" != "1" ]]; then

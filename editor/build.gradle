@@ -32,5 +32,6 @@ tasks.register('runEditor', JavaExec) {
     classpath = sourceSets.main.runtimeClasspath
     workingDir = rootProject.file('desktop')
     ignoreExitValue = true
+    rootProject.offscreen(it, 'unattended')
 }
 

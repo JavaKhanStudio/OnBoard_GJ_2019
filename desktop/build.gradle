@@ -38,6 +38,8 @@ tasks.register('runGame', JavaExec) {
     doFirst {
         systemProperties System.properties.findAll { it.key.toString().startsWith('onboard.') }
     }
+    // A board agent checking its work runs this too, and nobody is watching that window.
+    rootProject.offscreen(it, 'unattended')
 }
 
 

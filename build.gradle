@@ -12,6 +12,9 @@ buildscript {
     }
 }
 
+// offscreen(task, when): windows nobody is meant to watch go to a headless display.
+apply from: 'gradle/offscreen.gradle'
+
 allprojects {
     apply plugin: "eclipse"
     apply plugin: "idea"

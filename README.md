@@ -81,16 +81,22 @@ After that it opens normally. Signing properly needs a Mac and a developer accou
 ## Tests
 
 ```bash
-./gradlew build                                        # 39 fast tests, no display needed
-tools/offscreen.sh ./gradlew :verify:test -PwithGl     # + 10 that boot the real game
+./gradlew build                          # 39 fast tests, no display needed
+./gradlew :verify:test -PwithGl          # + 10 that boot the real game, offscreen
 ```
 
-The GL tests each open a real window to get a GPU surface. `tools/offscreen.sh` runs them
-inside [`cage`](https://www.hjdskes.nl/projects/cage/), a headless wlroots compositor, so
-they get their own invisible display instead of five windows opening on top of whatever you
-were doing. GPU rendering is preserved. Drop the wrapper — or set `ONBOARD_NO_OFFSCREEN=1` —
-when you want to watch. It also works for the game itself:
-`tools/offscreen.sh ./gradlew :desktop:runGame`.
+The GL tests each open a real window to get a GPU surface. The build runs them inside
+[`cage`](https://www.hjdskes.nl/projects/cage/), a headless wlroots compositor, so they get
+their own invisible display instead of five windows opening on top of whatever you were
+doing. GPU rendering is preserved. Set `ONBOARD_NO_OFFSCREEN=1` when you want to watch.
+Without cage installed they open on your screen, as they always did.
+
+`:desktop:runGame` and `:editor:runEditor` go offscreen the same way when a board agent runs
+them (`ATELIER_AGENT` is set), since nobody is watching those windows. When you run them,
+or click the board's "Play it" buttons, they open on your screen; `ONBOARD_OFFSCREEN=1`
+sends them offscreen anyway. The mechanism is in `gradle/offscreen.gradle`. Anything that
+opens a window without going through Gradle, such as a packaged build or a fat jar, still
+needs the wrapper: `tools/offscreen.sh <command>`.
 
 Two consequences worth knowing. The GL tests run at **1280x720**, because that is the size
 of cage's headless output and neither cage nor wlroots lets you change it. And they capture
