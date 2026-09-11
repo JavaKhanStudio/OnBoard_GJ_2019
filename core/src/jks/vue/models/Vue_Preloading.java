@@ -10,6 +10,8 @@ import static jks.index.Index_Interface.manager;
 import java.util.ArrayList;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.InputMultiplexer;
+import com.badlogic.gdx.controllers.Controllers;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.actions.AlphaAction;
@@ -19,6 +21,8 @@ import com.badlogic.gdx.scenes.scene2d.actions.RemoveActorAction;
 import com.badlogic.gdx.scenes.scene2d.actions.SequenceAction;
 import com.kotcrab.vis.ui.widget.VisImage;
 
+import jks.input.IKM_Game_Keyboard;
+import jks.input.IKM_Game_XBoxController;
 import jks.sounds.Enum_Music;
 import jks.sounds.GVars_AudioManager;
 import jks.vars.GVars_Heart;
@@ -43,7 +47,14 @@ public class Vue_Preloading extends AVue_Model
 	{
 		Utils_Debug.log("I see");
 		GVars_Heart.inCinematic = true ; 
+		GVars_Heart.inCinematic_Click = false ; 
 		resize(0,0) ; 
+		
+		// Same input as the story pages: while inCinematic, a click, a key or a pad button
+		// only raises inCinematic_Click, which update() reads to skip the current logo.
+		Gdx.input.setInputProcessor(new InputMultiplexer(GVars_UI.mainUi, new IKM_Game_Keyboard()));
+		Controllers.clearListeners();
+		Controllers.addListener(new IKM_Game_XBoxController()) ; 
 		imageSequence = new ArrayList<Texture>() ; 
 		GVars_AudioManager.PlayMusic(Enum_Music.GAME_INTRO);
 		
@@ -87,6 +98,16 @@ public class Vue_Preloading extends AVue_Model
 	public void update(float delta) 
 	{
 		GVars_UI.mainUi.act(delta);
+		
+		// A click skips ONE logo, not the whole chain: drop the one on show and let the
+		// check below bring on the next, or the intro after the last. The flag is spent
+		// here so it cannot also turn the intro's first page.
+		if(GVars_Heart.inCinematic_Click)
+		{
+			GVars_Heart.inCinematic_Click = false ; 
+			showingLogo.clearActions();
+			showingLogo.remove() ; 
+		}
 		
 		if(showingLogo.getActions().size == 0)
 		{
