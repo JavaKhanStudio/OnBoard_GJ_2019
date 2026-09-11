@@ -153,8 +153,11 @@ Left as the team left it, in case anyone wants to pick it up:
 - **A second UI skin**, `assets/ui/skins/freezing/` — 31 atlas regions and 17 widget styles,
   never loaded. The game uses libGDX's stock skin instead. Two of its three bitmap-font
   pages are missing, so it needs those regenerated before it can be switched on.
-- **Pause-menu art** (`ui/icon/pause/`) — 1.4 MB of it. `OverlayPause` reuses the Settings
-  button art instead.
+- **A pause menu, and its art.** Nothing opens `OverlayPause` — no key or pad button calls
+  `togglePauseMenu()`, and it has been that way since 2019. `ui/icon/pause/` holds the kit
+  drawn for it: the PAUSE panel, a "Couper le son :" label with its two checkbox states, and
+  the Retour sign (which the credits use). The overlay itself reuses the Settings button art
+  instead. An older copy of the panel went to the art reserve (see below).
 - **A Load Game button image** with no save system behind it.
 - `JksTextureList`, 386 lines of texture-picker widget, referenced by nothing.
 
@@ -176,4 +179,6 @@ is worth confirming before the game is distributed widely.
 
 `imageReserve/` — 29 MB of unused button art — was moved out to
 `../JavaKhan-onboard-art-reserve/`. Nothing referenced it and it never shipped, but it's
-still in this repo's git history if you'd rather have it back.
+still in this repo's git history if you'd rather have it back. `Pause/pauseMenuOld.png` went
+the same way: an earlier cut of the PAUSE panel on a 1920x1080 canvas, superseded by
+`ui/icon/pause/pauseMenu.png`.
