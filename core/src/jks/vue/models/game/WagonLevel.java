@@ -2,6 +2,7 @@ package jks.vue.models.game;
 
 import static jks.camera.GVars_Camera.staticBatch;
 import static jks.index.Index_Interface.manager;
+import static jks.index.Index_Interface.loadTexture;
 
 import java.util.ArrayList;
 
@@ -57,7 +58,7 @@ public class WagonLevel
 			parallax = new Parallax_Heart(myParallaxPath) ;
 			parallax.screenSpeedConstantX = 800 ; 
 
-			manager.load(myWagonPath, Texture.class) ;
+			loadTexture(myWagonPath) ;
 			
 			for(GameItem item : listItems)
 			{

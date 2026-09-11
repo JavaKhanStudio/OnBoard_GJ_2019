@@ -13,5 +13,7 @@ public class GameConfigs
 	public boolean useVsynch = true ;
 	public int fps = 60 ; 
 	public float volume = 1f ; 
+	/** Off: the UI, carriages and items are filtered Linear, which Simon chose as the default. */
+	public boolean useMipmaps = false ; 
 	
 }

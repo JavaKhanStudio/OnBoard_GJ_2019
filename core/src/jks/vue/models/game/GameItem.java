@@ -58,12 +58,12 @@ public class GameItem
 	public void init()
 	{
 		relativePath =  "game/wagon/" + path + "/" ; 
-		Index_Interface.manager.load(relativePath + path_EtatDebut, Texture.class);
+		Index_Interface.loadTexture(relativePath + path_EtatDebut);
 		
 		if(path_EtatApres_1 != null && !"".equals(path_EtatApres_1))
-			Index_Interface.manager.load(relativePath + path_EtatApres_1, Texture.class);
+			Index_Interface.loadTexture(relativePath + path_EtatApres_1);
 		if(path_EtatApres_2 != null && !"".equals(path_EtatApres_2))
-			Index_Interface.manager.load(relativePath + path_EtatApres_2, Texture.class);
+			Index_Interface.loadTexture(relativePath + path_EtatApres_2);
 	}
 	
 	public void setGameReady()

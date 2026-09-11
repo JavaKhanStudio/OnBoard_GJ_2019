@@ -8,11 +8,13 @@ import com.badlogic.gdx.Graphics.DisplayMode;
 import com.badlogic.gdx.Graphics.Monitor;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Graphics;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Window;
+import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.ui.Cell;
 import com.badlogic.gdx.scenes.scene2d.ui.SelectBox;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.Align;
 import com.kotcrab.vis.ui.widget.VisCheckBox;
 import com.kotcrab.vis.ui.widget.VisLabel;
@@ -20,6 +22,7 @@ import com.kotcrab.vis.ui.widget.VisTable;
 
 import jks.vars.GVars_Heart;
 import jks.amain.Utils_Config;
+import jks.index.Index_Interface;
 import jks.vinterface.font.GVars_Font;
 
 public class Block_Resolution extends VisTable
@@ -29,6 +32,7 @@ public class Block_Resolution extends VisTable
 	VisLabel leftDecalX , rightDecalX ; 
 	VisCheckBox vSynchCheckBox ; 
 	VisCheckBox fullScreenCheckBox ;
+	VisCheckBox mipmapsCheckBox ; 
 	SelectBox<String> selectBox_Resolution ; 
 	SelectBox<String> selectBox_FPS ;
 	
@@ -68,6 +72,24 @@ public class Block_Resolution extends VisTable
 
 		}) ; 
 		
+		// Applied and saved the moment it is ticked, like the sound block, rather than waiting
+		// for Apply: Apply also re-applies the resolution, vsync and full screen boxes, and
+		// they do not start out showing the settings in force.
+		mipmapsCheckBox = new VisCheckBox("Mipmaps (smoother when shrunk)") ; 
+		mipmapsCheckBox.getLabel().setStyle(GVars_Font.labelStyle_Second);
+		mipmapsCheckBox.setChecked(Utils_Config.current.useMipmaps);
+		mipmapsCheckBox.setName("mipmaps");
+		mipmapsCheckBox.addListener(new ChangeListener()
+		{
+			@Override
+			public void changed(ChangeEvent event, Actor actor)
+			{
+				Utils_Config.current.useMipmaps = mipmapsCheckBox.isChecked() ;
+				Index_Interface.applyMipmaps(mipmapsCheckBox.isChecked()) ;
+				Utils_Config.save() ;
+			}
+		}) ; 
+		
 		TextButton apply = new TextButton("Apply",GVars_UI.baseSkin) ;
 		apply.getLabel().setStyle(GVars_Font.labelStyle_OptionsTitle);
 		apply.addListener(new InputListener()
@@ -102,6 +124,11 @@ public class Block_Resolution extends VisTable
 		
 		this.add() ; 
 		this.add(vSynchCheckBox).colspan(2).align(Align.left).expandX() ; 
+		this.add() ; 
+		this.row() ;
+		
+		this.add() ; 
+		this.add(mipmapsCheckBox).colspan(2).align(Align.left).expandX() ; 
 		this.add() ; 
 		this.row() ;
 		

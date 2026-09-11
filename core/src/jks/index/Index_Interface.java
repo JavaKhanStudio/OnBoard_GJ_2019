@@ -1,8 +1,14 @@
 package jks.index;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.AssetManager;
+import com.badlogic.gdx.assets.loaders.TextureLoader.TextureParameter;
+import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.Texture.TextureFilter;
+import com.badlogic.gdx.utils.Array;
 
+import jks.amain.Utils_Config;
 import jks.tools.Enum_Timming;
 import jks.tools.GlobalTimmer;
 import jks.vinterface.GVars_UI;
@@ -82,6 +88,61 @@ public class Index_Interface
 		if(manager == null)
 			manager = new AssetManager();
 	}
+
+	/**
+	 * Every Texture this manager holds goes through here: the UI, and the carriages and items
+	 * WagonLevel and GameItem load. A plain manager.load leaves libGDX's default of Nearest
+	 * with no mipmaps, which is only right for pixel art - this art is large and drawn small,
+	 * and Nearest shredded it (the PIXMEN logo lost its beak at 1280x720). The atlases were
+	 * always exported Linear, so smooth was the intent all along.
+	 *
+	 * Mipmaps are the "Mipmaps" switch in the options: smoother still when art is shrunk a
+	 * long way, a touch softer otherwise, and a third more memory. The switch is read when
+	 * the texture arrives, not when it is queued: the start screen queues level 1 before
+	 * anyone has reached the options.
+	 */
+	public static void loadTexture(String path)
+	{
+		manager.load(path, Texture.class, filtering);
+	}
+	
+	private static final TextureParameter filtering = new TextureParameter() ;
+	static
+	{
+		filtering.minFilter = TextureFilter.Linear ;
+		filtering.magFilter = TextureFilter.Linear ;
+		filtering.loadedCallback = (assets, fileName, type) ->
+		{
+			if(Utils_Config.current.useMipmaps)
+				filter(assets.get(fileName, Texture.class), true) ;
+		} ;
+	}
+	
+	/**
+	 * Applies the mipmap switch to everything already loaded, so the options screen shows the
+	 * difference at once instead of on the next launch. Switching off only changes the filter;
+	 * the mip levels already built stay in memory until the game closes.
+	 */
+	public static void applyMipmaps(boolean useMipmaps)
+	{
+		if(manager == null)
+			return ;
+		
+		for(Texture texture : manager.getAll(Texture.class, new Array<Texture>()))
+			filter(texture, useMipmaps) ;
+	}
+	
+	private static void filter(Texture texture, boolean useMipmaps)
+	{
+		if(useMipmaps)
+		{
+			texture.bind() ;
+			Gdx.gl.glGenerateMipmap(GL20.GL_TEXTURE_2D) ;
+			texture.setFilter(TextureFilter.MipMapLinearLinear, TextureFilter.Linear) ;
+		}
+		else
+			texture.setFilter(TextureFilter.Linear, TextureFilter.Linear) ;
+	}
 	
 	public static void preInit()
 	{
@@ -113,60 +174,60 @@ public class Index_Interface
 	
 	private static void loadKey()
 	{
-		manager.load(key1Full, Texture.class);
-		manager.load(key1, Texture.class);
-		manager.load(key2, Texture.class);
-		manager.load(key2Full, Texture.class);
-		manager.load(key3, Texture.class);
-		manager.load(key3Full, Texture.class);
+		loadTexture(key1Full);
+		loadTexture(key1);
+		loadTexture(key2);
+		loadTexture(key2Full);
+		loadTexture(key3);
+		loadTexture(key3Full);
 		
-		manager.load(bubbleThink, Texture.class);
+		loadTexture(bubbleThink);
 	}
 	
 	private static void loadIntro() 
 	{
-		manager.load(introPage_1, Texture.class);
-		manager.load(introPage_2, Texture.class);
-		manager.load(introPage_3, Texture.class);
-		manager.load(smokeImage, Texture.class);
+		loadTexture(introPage_1);
+		loadTexture(introPage_2);
+		loadTexture(introPage_3);
+		loadTexture(smokeImage);
 		manager.finishLoading();
 	}
 	
 	public static void loadOutro() 
 	{
-		manager.load(outroPage1, Texture.class);
-		manager.load(outroPage_stay_1, Texture.class);
-		manager.load(outroPage_stay_2, Texture.class);
-		manager.load(outroPage_leave, Texture.class);
+		loadTexture(outroPage1);
+		loadTexture(outroPage_stay_1);
+		loadTexture(outroPage_stay_2);
+		loadTexture(outroPage_leave);
 		manager.finishLoading();
 	}
 	
 	private static void loadPreloadLogos() 
 	{
-		manager.load(introLogo_Jam, Texture.class);
-		manager.load(introLogo_LibGDX, Texture.class);
-		manager.load(introLogo_Team, Texture.class);
+		loadTexture(introLogo_Jam);
+		loadTexture(introLogo_LibGDX);
+		loadTexture(introLogo_Team);
 		manager.finishLoading();
 	}
 
 	
 	private static void loadBasic() 
 	{
-		manager.load(empty, Texture.class);
-		manager.load(frame_Gray, Texture.class);
-		manager.load(frame_GraySmoke, Texture.class);
-		manager.load(button_Return, Texture.class);
+		loadTexture(empty);
+		loadTexture(frame_Gray);
+		loadTexture(frame_GraySmoke);
+		loadTexture(button_Return);
 	}
 
 	public static void loadEnter()
 	{
-		manager.load(maisMenus_Background, Texture.class);
-		manager.load(mainMenus_New, Texture.class);
-		manager.load(mainMenus_NewON, Texture.class);
-		manager.load(mainMenus_Settings, Texture.class);
-		manager.load(mainMenus_SettingsON, Texture.class);
-		manager.load(mainMenus_quit, Texture.class);
-		manager.load(mainMenus_quitON, Texture.class);
+		loadTexture(maisMenus_Background);
+		loadTexture(mainMenus_New);
+		loadTexture(mainMenus_NewON);
+		loadTexture(mainMenus_Settings);
+		loadTexture(mainMenus_SettingsON);
+		loadTexture(mainMenus_quit);
+		loadTexture(mainMenus_quitON);
 		manager.finishLoading();
 	}
 	

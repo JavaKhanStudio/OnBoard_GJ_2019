@@ -53,6 +53,7 @@ class ConfigTest
 		// uninitialised GameConfigs used to produce on a first run.
 		assertTrue(loaded.width > 0 && loaded.height > 0, "default window size must be usable");
 		assertTrue(loaded.volume > 0f, "the game should not install itself silent");
+		assertEquals(false, loaded.useMipmaps, "Linear without mipmaps is the chosen default");
 	}
 
 	@Test
@@ -65,6 +66,7 @@ class ConfigTest
 		Utils_Config.current.isFullScreen = true;
 		Utils_Config.current.useVsynch = false;
 		Utils_Config.current.volume = 0.35f;
+		Utils_Config.current.useMipmaps = true;
 		Utils_Config.save();
 
 		GameConfigs reloaded = Utils_Config.load();
@@ -73,6 +75,7 @@ class ConfigTest
 		assertTrue(reloaded.isFullScreen);
 		assertEquals(false, reloaded.useVsynch);
 		assertEquals(0.35f, reloaded.volume, 1e-6);
+		assertTrue(reloaded.useMipmaps);
 	}
 
 	@Test
