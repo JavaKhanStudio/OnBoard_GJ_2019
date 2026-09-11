@@ -28,6 +28,8 @@ public class Vue_Game extends AVue_Model
     boolean ending = false ; 
     boolean ended = false ; 
     float visibleLevel = 1 ; 
+    
+    PauseButton pauseButton ; 
    
     final float erasingSpeed = 0.5f ; 
     final float timeTonext = 1f/erasingSpeed + erasingSpeed * 3 ; 
@@ -38,6 +40,11 @@ public class Vue_Game extends AVue_Model
     	resize(0, 0);
     	GVars_Game.init();
     	GVars_Serialization.init();
+    	
+    	// The mouse's way to the pause screen (d4). The stage is new for every view and a
+    	// level change does not clear it, so one button lasts the whole game.
+    	pauseButton = new PauseButton() ;
+    	GVars_UI.mainUi.addActor(pauseButton);
     	
     	GVars_Heart.inCinematic = false ; 
     	
@@ -144,6 +151,9 @@ public class Vue_Game extends AVue_Model
 	@Override
 	public void resize(int x, int y) 
 	{
-
+		// The pause screen, which the model resizes, is only ever open over this view.
+		super.resize(x, y);
+		if(pauseButton != null)
+			pauseButton.resize();
 	}
 }

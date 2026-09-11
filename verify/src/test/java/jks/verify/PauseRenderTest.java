@@ -20,9 +20,12 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input.Buttons;
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
+import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.scenes.scene2d.Actor;
 
 import jks.amain.Main_Application;
 import jks.amain.Utils_Config;
@@ -34,7 +37,8 @@ import jks.vinterface.overlay.OverlayPause;
 /**
  * The pause screen: Escape opens it in a level, it shows the painted panel with its
  * "Couper le son" box, and it closes again. Until r5 nothing could open it, and its art sat
- * unused in ui/icon/pause/.
+ * unused in ui/icon/pause/. The little PAUSE sign in the corner of a level opens it with the
+ * mouse (r18).
  */
 @Tag("gl")
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -96,6 +100,26 @@ class PauseRenderTest
 			press(Keys.ESCAPE);
 			record("escape resumes", !GVars_Heart.isPaused && GVars_Heart.vue.overlay == null);
 			record("and gives the keys back to the level", GVars_UI.currentControllable == null);
+		});
+		steps.add(() -> {
+			Actor button = GVars_UI.mainUi.getRoot().findActor("pauseButton");
+			record("the level shows a pause button", button != null && button.isVisible() && button.getStage() != null);
+			Frames.write(GameHarness.grab(), new File(OUTPUT, "pause-button.png"));
+
+			// A real click, through the same input processor as the mouse: the stage, then
+			// the level's handler, which is what touches the carriage items.
+			Vector2 centre = button.localToStageCoordinates(new Vector2(button.getWidth() / 2, button.getHeight() / 2));
+			GVars_UI.mainUi.stageToScreenCoordinates(centre);
+			boolean taken = Gdx.input.getInputProcessor().touchDown((int)centre.x, (int)centre.y, 0, Buttons.LEFT);
+			// The level's handler only claims a touch while paused or in a cinematic, and it is
+			// neither yet: so a claimed touch is the button's, and the items never saw it.
+			record("the click stops at the button, not on the carriage", taken);
+			Gdx.input.getInputProcessor().touchUp((int)centre.x, (int)centre.y, 0, Buttons.LEFT);
+			record("the pause button pauses the level", GVars_Heart.isPaused && GVars_Heart.vue.overlay instanceof OverlayPause);
+		});
+		steps.add(() -> {
+			press(Keys.ESCAPE);
+			record("and escape resumes from there too", !GVars_Heart.isPaused && GVars_Heart.vue.overlay == null);
 			finished = true;
 		});
 
@@ -141,7 +165,7 @@ class PauseRenderTest
 	}
 
 	@Test
-	@DisplayName("escape pauses and resumes a level, and the mute box works")
+	@DisplayName("escape and the pause button pause a level, it resumes, and the mute box works")
 	void pausesAndResumes()
 	{
 		if (harness.error != null) harness.error.printStackTrace();
@@ -152,7 +176,7 @@ class PauseRenderTest
 		assertTrue(finished, "not every step ran:\n" + report);
 		for (String line : seen)
 			assertTrue(line.startsWith("ok"), report);
-		assertEquals(6, seen.size(), report);
+		assertEquals(10, seen.size(), report);
 	}
 
 	@Test
