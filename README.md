@@ -18,7 +18,8 @@ Built with libGDX. Originally Java 8 and libGDX 1.9.10; brought up to Java 21 an
 ./gradlew :editor:runEditor                       # the level editor
 ```
 
-`-Donboard.start=` accepts `logo`, `intro`, `start_screen`, `game`, `outro`, and
+`-Donboard.start=` accepts `logo`, `intro`, `start_screen`, `game`, `outro`, `credits` —
+the start screen with the credits already open, so Retour lands on the menu — and
 `sound_lab` — a development screen, not part of the game, listing every music track and
 sound effect the game names, with Play/Stop through the game's own audio path.
 

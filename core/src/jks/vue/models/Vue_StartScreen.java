@@ -22,7 +22,9 @@ import jks.sounds.GVars_AudioManager;
 import jks.vinterface.GVars_UI;
 import jks.vinterface.StartScreen_SmoothSideSelect;
 import jks.vinterface.font.GVars_Font;
+import jks.vinterface.overlay.OverlayCredits;
 import jks.vue.AVue_Model;
+import jks.vue.Utils_View;
 import jks.vue.models.game.GVars_Game; 
 
 public class Vue_StartScreen extends AVue_Model
@@ -35,6 +37,15 @@ public class Vue_StartScreen extends AVue_Model
 	private float gettingUpPercent = 0 ; 
 	private final float gettingUpInXSec = 2 ; 
 	
+	/** Arrive with the credits open instead of the menu - the CREDITS start point. */
+	private final boolean openOnCredits ;
+
+	public Vue_StartScreen()
+	{this(false) ;}
+
+	public Vue_StartScreen(boolean openOnCredits)
+	{this.openOnCredits = openOnCredits ;}
+
 	@Override
 	public void init()
 	{
@@ -52,7 +63,14 @@ public class Vue_StartScreen extends AVue_Model
 		GVars_UI.mainUi.addActor(smoothSideSelect);
 		incrementOnce = new TextButton("increment Once +",GVars_UI.baseSkin) ; 
 		GVars_Font.resize();
-		smoothSideSelect.enterScene(gettingUpInXSec/2);
+
+		// The menu entries start parked off the left edge, which is where the Credits
+		// button sends them, so skipping enterScene leaves the screen as that button would.
+		// Retour calls enterScene and the menu slides in as usual.
+		if(openOnCredits)
+			Utils_View.setOverlay(new OverlayCredits(smoothSideSelect)) ;
+		else
+			smoothSideSelect.enterScene(gettingUpInXSec/2);
 		GVars_Game.preLoadLevel(1); 
 	}
 

@@ -42,10 +42,14 @@ public class Main_Application extends ApplicationAdapter
 	 *
 	 * SOUND_LAB is not part of the game - nothing leads there. It is a development screen
 	 * listing every track and sound effect the game names; see Vue_SoundLab.
+	 *
+	 * CREDITS is the start screen with the credits already open, exactly as its Credits
+	 * button leaves it, so Retour lands on the menu. It is there so the credits can be looked
+	 * at without sitting through the logos.
 	 */
 	public enum StartPoint
 	{
-		LOGO, INTRO, START_SCREEN, GAME, OUTRO, SOUND_LAB
+		LOGO, INTRO, START_SCREEN, GAME, OUTRO, SOUND_LAB, CREDITS
 	}
 	
 	public static StartPoint startPoint = fromSystemProperty() ; 
@@ -85,6 +89,7 @@ public class Main_Application extends ApplicationAdapter
 			case GAME:         startAtGame() ;        break ; 
 			case OUTRO:        startAtOutro() ;       break ;
 			case SOUND_LAB:    GVars_Heart.changeVue(new Vue_SoundLab(),true) ; break ;
+			case CREDITS:      GVars_Heart.changeVue(new Vue_StartScreen(true),true) ; break ;
 		}
 	}
 	
