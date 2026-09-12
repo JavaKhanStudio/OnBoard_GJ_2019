@@ -41,6 +41,13 @@ public class Block_Resolution extends VisTable
 
 	/** Window sizes a 16:9 game can sensibly be shown in, whatever the monitor lists. */
 	static final String[] STANDARD_SIZES = {"1280x720", "1366x768", "1600x900", "1920x1080", "2560x1440", "3840x2160"} ;
+	/**
+	 * 30 and 60, and deliberately NO "unlimited". Simon settled that 60 is more than enough
+	 * (doubt d5, raised from r14), so do not add one back. A config file with fps = 0 still
+	 * runs uncapped - the launcher only calls setForegroundFPS when fps > 0 - but that is an
+	 * escape hatch for a hand-edited file, not a choice this screen offers, and opening
+	 * Options over it selects 30 (SelectBox falls back to the first item) and Apply saves it.
+	 */
 	static final String[] FPS_CHOICES = {"30", "60"} ;
 	
 	// Copies of GVars_Font's styles in ink, refreshed in resize() when the fonts are rebuilt.

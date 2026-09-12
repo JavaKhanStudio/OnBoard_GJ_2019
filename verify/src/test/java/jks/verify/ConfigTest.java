@@ -54,6 +54,9 @@ class ConfigTest
 		assertTrue(loaded.width > 0 && loaded.height > 0, "default window size must be usable");
 		assertTrue(loaded.volume > 0f, "the game should not install itself silent");
 		assertEquals(false, loaded.useMipmaps, "Linear without mipmaps is the chosen default");
+		// d5: asked whether to keep the 60 cap or offer an uncapped default, Simon answered
+		// "60 is more than enough". A fresh install gets 60, and nothing above 60 is offered.
+		assertEquals(60, loaded.fps, "60 is the chosen frame rate default (d5)");
 	}
 
 	@Test
