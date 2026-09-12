@@ -90,6 +90,14 @@ public class StartScreen_SmoothSideSelect extends Table implements ReplayAction,
 			}
 		}) ;
 		
+		// NOT "Crédits", however much it wants to be. The menu font is OptimusPrinceps, whose
+		// cmap has no é (U+00E9) and no usable É (U+00C9) - FreeType draws a bare accent where
+		// the letter should be, so the button reads "Cr¨dits". Rendered and looked at under d6.
+		// The font draws everything as capitals anyway, and an unaccented capital is ordinary
+		// French typography, so this stays until the font can spell it (doubt d8).
+		// Index_Credits.TITLE, the heading of the screen this opens, is the same word for the
+		// same reason. Anything in GeosansLight - the options rows, "Simon Bédard" in the
+		// credits - takes accents fine.
 		Button credits = buildButton("Credits") ;
 		selectableOptionsX.add(credits) ; 
 		credits.addListener(new ChangeListener()
@@ -102,7 +110,7 @@ public class StartScreen_SmoothSideSelect extends Table implements ReplayAction,
 			}
 		}) ;
 		
-		Button quitter = buildButton("Quit") ;
+		Button quitter = buildButton("Quitter") ;
 		selectableOptionsX.add(quitter) ; 
 		quitter.addListener(new ChangeListener()
 		{
