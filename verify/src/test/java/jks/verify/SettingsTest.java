@@ -35,6 +35,7 @@ import jks.amain.GameConfigs;
 import jks.amain.Main_Application;
 import jks.amain.Utils_Config;
 import jks.sounds.GVars_Audio;
+import jks.sounds.GVars_AudioManager;
 import jks.vars.GVars_Heart;
 import jks.vinterface.overlay.OverlayOptions;
 
@@ -153,6 +154,9 @@ class SettingsTest
 			record("the effects volume saves as it changes", Math.abs(reread().effectsVolume - 0.25f) < 1e-4);
 			record("and reaches the audio, apart from the music", Math.abs(GVars_Audio.effectVolume - 0.25f) < 1e-4
 				&& Math.abs(GVars_Audio.masterVolume - 0.7f) < 1e-4 && Math.abs(reread().volume - 0.7f) < 1e-4);
+			// d9 = A: Volume is the master over both, and the music has no slider of its own.
+			record("volume scales the music and the effects alike", Math.abs(GVars_AudioManager.musicVolume() - 0.7f * GVars_Audio.musiqueVolume) < 1e-4
+				&& Math.abs(GVars_AudioManager.effectsVolume() - 0.7f * 0.25f) < 1e-4);
 
 			muted.setChecked(true);
 			record("mute saves a volume of zero", reread().volume == 0f && GVars_Audio.muted);

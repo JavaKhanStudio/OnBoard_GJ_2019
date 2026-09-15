@@ -84,7 +84,8 @@ public class Block_Sound extends VisTable
 		add(volume).growX().padLeft(12f) ;
 		row() ;
 
-		// The train sounds, on top of Volume (r39). Muting still silences them with the music.
+		// The train sounds, on top of Volume (r39). Volume stays the master over music and effects,
+		// and the music has no slider of its own (d9). Muting still silences them with the music.
 		effectsLabel = new VisLabel("Effets", textStyle) ;
 		effectsCell = add(effectsLabel).left() ;
 		effects = new VisSlider(0f, 1f, 0.05f, false, Utils_Board.slider(24f)) ;
