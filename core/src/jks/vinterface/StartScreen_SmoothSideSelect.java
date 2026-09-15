@@ -28,6 +28,7 @@ import jks.vinterface.font.GVars_Font;
 import jks.vinterface.overlay.OverlayCredits;
 import jks.vinterface.overlay.OverlayOptions;
 import jks.vinterface.overlay.ReplayAction;
+import jks.vue.GVars_Fade;
 import jks.vue.Utils_View;
 import jks.vue.models.game.GVars_Game;
 import jks.vue.models.game.Vue_Game;
@@ -73,12 +74,16 @@ public class StartScreen_SmoothSideSelect extends Table implements ReplayAction,
 			@Override
 			public void changed(ChangeEvent event, Actor actor)
 			{
-				// Was building two Vue_Game instances and discarding the first.
-				Vue_Game myGame = new Vue_Game() ; 
-				GVars_Heart.changeVue(myGame,true) ; 
-				GVars_Game.loadLevel(1);
-				// The train leaves the station. Only here: a new game, not the dev start points.
-				GVars_AudioManager.PlayEffect(Enum_Effect_Sound.Slot.DEPARTURE);
+				// The menu fades out and the first carriage fades in (r44).
+				GVars_Fade.through(() ->
+				{
+					// Was building two Vue_Game instances and discarding the first.
+					Vue_Game myGame = new Vue_Game() ; 
+					GVars_Heart.changeVue(myGame,true) ; 
+					GVars_Game.loadLevel(1);
+					// The train leaves the station. Only here: a new game, not the dev start points.
+					GVars_AudioManager.PlayEffect(Enum_Effect_Sound.Slot.DEPARTURE);
+				}) ;
 			}
 		}) ;
 		

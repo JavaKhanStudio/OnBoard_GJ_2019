@@ -32,7 +32,8 @@ import jks.vue.models.game.GVars_Game;
 class LevelWalkTest
 {
 	private static final int LAST_LEVEL = 4;
-	private static final double SECONDS_PER_LEVEL = 1.5;
+	/** Long enough for nextLevel's fade out and back in (r44), so each grab is the carriage in full. */
+	private static final double SECONDS_PER_LEVEL = 3.5;
 
 	private static final File MODULE = new File(System.getProperty("onboard.verify"));
 	private static final File OUTPUT = new File(MODULE, "build/frames");

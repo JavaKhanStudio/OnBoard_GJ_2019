@@ -34,6 +34,7 @@ import jks.vinterface.StartScreen_SmoothSideSelect;
 import jks.vinterface.controlling.Utils_Controllable;
 import jks.vinterface.overlay.OverlayCredits;
 import jks.vinterface.overlay.OverlayOptions;
+import jks.vue.GVars_Fade;
 import jks.vue.models.game.Vue_Game;
 
 /**
@@ -140,10 +141,20 @@ class MenuKeyboardTest
 			record("so enter shows it again rather than starting the game",
 				GVars_UI.focusShown && !(GVars_Heart.vue instanceof Vue_Game));
 			press(Keys.ENTER);
-			record("and the next enter on Jouer starts the game", GVars_Heart.vue instanceof Vue_Game);
+			record("and the next enter on Jouer fades the menu out", GVars_Fade.isFading());
+			press(Keys.ENTER);
+		});
+		// A second to black, where the game view takes over.
+		steps.add(() -> {});
+		steps.add(() -> {
+			Frames.write(GameHarness.grab(), new File(OUTPUT, "menu-keyboard-fading-in.png"));
+			record("the game view took over at black", GVars_Heart.vue instanceof Vue_Game);
 			record("the game has no menu driving the keys", GVars_UI.currentControllable == null);
 		});
+		// The first carriage fades in for two seconds, and the keys wait for it.
+		steps.add(() -> {});
 		steps.add(() -> {
+			record("the fade is over", !GVars_Fade.isFading());
 			processor().keyDown(Keys.RIGHT);
 			record("right walks Ross again in the game", GVars_Inputs.rightPressed);
 			processor().keyUp(Keys.RIGHT);
@@ -218,6 +229,6 @@ class MenuKeyboardTest
 		assertTrue(finished, "not every step ran:\n" + report);
 		for (String line : seen)
 			assertTrue(line.startsWith("ok"), report);
-		assertEquals(22, seen.size(), report);
+		assertEquals(24, seen.size(), report);
 	}
 }

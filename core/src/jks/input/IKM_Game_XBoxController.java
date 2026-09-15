@@ -10,6 +10,7 @@ import com.badlogic.gdx.controllers.ControllerMapping;
 
 import jks.debug.GVars_Debug;
 import jks.vars.GVars_Heart;
+import jks.vue.GVars_Fade;
 
 /**
  * Gamepad input.
@@ -38,6 +39,10 @@ public class IKM_Game_XBoxController implements ControllerListener
 	@Override
 	public boolean buttonDown(Controller controller, int buttonCode)
 	{
+		// The keyboard and the mouse are held off during a fade by GVars_Fade; the pad is not.
+		if(GVars_Fade.isFading())
+			return true ;
+		
 		if(GVars_Heart.inCinematic)
 		{
 			GVars_Heart.inCinematic_Click = true ;

@@ -18,6 +18,7 @@ import jks.vars.GVars_Heart;
 import jks.vars.GVars_Serialization;
 import jks.vinterface.GVars_UI;
 import jks.vinterface.font.GVars_Font;
+import jks.vue.GVars_Fade;
 import jks.vue.models.Vue_Preloading;
 import jks.vue.models.Vue_Scenematic_Intro;
 import jks.vue.models.Vue_Scenematic_Outro;
@@ -149,6 +150,7 @@ public class Main_Application extends ApplicationAdapter
 	
 	private void mainInit()
 	{
+		GVars_Fade.reset() ;
 		GVars_Serialization.init(); 
 		GVars_UI.init() ; 
 		GVars_Camera.init();	
@@ -169,12 +171,17 @@ public class Main_Application extends ApplicationAdapter
     
     	if (delta > 0) 
     	{
-    		Player_Inputs.updateInput_ControllingInterface() ;
+    		// No menu moves under a fade: the pad would otherwise still drive it.
+    		if(!GVars_Fade.isFading())
+    			Player_Inputs.updateInput_ControllingInterface() ;
     		
     		if(!GVars_Heart.isPaused)
     			GVars_Heart.vue.update(delta);
         	
     		GVars_Heart.vue.render();
+    		
+    		GVars_Fade.update(delta) ;
+    		GVars_Fade.draw() ;
     	}
 	}
     

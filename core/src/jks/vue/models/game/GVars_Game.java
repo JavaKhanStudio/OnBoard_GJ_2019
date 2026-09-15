@@ -26,6 +26,7 @@ import jks.vinterface.GVars_UI;
 import jks.vinterface.Utils_TexturesAcess;
 import jks.vinterface.tools.DialogBubble;
 import jks.vinterface.tools.DialogBubble.DialogSize;
+import jks.vue.GVars_Fade;
 import jks.vue.models.Vue_Scenematic_Outro;
 
 public class GVars_Game 
@@ -197,16 +198,22 @@ public class GVars_Game
 
 	public static void nextLevel() 
 	{
-		// Before the outro's changeVue, which stops the train but lets this finish over it.
-		GVars_AudioManager.PlayEffect(Enum_Effect_Sound.Slot.LEVEL_COMPLETE) ; 
-		
-		if(currentLevelInt == 4)
+		// The carriage fades out and the next one, or the ending, fades in (r44). The swap
+		// waits for the black; a second call while that fade runs changes nothing.
+		boolean started = GVars_Fade.through(() ->
 		{
-			GVars_Heart.changeVue(new Vue_Scenematic_Outro(),true) ; 
-		}
+			if(currentLevelInt == LEVEL_COUNT)
+			{
+				GVars_Heart.changeVue(new Vue_Scenematic_Outro(),true) ; 
+			}
+			
+			GVars_Camera.init();
+			loadLevel(++currentLevelInt) ; 
+		}) ;
 		
-		GVars_Camera.init();
-		loadLevel(++currentLevelInt) ; 
+		// Before the outro's changeVue, which stops the train but lets this finish over it.
+		if(started)
+			GVars_AudioManager.PlayEffect(Enum_Effect_Sound.Slot.LEVEL_COMPLETE) ; 
 	}
 
 	public static void tryMakeDiseaper(String text) 

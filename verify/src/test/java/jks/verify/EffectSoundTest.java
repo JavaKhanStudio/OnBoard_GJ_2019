@@ -120,7 +120,9 @@ class EffectSoundTest
 			// The chime has rung out by now. Silence it anyway, so a replay would show.
 			step(t, 6.5, "first piece again", () -> { GVars_AudioManager.StopEffects(); GVars_Game.addKey(1); });
 			step(t, 6.9, "second piece", () -> GVars_Game.addKey(2));
-			step(t, 8.8, "last piece", () -> { GVars_AudioManager.StopEffects(); GVars_Game.addKey(3); levelAfterTheKey = GVars_Game.currentLevelInt; });
+			step(t, 8.8, "last piece", () -> { GVars_AudioManager.StopEffects(); GVars_Game.addKey(3); });
+			// The next carriage comes in once the fade to black is over (r44).
+			step(t, 10.2, "after the fade", () -> levelAfterTheKey = GVars_Game.currentLevelInt);
 			step(t, 11.4, "in the sound lab", () ->
 			{
 				GVars_Heart.changeVue(new Vue_SoundLab(), true);
