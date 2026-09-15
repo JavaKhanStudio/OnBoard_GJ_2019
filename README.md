@@ -22,9 +22,11 @@ Built with libGDX. Originally Java 8 and libGDX 1.9.10; brought up to Java 21 an
 `-Donboard.start=` accepts `logo`, `intro`, `start_screen`, `game`, `outro`, `credits` —
 the start screen with the credits already open, so Retour lands on the menu — and
 `sound_lab` — a development screen, not part of the game, listing every music track and
-sound effect the game names, with Play/Stop through the game's own audio path.
+sound effect the game names, with Play/Stop through the game's own audio path — and
+`item_lab`, another: a carriage with sliders for the yellow outline a hovered item gets
+(width, opacity, stroke, speed), and a button that outlines every item at once.
 
-`-Donboard.level=` (1 to 4) picks the carriage `game` starts in. Nothing is carried over from
+`-Donboard.level=` (1 to 4) picks the carriage `game` or `item_lab` starts in. Nothing is carried over from
 the carriages skipped: that costs only karma, so from level 3 or 4 the leaving ending cannot be
 reached.
 

@@ -2,7 +2,6 @@ package jks.vue.models.game;
 
 import jks.tools.Utils_Debug;
 
-import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.math.Rectangle;
@@ -43,12 +42,9 @@ public class GameItem
 	Rectangle textureBounds ; 
 	@JsonIgnore
 	boolean picked ; 
-	/** Under the mouse: a click now would reach it, so it is drawn lit (r40). */
+	/** Under the mouse: a click now would reach it, so it is drawn outlined (r40, d10). */
 	@JsonIgnore
 	boolean hovered ; 
-	
-	/** How much of the item is added back over itself when hovered. */
-	static final float HOVER_GLOW = 0.35f ; 
 	
 	public GameItem() 
 	{}
@@ -97,17 +93,9 @@ public class GameItem
 		
 		batch.draw(objectTexture, posX, posY, objectTexture.getWidth(), objectTexture.getHeight());
 		
-		if(hovered)
-		{
-			// The item again, added onto itself: it lights up inside its own outline and the
-			// carriage around it stays as it was.
-			float color = batch.getPackedColor() ; 
-			batch.setBlendFunction(GL20.GL_SRC_ALPHA, GL20.GL_ONE);
-			batch.setColor(1, 1, 1, HOVER_GLOW);
-			batch.draw(objectTexture, posX, posY, objectTexture.getWidth(), objectTexture.getHeight());
-			batch.setPackedColor(color);
-			batch.setBlendFunction(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
-		}
+		// A line around it, not over it (d10): see ItemOutline.
+		if(hovered || ItemOutline.lightAll)
+			ItemOutline.draw(batch, objectTexture, posX, posY);
 	}
 	
 	/** Takes the pointer in world coordinates, or null when nothing in the carriage can be clicked. */

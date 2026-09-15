@@ -7,6 +7,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.IOException;
+
+import javax.imageio.ImageIO;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,6 +37,9 @@ import jks.vue.models.game.GameItem;
  * A carriage item lights up while the mouse is on it, the way the menus do (r40). Nothing in a
  * level reacted to the mouse before a click. The mouse goes through the level's own input
  * processor, as a real one would.
+ *
+ * Lit means a yellow line around the item, not over it (d10): the bundle is pale, and the
+ * additive glow r40 first drew washed it toward white.
  */
 @Tag("gl")
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -160,19 +166,14 @@ class ItemHoverRenderTest
 		seen.add((ok ? "ok   " : "FAIL ") + step);
 	}
 
-	/** Mean of R+G+B over the item's box. */
-	private static double brightness(BufferedImage image, int[] box)
+	private static int yellowness(int p)
 	{
-		long sum = 0;
-		int n = 0;
-		for (int y = Math.max(0, box[1]); y < Math.min(image.getHeight(), box[3]); y++)
-			for (int x = Math.max(0, box[0]); x < Math.min(image.getWidth(), box[2]); x++)
-			{
-				int p = image.getRGB(x, y);
-				sum += ((p >> 16) & 0xFF) + ((p >> 8) & 0xFF) + (p & 0xFF);
-				n++;
-			}
-		return n == 0 ? 0 : sum / (double) n;
+		return (((p >> 16) & 0xFF) + ((p >> 8) & 0xFF)) / 2 - (p & 0xFF);
+	}
+
+	private static int brightness(int p)
+	{
+		return ((p >> 16) & 0xFF) + ((p >> 8) & 0xFF) + (p & 0xFF);
 	}
 
 	@Test
@@ -191,13 +192,48 @@ class ItemHoverRenderTest
 	}
 
 	@Test
-	@DisplayName("the lit item is visibly brighter")
-	void looksBrighter()
+	@DisplayName("the lit item gains a yellow line outside its shape, and its own pixels stay as they were")
+	void looksOutlined() throws IOException
 	{
 		assertNotNull(lit, "the lit item was never captured");
-		double before = brightness(resting, itemOnScreen), after = brightness(lit, itemOnScreen);
-		assertTrue(after > before + 20, String.format(
-			"the hovered item is not visibly brighter: %.1f before, %.1f lit (see %s)",
-			before, after, new File(OUTPUT, "hover-item.png").getAbsolutePath()));
+		// Drawn at its own size under a camera that does not zoom, so a screen pixel is a texel.
+		BufferedImage texture = ImageIO.read(new File(System.getProperty("onboard.assets"), "game/wagon/wa1/" + ITEM));
+		int margin = 8, yellowed = 0, yellowedOutside = 0, inside = 0;
+		long insideChange = 0;
+		for (int y = itemOnScreen[1] - margin; y < itemOnScreen[3] + margin; y++)
+			for (int x = itemOnScreen[0] - margin; x < itemOnScreen[2] + margin; x++)
+			{
+				if (x < 0 || y < 0 || x >= lit.getWidth() || y >= lit.getHeight()) continue;
+				int tx = x - itemOnScreen[0], ty = y - itemOnScreen[1];
+				int alpha = tx < 0 || ty < 0 || tx >= texture.getWidth() || ty >= texture.getHeight()
+					? 0 : (texture.getRGB(tx, ty) >>> 24);
+				int before = resting.getRGB(x, y), after = lit.getRGB(x, y);
+				if (yellowness(after) - yellowness(before) > 30)
+				{
+					yellowed++;
+					if (alpha < 128) yellowedOutside++;
+				}
+				if (alpha == 255 && opaqueAround(texture, tx, ty, 2))
+				{
+					inside++;
+					insideChange += Math.abs(brightness(after) - brightness(before));
+				}
+			}
+		String see = new File(OUTPUT, "hover-item.png").getAbsolutePath();
+		assertTrue(yellowed > 150, "hardly any yellow line around the hovered item: " + yellowed + " pixels (see " + see + ")");
+		assertTrue(yellowedOutside > yellowed * 0.9, String.format(
+			"the yellow is on the item rather than around it: %d of %d pixels outside (see %s)", yellowedOutside, yellowed, see));
+		double meanChange = insideChange / (double) Math.max(1, inside);
+		assertTrue(inside > 1000 && meanChange < 3, String.format(
+			"the item's own pixels changed when lit: mean %.1f over %d pixels (see %s)", meanChange, inside, see));
+	}
+
+	private static boolean opaqueAround(BufferedImage texture, int tx, int ty, int radius)
+	{
+		for (int y = ty - radius; y <= ty + radius; y++)
+			for (int x = tx - radius; x <= tx + radius; x++)
+				if (x < 0 || y < 0 || x >= texture.getWidth() || y >= texture.getHeight() || (texture.getRGB(x, y) >>> 24) < 255)
+					return false;
+		return true;
 	}
 }

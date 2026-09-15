@@ -90,6 +90,7 @@ public class WagonLevel
 	public void update(float delta)
 	{
     	parallax.act(delta);	
+    	ItemOutline.advance(delta);
 	}
 	
 	public void draw()
