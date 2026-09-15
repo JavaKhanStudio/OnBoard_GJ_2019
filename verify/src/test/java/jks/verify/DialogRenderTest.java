@@ -63,6 +63,10 @@ class DialogRenderTest
 		config.setWindowedMode(1280, 720);   // cage's headless output size; fits any real display too
 		config.setTitle("On Board - dialogue verification");
 		config.setResizable(false);
+		// The launcher's context, not LWJGL3's default. A GL 3.2 core profile has no
+		// GL_LUMINANCE_ALPHA, so a grey+alpha PNG draws as a black square there while the
+		// default context draws it fine - which is how the bubble went black unnoticed (r37).
+		config.setOpenGLEmulation(Lwjgl3ApplicationConfiguration.GLEmulation.GL30, 3, 2);
 
 		Main_Application.startPoint = Main_Application.StartPoint.GAME;
 
