@@ -175,7 +175,7 @@ public class Main_Application extends ApplicationAdapter
 		// Music holds a decoder and an OpenAL source. Nothing released them, which was
 		// invisible while the game only ever exited by having its process killed.
 		GVars_AudioManager.StopAndDisposeMusic() ;
-		GVars_AudioManager.DisposeTrainSounds() ;
+		GVars_AudioManager.DisposeEffects() ;
 		GVars_Font.dispose() ;
     }
 }

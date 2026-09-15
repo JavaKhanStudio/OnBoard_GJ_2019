@@ -15,6 +15,8 @@ import com.kotcrab.vis.ui.widget.VisImageButton;
 
 import jks.camera.GVars_Camera;
 import jks.index.Index_Interface;
+import jks.sounds.Enum_Effect_Sound;
+import jks.sounds.GVars_AudioManager;
 import jks.personnage.model.Enum_AGE;
 import jks.personnage.model.SIW_Data;
 import jks.personnage.model.SpriteModel;
@@ -194,6 +196,9 @@ public class GVars_Game
 
 	public static void nextLevel() 
 	{
+		// Before the outro's changeVue, which stops the train but lets this finish over it.
+		GVars_AudioManager.PlayEffect(Enum_Effect_Sound.Slot.LEVEL_COMPLETE) ; 
+		
 		if(currentLevelInt == 4)
 		{
 			GVars_Heart.changeVue(new Vue_Scenematic_Outro(),true) ; 

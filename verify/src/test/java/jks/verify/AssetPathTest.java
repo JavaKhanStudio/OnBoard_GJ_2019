@@ -17,7 +17,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import jks.index.Index_Interface;
-import jks.sounds.Enum_Train_Sound;
+import jks.sounds.Enum_Effect_Sound;
 import jks.vinterface.font.Index_Fonts;
 
 /**
@@ -67,14 +67,14 @@ class AssetPathTest
 	}
 
 	@Test
-	@DisplayName("every train sound candidate exists")
-	void trainSoundsResolve()
+	@DisplayName("every sound effect candidate exists")
+	void effectSoundsResolve()
 	{
 		Map<String, String> paths = new LinkedHashMap<>();
-		for (Enum_Train_Sound sound : Enum_Train_Sound.values())
+		for (Enum_Effect_Sound sound : Enum_Effect_Sound.values())
 			paths.put(sound.name(), sound.path);
 
-		assertTrue(paths.size() > 0, "no train sounds declared");
+		assertTrue(paths.size() > 0, "no sound effects declared");
 		assertAllExist(paths);
 	}
 

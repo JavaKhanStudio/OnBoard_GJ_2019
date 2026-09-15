@@ -13,7 +13,6 @@ import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
 import jks.amain.GameConfigs;
 import jks.amain.Utils_Config;
 import jks.vars.FVars_Heart;
-import jks.sounds.Enum_Train_Sound;
 import jks.sounds.GVars_Audio;
 import jks.vars.GVars_Heart;
 
@@ -55,8 +54,7 @@ public class Utils_Launcher
 			config.setForegroundFPS(gameConfig.fps) ;
 		applyVolume(gameConfig.volume) ;
 		GVars_Audio.effectVolume = Math.max(0f, Math.min(1f, gameConfig.effectsVolume)) ;
-		GVars_Audio.railsChoice = Enum_Train_Sound.fromConfig(gameConfig.railsSound, Enum_Train_Sound.Slot.RAILS) ;
-		GVars_Audio.departureChoice = Enum_Train_Sound.fromConfig(gameConfig.departureSound, Enum_Train_Sound.Slot.DEPARTURE) ;
+		GVars_Audio.loadChoices(gameConfig) ;
 		
 		if(gameConfig.isFullScreen)
 		{

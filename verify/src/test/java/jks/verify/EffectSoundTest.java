@@ -29,36 +29,43 @@ import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
 import jks.amain.GameConfigs;
 import jks.amain.Main_Application;
 import jks.amain.Utils_Config;
-import jks.sounds.Enum_Train_Sound;
+import jks.sounds.Enum_Effect_Sound;
+import jks.sounds.Enum_Effect_Sound.Slot;
 import jks.sounds.GVars_Audio;
 import jks.sounds.GVars_AudioManager;
 import jks.vars.GVars_Heart;
 import jks.vue.models.Vue_SoundLab;
+import jks.vue.models.game.GVars_Game;
 
 /**
- * The train sounds (r39): a rails bed under the game, a departure, and the effects volume.
+ * The game's sound effects: the rails bed and departure (r39), a key piece and a completed level
+ * (r45), and the effects volume over all of them.
  *
- * The music is turned off for the whole run, so whatever reaches the capture is the train. The
+ * The music is turned off for the whole run, so whatever reaches the capture is an effect. The
  * game view starts the rails by itself; the test then drags the effects volume to zero and back,
- * mutes and unmutes, stops the train, plays a departure, and leaves for the sound lab - checking
- * both what the audio manager says and what actually came out of the device.
+ * mutes and unmutes, stops the train and plays a departure. Then it gains the key through the
+ * game's own GVars_Game.addKey, piece by piece, and finally opens the sound lab - checking both
+ * what the audio manager says and what actually came out of the device.
  */
 @Tag("gl")
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-class TrainSoundTest
+class EffectSoundTest
 {
-	private static final double CAPTURE_AFTER_SECONDS = 4.4;
-	private static final double EXIT_AFTER_SECONDS    = 4.8;
+	private static final double CAPTURE_AFTER_SECONDS = 11.8;
+	private static final double EXIT_AFTER_SECONDS    = 12.2;
 
 	private static final File MODULE = new File(System.getProperty("onboard.verify"));
 	private static final File OUTPUT = new File(MODULE, "build/frames");
 
 	private static GameHarness harness;
 	private static boolean audioAvailable;
-	private static final Map<String, Enum_Train_Sound> railsAt = new LinkedHashMap<>();
+	private static final Map<String, Enum_Effect_Sound> railsAt = new LinkedHashMap<>();
+	private static final Map<String, Enum_Effect_Sound> keyAt = new LinkedHashMap<>();
+	private static final Map<String, Enum_Effect_Sound> levelAt = new LinkedHashMap<>();
 	private static final List<String> steps = new ArrayList<>();
-	private static Enum_Train_Sound chosenAndPlayed, choiceInTheGame;
+	private static Enum_Effect_Sound chosenAndPlayed, choiceInTheGame;
 	private static GameConfigs savedAfterChoosing;
+	private static int levelAfterTheKey;
 
 	private static AudioCapture capture;
 	private static Throwable captureError;
@@ -86,7 +93,7 @@ class TrainSoundTest
 
 		Lwjgl3ApplicationConfiguration gl = new Lwjgl3ApplicationConfiguration();
 		gl.setWindowedMode(1280, 720);
-		gl.setTitle("On Board - train sound verification");
+		gl.setTitle("On Board - sound effect verification");
 		gl.setOpenGLEmulation(Lwjgl3ApplicationConfiguration.GLEmulation.GL30, 3, 2);
 		gl.useVsync(false);
 
@@ -99,7 +106,7 @@ class TrainSoundTest
 			if (frame == 5)
 			{
 				audioAvailable = Gdx.audio != null;
-				choiceInTheGame = GVars_Audio.railsChoice;
+				choiceInTheGame = GVars_Audio.choice(Slot.RAILS);
 				railsAt.put("in the game", GVars_AudioManager.currentRails());
 			}
 			step(t, 1.0, "effects at zero", () -> GVars_AudioManager.setEffectsVolume(0f));
@@ -107,15 +114,23 @@ class TrainSoundTest
 			step(t, 2.0, "muted", () -> GVars_AudioManager.setMuted(true));
 			step(t, 2.5, "unmuted", () -> GVars_AudioManager.setMuted(false));
 			step(t, 3.0, "stopped", GVars_AudioManager::StopTrain);
-			step(t, 3.5, "departure", GVars_AudioManager::PlayDeparture);
-			step(t, 3.9, "in the sound lab", () ->
+			step(t, 3.5, "departure", () -> GVars_AudioManager.PlayEffect(Slot.DEPARTURE));
+			step(t, 4.3, "quiet before the key", GVars_AudioManager::StopEffects);
+			step(t, 4.8, "first piece", () -> GVars_Game.addKey(1));
+			// The chime has rung out by now. Silence it anyway, so a replay would show.
+			step(t, 6.5, "first piece again", () -> { GVars_AudioManager.StopEffects(); GVars_Game.addKey(1); });
+			step(t, 6.9, "second piece", () -> GVars_Game.addKey(2));
+			step(t, 8.8, "last piece", () -> { GVars_AudioManager.StopEffects(); GVars_Game.addKey(3); levelAfterTheKey = GVars_Game.currentLevelInt; });
+			step(t, 11.4, "in the sound lab", () ->
 			{
 				GVars_Heart.changeVue(new Vue_SoundLab(), true);
-				Vue_SoundLab.choose(Enum_Train_Sound.RAILS_SYNTH);
+				Vue_SoundLab.choose(Enum_Effect_Sound.RAILS_SYNTH);
+				Vue_SoundLab.choose(Enum_Effect_Sound.KEY_WOOD);
+				((Vue_SoundLab) GVars_Heart.vue).showSlot(Slot.KEY_PIECE);
 				savedAfterChoosing = Utils_Config.load();
 				GVars_AudioManager.StartRails();
 				chosenAndPlayed = GVars_AudioManager.currentRails();
-				GVars_AudioManager.StopTrain();
+				GVars_AudioManager.StopEffects();
 			});
 		};
 
@@ -138,10 +153,13 @@ class TrainSoundTest
 
 	private static void step(double now, double at, String name, Runnable action)
 	{
-		if (now < at || railsAt.containsKey(name)) return;
+		if (now < at || steps.stream().anyMatch(s -> s.endsWith("|" + name))) return;
 		action.run();
 		railsAt.put(name, GVars_AudioManager.currentRails());
-		steps.add(String.format("%.2fs %s: rails=%s", now, name, GVars_AudioManager.currentRails()));
+		keyAt.put(name, GVars_AudioManager.lastPlayed(Slot.KEY_PIECE));
+		levelAt.put(name, GVars_AudioManager.lastPlayed(Slot.LEVEL_COMPLETE));
+		steps.add(String.format("%.2fs rails=%s key=%s level=%s |%s", now,
+			railsAt.get(name), keyAt.get(name), levelAt.get(name), name));
 	}
 
 	@AfterAll
@@ -151,7 +169,7 @@ class TrainSoundTest
 		else System.setProperty("onboard.config", previousConfig);
 		Files.deleteIfExists(config);
 		GVars_Audio.musiqueVolume = 1f;
-		GVars_Audio.railsChoice = Enum_Train_Sound.defaultFor(Enum_Train_Sound.Slot.RAILS);
+		GVars_Audio.loadChoices(new GameConfigs());
 	}
 
 	private static final double LOUD = 1e-3;     // -60 dB
@@ -190,18 +208,34 @@ class TrainSoundTest
 	}
 
 	@Test
-	@DisplayName("leaving the game silences the train, and the lab's choice is saved and played")
+	@DisplayName("a new piece of the key chimes, a piece already held does not, and the last one completes the level")
+	void theKeyIsHeard()
+	{
+		Assumptions.assumeTrue(audioAvailable, "no audio device on this machine");
+		Enum_Effect_Sound key = Enum_Effect_Sound.defaultFor(Slot.KEY_PIECE);
+		assertEquals(key, keyAt.get("first piece"), "gaining a piece of the key made no sound");
+		assertNull(keyAt.get("first piece again"), "a piece already held chimed again");
+		assertEquals(key, keyAt.get("second piece"), "the second piece made no sound");
+		assertNull(keyAt.get("last piece"), "the last piece should play the level's sound, not the piece's");
+		assertEquals(Enum_Effect_Sound.defaultFor(Slot.LEVEL_COMPLETE), levelAt.get("last piece"),
+			"completing the key did not play the level-complete sound");
+		assertEquals(2, levelAfterTheKey, "the whole key should have moved the game to level 2");
+	}
+
+	@Test
+	@DisplayName("leaving the game silences the train, and the lab's choices are saved and played")
 	void theLabChooses()
 	{
 		Assumptions.assumeTrue(audioAvailable, "no audio device on this machine");
 		assertNull(railsAt.get("in the sound lab"), "the train kept playing after leaving the game view");
 		assertNotNull(savedAfterChoosing, "the lab step never ran");
-		assertEquals("RAILS_SYNTH", savedAfterChoosing.railsSound, "Use did not save the choice");
-		assertEquals(Enum_Train_Sound.RAILS_SYNTH, chosenAndPlayed, "the rails started were not the ones chosen");
+		assertEquals("RAILS_SYNTH", savedAfterChoosing.railsSound, "Use did not save the rails choice");
+		assertEquals("KEY_WOOD", savedAfterChoosing.keyPieceSound, "Use did not save the key piece choice");
+		assertEquals(Enum_Effect_Sound.RAILS_SYNTH, chosenAndPlayed, "the rails started were not the ones chosen");
 	}
 
 	@Test
-	@DisplayName("the train comes out of the audio device, and goes quiet where it should")
+	@DisplayName("the effects come out of the audio device, and go quiet where they should")
 	void theOutputIsHeard() throws Exception
 	{
 		File file = AudioCapture.configuredFile();
@@ -210,13 +244,18 @@ class TrainSoundTest
 		assertNull(captureError, captureError == null ? null : "could not read the capture: " + captureError);
 		assertNotNull(capture, "nothing was written to " + file);
 
-		if (harness.capture != null) Frames.write(harness.capture, new File(OUTPUT, "soundlab-train.png"));
+		if (harness.capture != null) Frames.write(harness.capture, new File(OUTPUT, "soundlab-effects.png"));
 
 		// Rails; silence at zero effects; rails; silence muted; rails; silence stopped; departure,
-		// which fades in over its first 300 ms.
+		// which fades in over its first 300 ms; silence; the first piece; silence, through the
+		// repeated piece; the second piece; silence; the level.
 		String profile = profile(capture);
-		assertTrue(Pattern.compile("#{4,}\\.{4,}#{4,}\\.{4,}#{4,}\\.{4,}-?#{4,}").matcher(profile).find(),
-			"expected rails, silence, rails, silence, rails, silence, departure.\n"
+		String sound = "-?#{4,}[-#]*";
+		String quiet = "\\.{4,}";
+		assertTrue(Pattern.compile("#{4,}" + quiet + "#{4,}" + quiet + "#{4,}" + quiet
+			+ sound + quiet + sound + quiet + sound + "\\.+" + sound).matcher(profile).find(),
+			"expected rails, silence, rails, silence, rails, silence, departure, silence, key piece, "
+			+ "silence, key piece, silence, level complete.\n"
 			+ "Each character is 50 ms, '#' sound, '.' silence: " + profile);
 	}
 }

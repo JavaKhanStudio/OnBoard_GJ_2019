@@ -8,6 +8,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.ui.Cell;
 import com.badlogic.gdx.scenes.scene2d.ui.Label.LabelStyle;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.Align;
@@ -21,7 +22,7 @@ import jks.index.Index_Interface;
 import jks.sounds.Enum_Music;
 import jks.sounds.Enum_Sounds_Game;
 import jks.sounds.Enum_Sounds_Interface;
-import jks.sounds.Enum_Train_Sound;
+import jks.sounds.Enum_Effect_Sound;
 import jks.sounds.GVars_Audio;
 import jks.sounds.GVars_AudioManager;
 import jks.vinterface.GVars_UI;
@@ -37,18 +38,23 @@ import jks.vue.AVue_Model;
  *   ./gradlew :desktop:runGame -Donboard.start=sound_lab
  *
  * The volume sliders act live and are NOT saved - the options screen is where those settings
- * live. The train rows are the exception: "Use" is how the train sounds are chosen (r39), so
- * it is saved to the config, and the game plays whichever is marked. The other effects have no
- * play button because none have files: the names exist, the recordings were never made. Give
- * one a file and it earns a button here.
+ * live. The effect rows are the exception: "Use" is how the game's sound effects are chosen
+ * (r39, r45), so it is saved to the config, and the game plays whichever is marked. One tab per
+ * moment - rails, departure, key piece, level complete - so every candidate fits on one screen.
+ * The effects named in Enum_Sounds_Game and Enum_Sounds_Interface have no play button because
+ * none have files: the names exist, the recordings were never made.
  */
 public class Vue_SoundLab extends AVue_Model
 {
 	/** Name, detail, Play, Stop, Use, and a filler that keeps the buttons beside the detail. */
 	private static final int COLUMNS = 6 ;
+	private static final float NAME_WIDTH = 330f, DETAIL_WIDTH = 390f ;
 
-	private VisLabel nowPlaying, trainPlaying ;
-	private final EnumMap<Enum_Train_Sound, VisLabel> trainMarks = new EnumMap<>(Enum_Train_Sound.class) ;
+	private VisLabel nowPlaying, effectsPlaying ;
+	private Cell<VisTable> candidates ;
+	private final EnumMap<Enum_Effect_Sound.Slot, VisTable> slotTables = new EnumMap<>(Enum_Effect_Sound.Slot.class) ;
+	private final EnumMap<Enum_Effect_Sound, VisLabel> marks = new EnumMap<>(Enum_Effect_Sound.class) ;
+	private final EnumMap<Enum_Effect_Sound.Slot, VisTextButton> tabs = new EnumMap<>(Enum_Effect_Sound.Slot.class) ;
 
 	@Override
 	public void init()
@@ -74,18 +80,38 @@ public class Vue_SoundLab extends AVue_Model
 		nowPlaying = label("", GVars_Font.labelStyle_Second) ;
 		addVolumeRow(page, nowPlaying) ;
 
-		page.add(label("Train", GVars_Font.labelStyle_OptionsTitle)).colspan(COLUMNS).left().padTop(12f).row() ;
-		for(Enum_Train_Sound.Slot slot : Enum_Train_Sound.Slot.values())
+		page.add(label("Sound effects", GVars_Font.labelStyle_OptionsTitle)).colspan(COLUMNS).left().padTop(12f).row() ;
+		VisTable tabRow = new VisTable() ;
+		for(final Enum_Effect_Sound.Slot slot : Enum_Effect_Sound.Slot.values())
 		{
-			page.add(label(slot == Enum_Train_Sound.Slot.RAILS ? "Rails - loops under every level" : "Departure - once, as a new game opens level 1",
-				GVars_Font.labelStyle_Second)).colspan(COLUMNS).left().padTop(8f).row() ;
-			for(Enum_Train_Sound candidate : Enum_Train_Sound.values())
-				if(candidate.slot == slot)
-					addTrainRow(page, candidate) ;
+			VisTextButton tab = new VisTextButton(shown(slot.name()), "toggle") ;
+			tab.addListener(new ChangeListener()
+			{
+				@Override
+				public void changed(ChangeEvent event, Actor actor)
+				{
+					if(((VisTextButton) actor).isChecked())
+						showSlot(slot) ;
+				}
+			}) ;
+			tabs.put(slot, tab) ;
+			tabRow.add(tab).padRight(8f) ;
 		}
-		trainPlaying = label("", GVars_Font.labelStyle_Second) ;
-		addEffectsVolumeRow(page, trainPlaying) ;
-		refreshTrainMarks() ;
+		page.add(tabRow).colspan(COLUMNS).left().padTop(6f).row() ;
+		for(Enum_Effect_Sound.Slot slot : Enum_Effect_Sound.Slot.values())
+		{
+			VisTable table = new VisTable() ;
+			table.add(label(slot.label, GVars_Font.labelStyle_Second)).colspan(COLUMNS).left().padTop(8f).row() ;
+			for(Enum_Effect_Sound candidate : Enum_Effect_Sound.values())
+				if(candidate.slot == slot)
+					addEffectRow(table, candidate) ;
+			slotTables.put(slot, table) ;
+		}
+		candidates = page.add((VisTable) null).colspan(COLUMNS).growX().left() ;
+		page.row() ;
+		effectsPlaying = label("", GVars_Font.labelStyle_Second) ;
+		addEffectsVolumeRow(page, effectsPlaying) ;
+		showSlot(Enum_Effect_Sound.Slot.RAILS) ;
 
 		StringBuilder missing = new StringBuilder() ;
 		for(Enum_Sounds_Game effect : Enum_Sounds_Game.values())
@@ -117,15 +143,31 @@ public class Vue_SoundLab extends AVue_Model
 			{GVars_AudioManager.StopMusic() ;}
 		}) ;
 
-		page.add(label(shown(track.name()), GVars_Font.labelStyle_Second)).left().padRight(24f) ;
-		page.add(label(describe(file), GVars_Font.labelStyle_Second)).left().padRight(24f) ;
+		// Fixed widths, so the effect rows - a table of their own per tab - line up with these.
+		page.add(label(shown(track.name()), GVars_Font.labelStyle_Second)).left().width(NAME_WIDTH) ;
+		page.add(label(describe(file), GVars_Font.labelStyle_Second)).left().width(DETAIL_WIDTH) ;
 		page.add(play).padRight(8f) ;
 		page.add(stop) ;
 		page.add() ;
 		page.add().expandX().row() ;
 	}
 
-	private void addTrainRow(VisTable page, final Enum_Train_Sound candidate)
+	/** Fills the candidates table with one slot's sounds, and checks only that slot's tab. */
+	public void showSlot(Enum_Effect_Sound.Slot slot)
+	{
+		for(Enum_Effect_Sound.Slot other : tabs.keySet())
+		{
+			VisTextButton tab = tabs.get(other) ;
+			tab.setProgrammaticChangeEvents(false) ;
+			tab.setChecked(other == slot) ;
+			tab.setProgrammaticChangeEvents(true) ;
+		}
+
+		candidates.setActor(slotTables.get(slot)) ;
+		refreshMarks() ;
+	}
+
+	private void addEffectRow(VisTable table, final Enum_Effect_Sound candidate)
 	{
 		VisTextButton play = new VisTextButton("Play") ;
 		play.addListener(new ChangeListener()
@@ -133,11 +175,11 @@ public class Vue_SoundLab extends AVue_Model
 			@Override
 			public void changed(ChangeEvent event, Actor actor)
 			{
-				GVars_AudioManager.StopTrain() ;
-				if(candidate.slot == Enum_Train_Sound.Slot.RAILS)
+				GVars_AudioManager.StopEffects() ;
+				if(candidate.slot == Enum_Effect_Sound.Slot.RAILS)
 					GVars_AudioManager.PlayRails(candidate) ;
 				else
-					GVars_AudioManager.PlayDeparture(candidate) ;
+					GVars_AudioManager.PlayEffect(candidate) ;
 			}
 		}) ;
 
@@ -146,7 +188,7 @@ public class Vue_SoundLab extends AVue_Model
 		{
 			@Override
 			public void changed(ChangeEvent event, Actor actor)
-			{GVars_AudioManager.StopTrain() ;}
+			{GVars_AudioManager.StopEffects() ;}
 		}) ;
 
 		VisTextButton use = new VisTextButton("Use") ;
@@ -158,40 +200,29 @@ public class Vue_SoundLab extends AVue_Model
 		}) ;
 
 		VisLabel mark = label("", GVars_Font.labelStyle_Second) ;
-		trainMarks.put(candidate, mark) ;
+		marks.put(candidate, mark) ;
 
-		page.add(label(candidate.label, GVars_Font.labelStyle_Second)).left().padRight(24f) ;
+		table.add(label(candidate.label, GVars_Font.labelStyle_Second)).left().width(NAME_WIDTH) ;
 		// The enum name, not the path: the file names have underscores, which this font cannot draw.
-		page.add(label(shown(candidate.name()) + describeSize(Gdx.files.internal(candidate.path)), GVars_Font.labelStyle_Second)).left().padRight(24f) ;
-		page.add(play).padRight(8f) ;
-		page.add(stop).padRight(8f) ;
-		page.add(use).padRight(12f) ;
-		page.add(mark).expandX().left().row() ;
+		table.add(label(shown(candidate.name()) + describeSize(Gdx.files.internal(candidate.path)), GVars_Font.labelStyle_Second)).left().width(DETAIL_WIDTH) ;
+		table.add(play).padRight(8f) ;
+		table.add(stop).padRight(8f) ;
+		table.add(use).padRight(12f) ;
+		table.add(mark).expandX().left().row() ;
 	}
 
 	/** Saved at once: this is the one choice the lab exists to make. */
-	public static void choose(Enum_Train_Sound candidate)
+	public static void choose(Enum_Effect_Sound candidate)
 	{
-		if(candidate.slot == Enum_Train_Sound.Slot.RAILS)
-		{
-			GVars_Audio.railsChoice = candidate ;
-			Utils_Config.current.railsSound = candidate.name() ;
-		}
-		else
-		{
-			GVars_Audio.departureChoice = candidate ;
-			Utils_Config.current.departureSound = candidate.name() ;
-		}
+		GVars_Audio.choose(candidate) ;
+		Utils_Config.current.chooseSound(candidate) ;
 		Utils_Config.save() ;
 	}
 
-	private void refreshTrainMarks()
+	private void refreshMarks()
 	{
-		for(Enum_Train_Sound candidate : trainMarks.keySet())
-		{
-			boolean chosen = candidate == GVars_Audio.railsChoice || candidate == GVars_Audio.departureChoice ;
-			trainMarks.get(candidate).setText(chosen ? "in the game" : "") ;
-		}
+		for(Enum_Effect_Sound candidate : marks.keySet())
+			marks.get(candidate).setText(GVars_Audio.choice(candidate.slot) == candidate ? "in the game" : "") ;
 	}
 
 	private void addEffectsVolumeRow(VisTable page, VisLabel status)
@@ -258,7 +289,7 @@ public class Vue_SoundLab extends AVue_Model
 	{
 		if(!file.exists())
 			return "  MISSING" ;
-		return String.format(Locale.ROOT, "  %.1f MB", file.readBytes().length / (1024f * 1024f)) ;
+		return String.format(Locale.ROOT, "  %d KB", file.readBytes().length / 1024) ;
 	}
 
 	/** The menu fonts have no underscore - FreeType leaves a hole where it would be. */
@@ -280,10 +311,10 @@ public class Vue_SoundLab extends AVue_Model
 	public void update(float delta)
 	{
 		GVars_UI.mainUi.act(delta) ;
-		refreshTrainMarks() ;
+		refreshMarks() ;
 
-		Enum_Train_Sound rails = GVars_AudioManager.currentRails() ;
-		trainPlaying.setText(rails == null ? "No rails bed playing" : "Looping " + rails.label) ;
+		Enum_Effect_Sound rails = GVars_AudioManager.currentRails() ;
+		effectsPlaying.setText(rails == null ? "No rails bed playing" : "Looping " + rails.label) ;
 
 		Enum_Music playing = GVars_AudioManager.currentMusic() ;
 		if(playing == null)

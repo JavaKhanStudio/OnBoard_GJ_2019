@@ -16,6 +16,8 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.kotcrab.vis.ui.widget.VisImage;
 
 import jks.index.Index_Interface;
+import jks.sounds.Enum_Effect_Sound;
+import jks.sounds.GVars_AudioManager;
 import jks.vinterface.GVars_UI;
 
 public class Clef extends Table
@@ -93,6 +95,8 @@ public class Clef extends Table
 	
 	public void applySucces(int value)
 	{	
+		boolean hadIt = has(value) ; 
+		
 		if(value == 1)
 		{
 			hasPiece1 = true ; 
@@ -109,10 +113,21 @@ public class Clef extends Table
 			part3.setDrawable(Index_Interface.manager.get(Index_Interface.key3Full, Texture.class)) ;
 		}
 		
-		if(hasPiece1 && hasPiece2 && hasPiece3)
+		// The last piece plays the level's sound instead, from nextLevel: two chimes on one
+		// pickup would only blur each other. A piece already held makes no sound at all.
+		boolean complete = hasPiece1 && hasPiece2 && hasPiece3 ; 
+		if(!hadIt && has(value) && !complete)
+			GVars_AudioManager.PlayEffect(Enum_Effect_Sound.Slot.KEY_PIECE) ; 
+		
+		if(complete)
 		{
 			GVars_Game.nextLevel() ; 
 		}
+	}
+	
+	private boolean has(int value)
+	{
+		return value == 1 ? hasPiece1 : value == 2 ? hasPiece2 : value == 3 ? hasPiece3 : false ; 
 	}
 	
 }
