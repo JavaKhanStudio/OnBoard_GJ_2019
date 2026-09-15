@@ -96,9 +96,15 @@ class MenuKeyboardTest
 		steps.add(() -> {
 			press(Keys.DOWN); press(Keys.DOWN);
 			record("down reaches full screen", focusedIs(1, 2));
+			// Full screen is the third row; the sound board's third row is the effects slider (r39).
 			press(Keys.RIGHT);
-			record("right crosses to the volume slider", focused() instanceof Slider);
+			record("right crosses to the effects slider", focused() instanceof Slider);
 			float before = ((Slider)focused()).getValue();
+			press(Keys.LEFT);
+			record("left turns the effects down a step", ((Slider)focused()).getValue() < before);
+			press(Keys.UP);
+			record("up reaches the volume slider", focused() instanceof Slider);
+			before = ((Slider)focused()).getValue();
 			press(Keys.LEFT);
 			record("left turns the volume down a step", ((Slider)focused()).getValue() < before);
 			press(Keys.UP);
@@ -212,6 +218,6 @@ class MenuKeyboardTest
 		assertTrue(finished, "not every step ran:\n" + report);
 		for (String line : seen)
 			assertTrue(line.startsWith("ok"), report);
-		assertEquals(20, seen.size(), report);
+		assertEquals(22, seen.size(), report);
 	}
 }

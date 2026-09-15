@@ -63,6 +63,10 @@ public class GVars_Heart
 			// init(), so tearing the music down on each change restarted the same recording
 			// from zero at every screen. PlayMusic now decides whether a change is needed,
 			// which lets one track carry across the logos, the intro and the menu.
+			//
+			// The train is the opposite: it belongs to the game view alone. Vue_Game starts the
+			// rails again in its own init(), so leaving for the outro or the menu silences them.
+			GVars_AudioManager.StopTrain() ;
 			GVars_Heart.isPaused = false ; 
 			GVars_UI.reset() ; 
 		}

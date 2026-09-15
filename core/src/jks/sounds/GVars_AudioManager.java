@@ -5,6 +5,7 @@ import jks.tools.Utils_Debug;
 import static jks.sounds.GVars_Audio.masterVolume;
 
 import java.util.ArrayList;
+import java.util.EnumMap;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Music;
@@ -205,6 +206,172 @@ public class GVars_AudioManager
 			startRequestedTrack() ;
 		else
 			currentlyRunningMusic.setVolume(musicVolume()) ;
+		
+		applyEffectsVolumeChange() ;
+	}
+
+	// --- Train sounds (r39) ----------------------------------------------------------------
+	//
+	// A rails bed loops under every level and a departure plays once as a new game opens
+	// level 1. They are Sounds, decoded whole into memory, rather than Music: a Sound loops
+	// sample-exactly, and the beds were cut to loop without a seam.
+	//
+	// Same rules as the music. The rails are a request that outlives muting, so unmuting
+	// brings them back, and volume changes reach what is already playing.
+
+	/** The recordings are levelled alike; these set how far under the music each one sits. */
+	static final float RAILS_GAIN = 0.35f ;
+	static final float DEPARTURE_GAIN = 0.8f ;
+
+	private static final EnumMap<Enum_Train_Sound, Sound> trainSounds = new EnumMap<>(Enum_Train_Sound.class) ;
+
+	private static Enum_Train_Sound requestedRails ;
+	private static Enum_Train_Sound playingRails ;
+	private static long railsId = -1 ;
+	private static Enum_Train_Sound playingDeparture ;
+	private static long departureId = -1 ;
+
+	public static float effectsVolume()
+	{
+		return MathUtils.clamp(GVars_Audio.masterVolume * GVars_Audio.effectVolume, 0f, 1f) ;
+	}
+
+	public static void setEffectsVolume(float volume)
+	{
+		GVars_Audio.effectVolume = MathUtils.clamp(volume, 0f, 1f) ;
+		applyEffectsVolumeChange() ;
+	}
+
+	private static boolean effectsSilent()
+	{
+		return GVars_Audio.muted || effectsVolume() <= 0f ;
+	}
+
+	/** The chosen rails bed, looping until StopTrain. Asking again while it plays changes nothing. */
+	public static void StartRails()
+	{
+		PlayRails(GVars_Audio.railsChoice) ;
+	}
+
+	/** A particular rails bed - the sound lab plays candidates through this. */
+	public static void PlayRails(Enum_Train_Sound which)
+	{
+		if(which == null || which.slot != Enum_Train_Sound.Slot.RAILS)
+			return ;
+		
+		requestedRails = which ;
+		if(railsId != -1 && playingRails == which)
+			return ;
+		
+		startRequestedRails() ;
+	}
+
+	private static void startRequestedRails()
+	{
+		stopRailsPlayback() ;
+		if(requestedRails == null || effectsSilent())
+			return ;
+		
+		Sound sound = trainSound(requestedRails) ;
+		if(sound == null)
+			return ;
+		
+		railsId = sound.loop(effectsVolume() * RAILS_GAIN) ;
+		playingRails = railsId == -1 ? null : requestedRails ;
+	}
+
+	/** The chosen departure, once. */
+	public static void PlayDeparture()
+	{
+		PlayDeparture(GVars_Audio.departureChoice) ;
+	}
+
+	public static void PlayDeparture(Enum_Train_Sound which)
+	{
+		if(which == null || which.slot != Enum_Train_Sound.Slot.DEPARTURE)
+			return ;
+		
+		stopDeparturePlayback() ;
+		if(effectsSilent())
+			return ;
+		
+		Sound sound = trainSound(which) ;
+		if(sound == null)
+			return ;
+		
+		departureId = sound.play(effectsVolume() * DEPARTURE_GAIN) ;
+		playingDeparture = departureId == -1 ? null : which ;
+	}
+
+	/** Stops the rails and any departure, and forgets the request: leaving the train, not muting it. */
+	public static void StopTrain()
+	{
+		requestedRails = null ;
+		stopRailsPlayback() ;
+		stopDeparturePlayback() ;
+	}
+
+	/** The rails bed coming out of the speakers, or null. */
+	public static Enum_Train_Sound currentRails()
+	{
+		return railsId == -1 ? null : playingRails ;
+	}
+
+	private static void applyEffectsVolumeChange()
+	{
+		if(effectsSilent())
+		{
+			stopRailsPlayback() ;
+			stopDeparturePlayback() ;
+			return ;
+		}
+		
+		if(railsId == -1)
+			startRequestedRails() ;
+		else
+			trainSounds.get(playingRails).setVolume(railsId, effectsVolume() * RAILS_GAIN) ;
+		
+		if(departureId != -1)
+			trainSounds.get(playingDeparture).setVolume(departureId, effectsVolume() * DEPARTURE_GAIN) ;
+	}
+
+	private static void stopRailsPlayback()
+	{
+		if(railsId != -1)
+			trainSounds.get(playingRails).stop(railsId) ;
+		railsId = -1 ;
+		playingRails = null ;
+	}
+
+	private static void stopDeparturePlayback()
+	{
+		if(departureId != -1)
+			trainSounds.get(playingDeparture).stop(departureId) ;
+		departureId = -1 ;
+		playingDeparture = null ;
+	}
+
+	/** Loaded on first use and kept: switching candidates in the lab should not decode again. */
+	private static Sound trainSound(Enum_Train_Sound which)
+	{
+		Sound sound = trainSounds.get(which) ;
+		if(sound == null)
+		{
+			if(Gdx.audio == null)
+				return null ;
+			sound = Gdx.audio.newSound(Gdx.files.internal(which.path)) ;
+			trainSounds.put(which, sound) ;
+		}
+		return sound ;
+	}
+
+	/** Releases every decoded train sound and its OpenAL buffer. */
+	public static void DisposeTrainSounds()
+	{
+		StopTrain() ;
+		for(Sound sound : trainSounds.values())
+			sound.dispose() ;
+		trainSounds.clear() ;
 	}
 
 	public static boolean isMusicPlaying()

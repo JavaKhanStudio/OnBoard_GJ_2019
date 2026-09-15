@@ -52,6 +52,9 @@ public class Vue_Game extends AVue_Model
 		Controllers.clearListeners();
 		Controllers.addListener(new IKM_Game_XBoxController()) ; 
 		GVars_AudioManager.PlayMusic(Enum_Music.GAME_INTRO);
+		// Under every level: loading the next one does not come back through here, so the loop
+		// carries on across the whole game.
+		GVars_AudioManager.StartRails();
 		restart() ; 
     }
     

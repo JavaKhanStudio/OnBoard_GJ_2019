@@ -20,6 +20,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.Align;
 
+import jks.sounds.GVars_AudioManager;
 import jks.vars.GVars_Heart;
 import jks.vinterface.controlling.Controllable_Interface;
 import jks.vinterface.font.GVars_Font;
@@ -75,6 +76,8 @@ public class StartScreen_SmoothSideSelect extends Table implements ReplayAction,
 				Vue_Game myGame = new Vue_Game() ; 
 				GVars_Heart.changeVue(myGame,true) ; 
 				GVars_Game.loadLevel(1);
+				// The train leaves the station. Only here: a new game, not the dev start points.
+				GVars_AudioManager.PlayDeparture();
 			}
 		}) ;
 		

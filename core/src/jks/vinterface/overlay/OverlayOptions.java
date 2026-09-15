@@ -90,7 +90,7 @@ public class OverlayOptions extends OverlayModel
 			boardHeight = tallest ;
 			boardWidth = boardHeight * Utils_Board.BOARD_WIDTH / Utils_Board.BOARD_HEIGHT ;
 		}
-		// Sound has two rows, not six: a smaller board, hung level with the first.
+		// Sound has three rows, not six: a smaller board, hung level with the first.
 		float soundWidth = boardWidth * SOUND_BOARD_SCALE, soundHeight = boardHeight * SOUND_BOARD_SCALE ;
 		float x = left + (room - (boardWidth + margin + soundWidth)) / 2f ;
 		float y = (screenHeight - boardHeight) / 2f ;

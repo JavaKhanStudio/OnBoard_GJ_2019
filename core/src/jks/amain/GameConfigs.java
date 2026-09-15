@@ -13,6 +13,11 @@ public class GameConfigs
 	public boolean useVsynch = true ;
 	public int fps = 60 ; 
 	public float volume = 1f ; 
+	/** The effects slider: the train sounds, scaled again by volume. */
+	public float effectsVolume = 1f ; 
+	/** Enum_Train_Sound names, as picked in the sound lab. An unknown name falls back to the default. */
+	public String railsSound = null ; 
+	public String departureSound = null ; 
 	/** Off: the UI, carriages and items are filtered Linear, which Simon chose as the default. */
 	public boolean useMipmaps = false ; 
 	

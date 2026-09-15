@@ -29,9 +29,9 @@ import jks.vinterface.tools.PaintedCheckBox;
 public class Block_Sound extends VisTable
 {
 
-	private final VisSlider volume ;
+	private final VisSlider volume, effects ;
 	private final PaintedCheckBox muted ;
-	private final VisLabel title, volumeLabel ;
+	private final VisLabel title, volumeLabel, effectsLabel ;
 	
 	// Copies of GVars_Font's styles in ink, refreshed in resize() when the fonts are rebuilt.
 	private final LabelStyle titleStyle = Utils_Board.ink(GVars_Font.labelStyle_ScreenTitle) ;
@@ -39,7 +39,7 @@ public class Block_Sound extends VisTable
 	
 	private final Cell<VisLabel> titleCell ;
 	private final Cell<PaintedCheckBox> mutedCell ;
-	private final Cell<VisLabel> volumeCell ;
+	private final Cell<VisLabel> volumeCell, effectsCell ;
 
 	public Block_Sound()
 	{
@@ -82,6 +82,24 @@ public class Block_Sound extends VisTable
 			}
 		}) ;
 		add(volume).growX().padLeft(12f) ;
+		row() ;
+
+		// The train sounds, on top of Volume (r39). Muting still silences them with the music.
+		effectsLabel = new VisLabel("Effets", textStyle) ;
+		effectsCell = add(effectsLabel).left() ;
+		effects = new VisSlider(0f, 1f, 0.05f, false, Utils_Board.slider(24f)) ;
+		effects.setValue(Math.max(0f, Math.min(1f, Utils_Config.current.effectsVolume))) ;
+		effects.addListener(new ChangeListener()
+		{
+			@Override
+			public void changed(ChangeEvent event, Actor actor)
+			{
+				GVars_AudioManager.setEffectsVolume(effects.getValue()) ;
+				Utils_Config.current.effectsVolume = effects.getValue() ;
+				Utils_Config.save() ;
+			}
+		}) ;
+		add(effects).growX().padLeft(12f) ;
 	}
 	
 	/**
@@ -94,6 +112,7 @@ public class Block_Sound extends VisTable
 		title.setStyle(titleStyle) ;
 		textStyle.font = GVars_Font.font_Second ;
 		volumeLabel.setStyle(textStyle) ;
+		effectsLabel.setStyle(textStyle) ;
 		muted.setFont(GVars_Font.font_Second) ;
 		
 		setSize(width, height) ;
@@ -102,8 +121,10 @@ public class Block_Sound extends VisTable
 		titleCell.height(Utils_Board.plankHeight(scale)).padBottom(Utils_Board.gapBelowPlank(scale)) ;
 		mutedCell.height(rowHeight) ;
 		volumeCell.height(rowHeight) ;
+		effectsCell.height(rowHeight) ;
 		muted.setBoxHeight(rowHeight * 0.8f) ;
 		volume.setStyle(Utils_Board.slider(rowHeight)) ;
+		effects.setStyle(Utils_Board.slider(rowHeight)) ;
 		invalidateHierarchy() ;
 	}
 
@@ -124,7 +145,14 @@ public class Block_Sound extends VisTable
 		ArrayList<Actor> order = new ArrayList<>() ;
 		order.add(muted) ;
 		order.add(volume) ;
+		order.add(effects) ;
 		return order ;
+	}
+
+	/** The effects slider's value, for tests. */
+	public float chosenEffectsVolume()
+	{
+		return effects.getValue() ;
 	}
 
 	/** The volume this block currently represents, for tests and for the caller. */

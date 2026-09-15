@@ -75,7 +75,7 @@ class SettingsTest
 	// The widgets, in Block_Resolution.focusOrder() and Block_Sound.focusOrder() order.
 	private static SelectBox<String> resolution, fps;
 	private static Button fullScreen, vsync, mipmaps, apply, muted;
-	private static Slider volume;
+	private static Slider volume, effects;
 
 	@BeforeAll
 	void driveTheSettings() throws Exception
@@ -93,6 +93,7 @@ class SettingsTest
 		start.useVsynch = false;
 		start.fps = 30;
 		start.volume = 0.4f;
+		start.effectsVolume = 0.55f;
 		start.useMipmaps = true;
 		Utils_Config.current = start;
 		Utils_Config.save();
@@ -127,6 +128,7 @@ class SettingsTest
 			record("mipmaps start as saved", mipmaps.isChecked());
 			record("mute starts as saved", !muted.isChecked());
 			record("volume starts as saved", Math.abs(volume.getValue() - 0.4f) < 1e-4);
+			record("effects start as saved", Math.abs(effects.getValue() - 0.55f) < 1e-4);
 			Frames.write(GameHarness.grab(), new File(OUTPUT, "settings-options.png"));
 
 			apply.toggle();
@@ -146,6 +148,11 @@ class SettingsTest
 			volume.setValue(0.7f);
 			record("the volume saves as it changes", Math.abs(reread().volume - 0.7f) < 1e-4);
 			record("and reaches the audio", Math.abs(GVars_Audio.masterVolume - 0.7f) < 1e-4);
+
+			effects.setValue(0.25f);
+			record("the effects volume saves as it changes", Math.abs(reread().effectsVolume - 0.25f) < 1e-4);
+			record("and reaches the audio, apart from the music", Math.abs(GVars_Audio.effectVolume - 0.25f) < 1e-4
+				&& Math.abs(GVars_Audio.masterVolume - 0.7f) < 1e-4 && Math.abs(reread().volume - 0.7f) < 1e-4);
 
 			muted.setChecked(true);
 			record("mute saves a volume of zero", reread().volume == 0f && GVars_Audio.muted);
@@ -214,7 +221,8 @@ class SettingsTest
 			record("the frame rate too", "30".equals(fps.getSelected()));
 			record("full screen and vsync too", !fullScreen.isChecked() && !vsync.isChecked());
 			record("mipmaps and sound too",
-				!mipmaps.isChecked() && !muted.isChecked() && Math.abs(volume.getValue() - 0.7f) < 1e-4);
+				!mipmaps.isChecked() && !muted.isChecked() && Math.abs(volume.getValue() - 0.7f) < 1e-4
+				&& Math.abs(effects.getValue() - 0.25f) < 1e-4);
 			Frames.write(GameHarness.grab(), new File(OUTPUT, "settings-reopened.png"));
 			finished = true;
 		}));
@@ -276,6 +284,7 @@ class SettingsTest
 		apply = (Button) graphics.get(5);
 		muted = (Button) sound.get(0);
 		volume = (Slider) sound.get(1);
+		effects = (Slider) sound.get(2);
 	}
 
 	/** The config file as the next launch would read it, not Utils_Config.current. */
