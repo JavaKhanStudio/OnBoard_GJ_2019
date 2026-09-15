@@ -45,9 +45,16 @@ public class GVars_Game
 	public static HashMap<String,SpriteModel> rossMap ; 
 	
 	public static int karma = 0 ;
+	/** Above this, Ross leaves the train at the end (Vue_Scenematic_Outro); at it or below, he stays. */
+	public static final int KARMA_TO_LEAVE = 2 ;
 	
 	public static DialogBubble dialogBubble ;
 	public static String currentLeadingText ; 
+	
+	public static boolean leavingEnding()
+	{
+		return karma > KARMA_TO_LEAVE ; 
+	}
 	
 	public static void init()
 	{

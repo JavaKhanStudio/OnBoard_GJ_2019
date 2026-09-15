@@ -26,9 +26,11 @@ sound effect the game names, with Play/Stop through the game's own audio path �
 `item_lab`, another: a carriage with sliders for the yellow outline a hovered item gets
 (width, opacity, stroke, speed), and a button that outlines every item at once.
 
-`-Donboard.level=` (1 to 4) picks the carriage `game` or `item_lab` starts in. Nothing is carried over from
-the carriages skipped: that costs only karma, so from level 3 or 4 the leaving ending cannot be
-reached.
+`-Donboard.level=` (1 to 4) picks the carriage `game` or `item_lab` starts in. Nothing is carried
+over from the carriages skipped, which costs only karma: from level 3 or 4 the leaving ending
+cannot be reached — unless you add `-Donboard.lab=true`, which puts a karma slider in the right
+end of the black bar under the carriage (`item_lab` always has it). It sets the karma live, and
+says which ending that karma leads to.
 
 Nothing needs to be installed first — Gradle fetches its own Java 21.
 

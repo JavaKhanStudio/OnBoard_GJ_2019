@@ -53,7 +53,7 @@ public class Vue_Scenematic_Outro extends AVue_Model
 		page_1 = manager.get(outroPage1, Texture.class) ;
 		currentpage = page_1 ; 
 		
-		if(GVars_Game.karma > 2) // Leave Ending
+		if(GVars_Game.leavingEnding()) // Leave Ending
 		{
 			page_2 = manager.get(outroPage_leave, Texture.class) ;
 			imageSequence.add(page_2) ; 

@@ -26,6 +26,7 @@ import jks.vue.models.Vue_SoundLab;
 import jks.vue.models.Vue_StartScreen;
 import jks.vue.models.game.GVars_Game;
 import jks.vue.models.game.ItemOutlineLab;
+import jks.vue.models.game.KarmaSlider;
 import jks.vue.models.game.Vue_Game;
 
 public class Main_Application extends ApplicationAdapter 
@@ -82,9 +83,17 @@ public class Main_Application extends ApplicationAdapter
 	 * A later carriage starts as a fresh run would reach it with nothing carried over, which
 	 * loses nothing but karma: every carriage's items and key are its own, but each one can add
 	 * a point of karma, and the leaving ending needs more than 2. From carriage 3 or 4 only the
-	 * staying ending can be reached.
+	 * staying ending can be reached, unless -Donboard.lab=true gives you the karma slider.
 	 */
 	public static int startLevel = levelFrom(System.getProperty("onboard.level")) ; 
+	
+	/**
+	 * -Donboard.lab=true puts the lab panels over a carriage started with GAME: for now the karma
+	 * slider (d11), since a later carriage starts with none of the karma the skipped ones could
+	 * have given. The board's Carriage surfaces pass it; item_lab always has it. Off by default,
+	 * so a plain dev start and every test look like the game.
+	 */
+	public static boolean lab = Boolean.getBoolean("onboard.lab") ; 
 	
 	public static int levelFrom(String requested)
 	{
@@ -119,10 +128,10 @@ public class Main_Application extends ApplicationAdapter
 			case LOGO:         startAtLogo() ;        break ; 
 			case INTRO:        startAtIntro() ;       break ; 
 			case START_SCREEN: startAtStartScreen() ; break ; 
-			case GAME:         startAtGame() ;        break ; 
+			case GAME:         startAtGame() ;        if(lab) KarmaSlider.open() ; break ; 
 			case OUTRO:        startAtOutro() ;       break ;
 			case SOUND_LAB:    GVars_Heart.changeVue(new Vue_SoundLab(),true) ; break ;
-			case ITEM_LAB:     startAtGame() ; ItemOutlineLab.open() ; break ;
+			case ITEM_LAB:     startAtGame() ; ItemOutlineLab.open() ; KarmaSlider.open() ; break ;
 			case CREDITS:      GVars_Heart.changeVue(new Vue_StartScreen(true),true) ; break ;
 		}
 	}
