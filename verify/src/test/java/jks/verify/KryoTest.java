@@ -15,12 +15,12 @@ import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 
-import jks.vars.GVars_Serialization;
+import jks.tools2d.parallax.heart.GVars_Serialization;
 
 /**
- * The project pinned kryo 5.0.0-RC1 - a release candidate. Kryo changed registration and
- * serializer APIs on the way to 5.x final, and Color is handled by a hand-written serializer
- * (Color_Serializer), so a round-trip is pinned here rather than assumed.
+ * The Kryo the parallax library reads .plax with - its own, the one the game uses. Color is
+ * handled by a hand-written serializer (Color_Serializer), so a round-trip is pinned here
+ * rather than assumed.
  */
 class KryoTest
 {

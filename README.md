@@ -140,21 +140,17 @@ scrolling backdrops are `.plax` files, and `.plaxpj` are the editor's project fi
 
 ## Things worth knowing before you change anything
 
-**Kryo is pinned to `5.0.0-RC1` and must stay there.** The `.plax` backdrops are Kryo
-binaries written by that exact version. Kryo's format is not stable across releases, and the
-failure is silent — the file still loads, the strings just come back as mojibake, and you get
-a missing-file error several frames later. `ParallaxAssetTest` reads the real files and fails
-loudly if the version drifts.
-
-**`core/jars/parallaxReader0.7.jar` is frozen, not lost.** It draws every parallax backdrop
-and it also owns the `.plax` format above. It survives the engine upgrade because it only
-touches stable libGDX API. The jar carries its own `.java` files (`unzip -l` it), and its
-upstream is [JKS_Tools2D_ParallaxBackground](https://github.com/JavaKhanStudio/JKS_Tools2D_ParallaxBackground),
-which also holds the editor that writes `.plax`. Upstream has moved on to kryo 5.6.2 with
-renamed classes, so it is not a drop-in: swapping it in, or re-saving the `.plax` files from
-its editor, is a migration. A small edit to one `.plax` is not: read it through the jar's own
-`GVars_Serialization` on the pinned Kryo, change the field and write it back. An unchanged
-page writes back byte-identical, which is how to check the round trip before trusting it.
+**The backdrops come from a library, which also owns the `.plax` format.**
+[`io.github.javakhanstudio:parallax-background`](https://github.com/JavaKhanStudio/JKS_Tools2D_ParallaxBackground)
+(`parallaxVersion` in the root build) draws every carriage's backdrop and reads its `.plax`.
+It replaced a frozen `parallaxReader0.7.jar` in r33. The `.plax` files are Kryo binaries
+written in 2019 by kryo 5.0.0-RC1; the library runs on kryo 5.6.2 and reads that old layout
+with its own serializer. Do not add a Kryo of your own: Kryo's format is not stable across
+releases and a mismatch fails silently — the file still loads, the strings come back as
+mojibake, and you get a missing-file error several frames later. `ParallaxAssetTest` reads
+the real files through the library's own `GVars_Serialization`, the one the game uses.
+The library's editor writes a newer `.plax` layout that the library still reads; the
+repo's files were read field for field the same by the old jar and by 2.1.0.
 
 **Backdrop region names must be plain ASCII.** Each layer is looked up by name in the atlas,
 and libGDX reads an `.atlas` in the JVM's default charset: cp1252 on Windows before Java 18,
@@ -164,7 +160,7 @@ crash showed up as `Asset not loaded: game/wagon/wa2/WAGON.png`, because `WagonL
 swallows the real exception. `ParallaxAssetTest` rejects non-ASCII names and layers the atlas
 lacks, and `LevelWalkTest` (GL) walks all four levels in order.
 
-**The backdrop atlas comes from the asset root.** The jar loads the atlas a `.plax` names by
+**The backdrop atlas comes from the asset root.** The library loads the atlas a `.plax` names by
 its bare name, so level 1 draws `desktop/assets/Printemps.atlas`, not the byte-identical copy
 beside the `.plax` in `game/wagon/wa1/`. Edit, recompress or delete the two together;
 `ParallaxAssetTest` fails if they drift apart.

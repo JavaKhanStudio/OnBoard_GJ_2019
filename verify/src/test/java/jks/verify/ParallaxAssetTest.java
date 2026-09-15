@@ -26,20 +26,18 @@ import com.esotericsoftware.kryo.io.Input;
 
 import jks.tools2d.parallax.pages.Parallax_Model;
 import jks.tools2d.parallax.pages.WholePage_Model;
-import jks.vars.GVars_Serialization;
+import jks.tools2d.parallax.heart.GVars_Serialization;
 
 /**
- * The .plax backdrops are Kryo binaries written in 2019 by kryo 5.0.0-RC1, through
+ * The .plax backdrops are Kryo binaries written in 2019 by kryo 5.0.0-RC1, through the old
  * parallaxReader0.7.jar. Kryo's wire format is not stable between releases, and the failure
  * is silent: the file still "loads", the strings just come back as mojibake, and the first
  * sign of trouble is a missing-file exception several frames later.
  *
- * The jar carries its own .java files, and its upstream (JavaKhanStudio/
- * JKS_Tools2D_ParallaxBackground) holds the editor that writes .plax - but upstream has moved
- * to kryo 5.6.2 and renamed its classes, so re-saving these files from its editor is a
- * migration. (r24 edited ete.plax the other way: read and written back through the jar's own
- * GVars_Serialization on the pinned Kryo, after checking an unchanged page came back
- * byte-identical.)
+ * The game now reads them through io.github.javakhanstudio:parallax-background, which runs on
+ * kryo 5.6.2 and carries its own reader for that 2019 layout (WholePage_Model_Serializer,
+ * references on). These tests read through that same GVars_Serialization, so they check what
+ * the game reads - there is no longer a copy of it in this repo.
  *
  * A fresh write-then-read round-trip passes on any Kryo version, so it proves nothing here.
  * These tests read the actual shipped bytes.
@@ -59,7 +57,7 @@ class ParallaxAssetTest
 
 	@ParameterizedTest(name = "{0} still deserialises to readable data")
 	@MethodSource("parallaxFiles")
-	@DisplayName("the shipped .plax files still deserialise with the pinned Kryo")
+	@DisplayName("the shipped .plax files still deserialise through the parallax library")
 	void plaxDeserialises(File plax) throws Exception
 	{
 		Kryo kryo = GVars_Serialization.prepareKryo();
@@ -81,8 +79,8 @@ class ParallaxAssetTest
 			+ ": atlas name decoded to non-printable characters -> \"" + atlasName + "\"."
 			+ " The Kryo version no longer matches the one that wrote this file.");
 
-		// The jar calls new TextureAtlas(atlasName) on the bare name, so the game draws the copy
-		// at the asset ROOT. Nothing in this repo reads the copy beside the .plax.
+		// The library loads the atlas by its bare name, so the game draws the copy at the asset
+		// ROOT. Nothing in this repo reads the copy beside the .plax.
 		assertTrue(Assets.existsExactly(atlasName), plax.getName() + ": names an atlas the game"
 			+ " cannot load -> " + atlasName + " (resolved to " + new File(Assets.DIR, atlasName)
 			+ "). The game reads it from the asset root, not from beside the .plax.");

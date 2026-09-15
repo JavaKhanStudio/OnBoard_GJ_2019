@@ -155,5 +155,9 @@ public class Vue_Game extends AVue_Model
 		super.resize(x, y);
 		if(pauseButton != null)
 			pauseButton.resize();
+		// The parallax library recomputes the backdrop's world height here; it used to be fixed
+		// when the level was built, so a resolution change left the old aspect ratio behind.
+		if(GVars_Game.currentLevel != null && GVars_Game.currentLevel.parallax != null)
+			GVars_Game.currentLevel.parallax.resize(x, y);
 	}
 }

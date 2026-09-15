@@ -1,55 +1,40 @@
 package jks.vars;
 
-import java.util.ArrayList;
-
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.esotericsoftware.kryo.Kryo;
+import com.fasterxml.jackson.annotation.JsonIgnoreType;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import jks.tools2d.parallax.heart.MyMixInForIgnoreType;
-import jks.tools2d.parallax.pages.Color_Serializer;
-import jks.tools2d.parallax.pages.Page_Model;
-import jks.tools2d.parallax.pages.Parallax_Model;
-import jks.tools2d.parallax.pages.WholePage_Model;
-
-public class GVars_Serialization 
+/**
+ * The game's own JSON (the .wa levels). The .plax backdrops are not read here: the parallax
+ * library reads them through its own jks.tools2d.parallax.heart.GVars_Serialization.
+ */
+public class GVars_Serialization
 {
 
-	public static Kryo kryo ;
 	public static ObjectMapper objectMapper ;
-	
-	public static void init() 
+
+	public static void init()
 	{
-		prepareKryo() ; 
-		prepareJson() ; 
+		jks.tools2d.parallax.heart.GVars_Serialization.init() ;
+		prepareJson() ;
 	}
 
-	public static Kryo prepareKryo()
-	{
-		if(kryo == null)
-			kryo = new Kryo();
-		
-	    kryo.register(Color.class, new Color_Serializer());
-	    kryo.register(Parallax_Model.class) ; 
-	    kryo.register(Page_Model.class) ;
-	    kryo.register(ArrayList.class) ; 
-	    kryo.register(WholePage_Model.class) ; 
-	    return kryo ; 
-	}
-	
-	public static ObjectMapper prepareJson() 
+	public static ObjectMapper prepareJson()
 	{
 		if(objectMapper == null) {
-			  objectMapper = new ObjectMapper(new JsonFactory()) ; 
+			  objectMapper = new ObjectMapper(new JsonFactory()) ;
 		}
-			
-		
-		objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false) ; 
-		objectMapper.addMixInAnnotations(TextureRegion.class, MyMixInForIgnoreType.class);
-		
-		return objectMapper ; 
+
+
+		objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false) ;
+		objectMapper.addMixIn(TextureRegion.class, IgnoreType.class);
+
+		return objectMapper ;
 	}
+
+	// Was the parallax jar's MyMixInForIgnoreType, which the library no longer ships.
+	@JsonIgnoreType
+	private static abstract class IgnoreType {}
 }

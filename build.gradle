@@ -28,11 +28,9 @@ allprojects {
         visuiVersion = '1.5.9'
         textratypistVersion = '2.4.0'
         javaTarget = 21
-        // Pinned deliberately. The .plax parallax assets are Kryo binaries written by this
-        // exact version in 2019, and Kryo's wire format is not stable across releases - 5.6.2
-        // reads the strings back as garbage. The format lives in parallaxReader0.7.jar; its
-        // upstream has moved to 5.6.2 with renamed classes, so re-serialising is a migration.
-        kryoVersion = '5.0.0-RC1'
+        // The parallax renderer, which also owns the .plax format. It brings its own Kryo
+        // (5.6.2) and reads the 2019 files written by kryo 5.0.0-RC1 itself - don't add a kryo.
+        parallaxVersion = '2.1.0'
         jacksonVersion = '2.22.2'
         junitVersion = '5.14.4'
     }
@@ -135,16 +133,15 @@ project(":core") {
         // now; moving Block_Resolution into :desktop would let this go.
         api "com.badlogicgames.gdx:gdx-backend-lwjgl3:$gdxVersion"
         api "com.kotcrab.vis:vis-ui:$visuiVersion"
-        api "com.esotericsoftware:kryo:$kryoVersion"
         // Replaces com.rafaskoberg.gdx:typing-label, whose last release (1.4.0) calls
         // com.badlogic.gdx.utils.StringBuilder - a class libGDX deleted in 1.14.0. This is
         // the maintained successor and tracks the current engine.
         api "com.github.tommyettinger:textratypist:$textratypistVersion"
         api "com.fasterxml.jackson.core:jackson-databind:$jacksonVersion"
 
-        // The parallax renderer, frozen at 0.7 (its .java files ride along inside the jar).
-        // It binds to core libGDX (Batch, TextureAtlas, OrthographicCamera) which is stable.
-        api fileTree(dir: 'jars', include: '*.jar')
+        // Draws the carriage backdrops and reads their .plax files. Brings gdx (held to
+        // gdxVersion by the lockstep above), kryo 5.6.2 and jackson-annotations.
+        api "io.github.javakhanstudio:parallax-background:$parallaxVersion"
     }
 }
 
