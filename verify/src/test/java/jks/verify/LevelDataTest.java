@@ -9,12 +9,15 @@ import static org.junit.jupiter.api.Assertions.fail;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import jks.vars.GVars_Serialization;
@@ -63,6 +66,24 @@ class LevelDataTest
 		assertNotNull(level.listItems, "wa" + n + ": listItems missing");
 		assertFalse(level.listItems.isEmpty(), "wa" + n + ": no items - the level would be empty");
 		assertNotNull(level.hint1, "wa" + n + ": hint1 missing (Clef reads this field directly)");
+	}
+
+	@ParameterizedTest(name = "level wa{0} re-saves with the same item fields")
+	@ValueSource(ints = {1, 2, 3, 4})
+	void itemFieldsRoundTrip(int n) throws Exception
+	{
+		// GameItem is shared with the editor, which saves with a plain ObjectMapper: runtime
+		// state such as picked or hovered (r40) must stay out of the files it writes.
+		ObjectMapper editor = new ObjectMapper();
+		JsonNode onDisk = editor.readTree(levelFile(n)).get("listItems").get(0);
+		JsonNode resaved = editor.valueToTree(load(n)).get("listItems").get(0);
+
+		Set<String> expected = new TreeSet<>(), actual = new TreeSet<>();
+		onDisk.fieldNames().forEachRemaining(expected::add);
+		// Data fields GameItem gained after the four files were last saved.
+		expected.addAll(List.of("message_Crucial_1", "message_Crucial_2"));
+		resaved.fieldNames().forEachRemaining(actual::add);
+		assertEquals(expected, actual, "wa" + n + ": a re-saved item would not have the fields the file has");
 	}
 
 	@ParameterizedTest(name = "level wa{0} keeps a stable item count")

@@ -7,7 +7,9 @@ import jks.tools.Utils_Debug;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.InputAdapter;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.scenes.scene2d.Actor;
 
 import jks.camera.GVars_Camera;
 import jks.vars.GVars_Heart;
@@ -204,7 +206,48 @@ public class IKM_Game_Keyboard extends InputAdapter
 			// The mouse is back in use: put the keyboard focus away so it does not sit
 			// beside the hover.
 			GVars_UI.showFocus(false) ;
+			mouseSeen = true ; 
+			mouseX = screenX ; 
+			mouseY = screenY ; 
 			return false ;
+		}
+		
+		/** Where the mouse last moved to, in screen pixels. Nothing lights up before it has moved. */
+		static boolean mouseSeen ; 
+		static int mouseX, mouseY ; 
+		
+		/**
+		 * The mouse in world coordinates, for the carriage items to light up under it (r40), or
+		 * null whenever a click would not reach them: before the mouse has moved, in a
+		 * cinematic, while paused, or over a stage widget that takes the click first.
+		 */
+		public static Vector3 pointerInCarriage()
+		{
+			if(!mouseSeen || GVars_Heart.inCinematic || GVars_Heart.isPaused)
+				return null ; 
+			
+			if(overWidget(mouseX, mouseY))
+				return null ; 
+			
+			return GVars_Camera.camera.unproject(new Vector3(mouseX, mouseY, 0)) ; 
+		}
+		
+		/**
+		 * The stage comes first in Vue_Game's multiplexer, and a widget that listens (the pause
+		 * sign, the key, an inventory slot) keeps the click from the items under it.
+		 */
+		private static boolean overWidget(int screenX, int screenY)
+		{
+			if(GVars_UI.mainUi == null)
+				return false ; 
+			
+			Vector2 stage = GVars_UI.mainUi.screenToStageCoordinates(new Vector2(screenX, screenY)) ; 
+			for(Actor actor = GVars_UI.mainUi.hit(stage.x, stage.y, true) ; actor != null ; actor = actor.getParent())
+			{
+				if(actor.getListeners().size > 0)
+					return true ; 
+			}
+			return false ; 
 		}
 		
 		@Override

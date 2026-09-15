@@ -2,6 +2,7 @@ package jks.vue.models.game;
 
 import jks.tools.Utils_Debug;
 
+import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.math.Rectangle;
@@ -42,6 +43,12 @@ public class GameItem
 	Rectangle textureBounds ; 
 	@JsonIgnore
 	boolean picked ; 
+	/** Under the mouse: a click now would reach it, so it is drawn lit (r40). */
+	@JsonIgnore
+	boolean hovered ; 
+	
+	/** How much of the item is added back over itself when hovered. */
+	static final float HOVER_GLOW = 0.35f ; 
 	
 	public GameItem() 
 	{}
@@ -85,8 +92,36 @@ public class GameItem
 	
 	public void draw(Batch batch)
 	{	
-		if(objectTexture != null && !picked)
+		if(objectTexture == null || picked)
+			return ;
+		
+		batch.draw(objectTexture, posX, posY, objectTexture.getWidth(), objectTexture.getHeight());
+		
+		if(hovered)
+		{
+			// The item again, added onto itself: it lights up inside its own outline and the
+			// carriage around it stays as it was.
+			float color = batch.getPackedColor() ; 
+			batch.setBlendFunction(GL20.GL_SRC_ALPHA, GL20.GL_ONE);
+			batch.setColor(1, 1, 1, HOVER_GLOW);
 			batch.draw(objectTexture, posX, posY, objectTexture.getWidth(), objectTexture.getHeight());
+			batch.setPackedColor(color);
+			batch.setBlendFunction(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
+		}
+	}
+	
+	/** Takes the pointer in world coordinates, or null when nothing in the carriage can be clicked. */
+	public void updateHover(Vector3 pointer)
+	{
+		// The same test tryTouch makes, so what lights up is exactly what a click reaches.
+		hovered = pointer != null && !picked && textureBounds != null
+				&& textureBounds.contains(pointer.x, pointer.y) ;
+	}
+	
+	@JsonIgnore
+	public boolean isHovered()
+	{
+		return hovered ; 
 	}
 	
 	public void tryTouch(Vector3 touchPos, GameItem touchingWith, boolean inTest)

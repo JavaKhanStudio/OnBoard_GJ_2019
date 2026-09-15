@@ -9,9 +9,11 @@ import java.util.ArrayList;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
+import com.badlogic.gdx.math.Vector3;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jks.camera.GVars_Camera;
+import jks.input.IKM_Game_Keyboard;
 import jks.tools2d.parallax.heart.Parallax_Heart;
 
 public class WagonLevel 
@@ -94,6 +96,11 @@ public class WagonLevel
 	{
 		parallax.render();
 		
+    	// Here rather than in update: the camera has moved by now, and a paused level is still drawn.
+    	Vector3 pointer = IKM_Game_Keyboard.pointerInCarriage() ; 
+    	for(GameItem gameItem : listItems)
+    		gameItem.updateHover(pointer);
+    	
     	staticBatch.begin();
     	staticBatch.draw(wagon,0,decalYBot, (Gdx.graphics.getWidth()  * 2) - proportionMinus, Gdx.graphics.getHeight() - decalYBot - decalYTop);
     	for(GameItem gameItem : listItems)
