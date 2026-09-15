@@ -10,6 +10,7 @@ package jks.index;
 public class Index_Credits 
 {
 
+	/** Unaccented on purpose: the title face cannot draw é, and "Credits" was chosen (d8). */
 	public static final String TITLE = "Credits" ;
 	
 	/** The team, as the logo that plays before the game says it. */
