@@ -29,7 +29,13 @@ public class DialogBubble extends VisTable
 	float alphaGrowingSpeed = 1.2f; 
 	public String textWhenVisible ; 
 	
-	public static final String textStartUp = "{COLOR=black}{EASE}" ; 
+	/**
+	 * Typing speed as a multiple of TextraTypist's default of 0.05 s per character, so 1.5
+	 * types about 30 characters a second instead of 20 (r42). It is a token and not a
+	 * setter because TypingLabel.restart() puts the speed back to the default every time.
+	 */
+	public static final String typingSpeed = "{SPEED=1.5}" ; 
+	public static final String textStartUp = typingSpeed + "{COLOR=black}{EASE}" ; 
 
 	public DialogBubble(DialogSize size)
 	{
@@ -69,7 +75,7 @@ public class DialogBubble extends VisTable
 		this.setLayoutEnabled(false);
 		dialogSize = size ; 
 
-		typing = new TypingLabel(text, GVars_Font.buildTextraFont(fontFor(size))) ; 
+		typing = new TypingLabel(typingSpeed + text, GVars_Font.buildTextraFont(fontFor(size))) ; 
 		typing.setWrap(true);
 		typing.setAlignment(Align.center);
 		
