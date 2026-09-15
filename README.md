@@ -220,3 +220,4 @@ nothing left to confirm before distributing the game.
 still in this repo's git history if you'd rather have it back. `Pause/pauseMenuOld.png` went
 the same way: an earlier cut of the PAUSE panel on a 1920x1080 canvas, superseded by
 `ui/icon/pause/pauseMenu.png`.
+# OnBoard_GJ_2019
