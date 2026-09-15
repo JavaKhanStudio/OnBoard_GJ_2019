@@ -71,6 +71,35 @@ public class Main_Application extends ApplicationAdapter
 		}
 	}
 	
+	/**
+	 * The carriage GAME starts in, 1 to 4: -Donboard.level=3 with -Donboard.start=game. The
+	 * board's lab opens each carriage this way (r43).
+	 *
+	 * A later carriage starts as a fresh run would reach it with nothing carried over, which
+	 * loses nothing but karma: every carriage's items and key are its own, but each one can add
+	 * a point of karma, and the leaving ending needs more than 2. From carriage 3 or 4 only the
+	 * staying ending can be reached.
+	 */
+	public static int startLevel = levelFrom(System.getProperty("onboard.level")) ; 
+	
+	public static int levelFrom(String requested)
+	{
+		if(requested == null)
+			return 1 ; 
+		
+		try
+		{
+			int level = Integer.parseInt(requested.trim()) ; 
+			if(level >= 1 && level <= GVars_Game.LEVEL_COUNT)
+				return level ; 
+		}
+		catch(NumberFormatException notANumber)
+		{}
+		
+		Utils_Debug.warn("Unknown onboard.level value '" + requested + "', starting in carriage 1") ; 
+		return 1 ; 
+	}
+	
 	@Override
 	public void create () 
 	{
@@ -97,7 +126,9 @@ public class Main_Application extends ApplicationAdapter
 	{	
 		Vue_Game myGame = new Vue_Game() ; 
 		GVars_Heart.changeVue(myGame,true) ; 
-		GVars_Game.loadLevel(1);
+		// nextLevel counts on from here.
+		GVars_Game.currentLevelInt = startLevel ; 
+		GVars_Game.loadLevel(startLevel);
 	}
 	
 	public void startAtIntro() 

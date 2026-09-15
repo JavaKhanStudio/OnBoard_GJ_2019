@@ -37,6 +37,7 @@ public class GVars_Game
 	TextBubble textShown ; 
 	public static WagonLevel currentLevel ;
 	public static Clef clef ; 
+	public static final int LEVEL_COUNT = 4 ; 
 	public static int currentLevelInt = 1 ; 
 	
 	public static SpriteModel ross ; 
@@ -100,7 +101,7 @@ public class GVars_Game
 	
 	public static void loadLevel(int value)
     {	
-		if(value > 4)
+		if(value > LEVEL_COUNT)
 			return ; 
 		
 		GVars_Heart.vue.restart();

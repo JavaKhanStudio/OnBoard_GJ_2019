@@ -15,6 +15,7 @@ Built with libGDX. Originally Java 8 and libGDX 1.9.10; brought up to Java 21 an
 ```bash
 ./gradlew :desktop:runGame                        # the whole thing, from the logos
 ./gradlew :desktop:runGame -Donboard.start=game   # straight into level 1
+./gradlew :desktop:runGame -Donboard.start=game -Donboard.level=3   # or into level 3
 ./gradlew :editor:runEditor                       # the level editor
 ```
 
@@ -22,6 +23,10 @@ Built with libGDX. Originally Java 8 and libGDX 1.9.10; brought up to Java 21 an
 the start screen with the credits already open, so Retour lands on the menu — and
 `sound_lab` — a development screen, not part of the game, listing every music track and
 sound effect the game names, with Play/Stop through the game's own audio path.
+
+`-Donboard.level=` (1 to 4) picks the carriage `game` starts in. Nothing is carried over from
+the carriages skipped: that costs only karma, so from level 3 or 4 the leaving ending cannot be
+reached.
 
 Nothing needs to be installed first — Gradle fetches its own Java 21.
 
