@@ -49,6 +49,8 @@ public class GVars_Game
 	public static final int KARMA_TO_LEAVE = 2 ;
 	
 	public static DialogBubble dialogBubble ;
+	/** The row of picked-up items along the bottom bar. Emptied when the carriage changes (r59). */
+	public static InventoryBar inventory ;
 	public static String currentLeadingText ; 
 	
 	public static boolean leavingEnding()
@@ -64,6 +66,8 @@ public class GVars_Game
 		GVars_UI.mainUi.addActor(dialogBubble);
 		
 		playerInventory = new ArrayList<GameItem>() ; 
+		inventory = new InventoryBar() ; 
+		GVars_UI.mainUi.addActor(inventory);
 		Index_Interface.loadGame() ; 
 		if(rossMap == null)
 			rossMap = new HashMap<String, SpriteModel>() ; 
@@ -78,9 +82,6 @@ public class GVars_Game
 	{
 		TextureRegionDrawable drawable = Utils_TexturesAcess.buildDrawingRegionTexture(gameItem.objectTexture) ; 
 		VisImageButton selectable = new VisImageButton(drawable) ; 
-		selectable.setWidth(currentLevel.decalYBot);
-		selectable.setHeight(currentLevel.decalYBot);
-		selectable.setX(currentLevel.decalYBot * playerInventory.size());
 		selectable.addListener(new InputListener()
 		{		
 			@Override
@@ -100,7 +101,8 @@ public class GVars_Game
 		playerInventory.add(gameItem) ; 
 		gameItem.picked = true ; 
 		
-		GVars_UI.mainUi.addActor(selectable);
+		// The bar sizes and centres it, and every item already in the row moves over (r59).
+		inventory.carry(selectable);
 		
 		if(gameItem.giveKey_take)
 			GVars_Game.addKey(gameItem.keyNumb) ; 
@@ -120,6 +122,10 @@ public class GVars_Game
 			Utils_Debug.log("Level " + value + " was not preloaded, loading it now") ;
 			level = preLoadLevel(value) ;
 		}
+		
+		// A carriage is entered empty-handed: its own items are the only ones its
+		// interactions name, so anything still carried would only read as unfinished (r59).
+		emptyInventory() ; 
 		
 		clef = new Clef(level) ; 
 		GVars_UI.mainUi.addActor(clef);
@@ -164,6 +170,15 @@ public class GVars_Game
     			"Could not load level " + value + " from game/wagon/wa" + value + ".wa", e) ;
     	}
     }
+	
+	public static void emptyInventory()
+	{
+		if(playerInventory != null)
+			playerInventory.clear();
+		selectedItem = null ; 
+		if(inventory != null)
+			inventory.empty();
+	}
 	
 	public static void checkForSelection()
 	{

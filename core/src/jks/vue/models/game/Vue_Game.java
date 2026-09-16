@@ -162,5 +162,8 @@ public class Vue_Game extends AVue_Model
 		// when the level was built, so a resolution change left the old aspect ratio behind.
 		if(GVars_Game.currentLevel != null && GVars_Game.currentLevel.parallax != null)
 			GVars_Game.currentLevel.parallax.resize(x, y);
+		// The carried items are centred on the bar, so the middle moving moves them (r59).
+		if(GVars_Game.inventory != null)
+			GVars_Game.inventory.place();
 	}
 }
