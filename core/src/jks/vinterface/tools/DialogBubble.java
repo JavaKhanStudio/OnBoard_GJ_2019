@@ -26,7 +26,11 @@ public class DialogBubble extends VisTable
 	boolean appearing ; 
 	boolean disappearing ; 
 	boolean isFinish ; 
-	float alphaGrowingSpeed = 1.2f; 
+	/**
+	 * Alpha per second, so the cloud is fully there a quarter of a second after the mouse
+	 * lands on what it explains. It used to take a whole second (r57).
+	 */
+	float alphaGrowingSpeed = 4f; 
 	public String textWhenVisible ; 
 	
 	/**
@@ -57,13 +61,17 @@ public class DialogBubble extends VisTable
 //		appearing = true ; 
 	}
 	
+	/**
+	 * Types straight away rather than once the cloud has finished fading in. A hint is read
+	 * while the mouse is held on the key part, so every moment spent fading is a moment spent
+	 * looking at an empty cloud - the text now fades up inside it (r57).
+	 */
 	public void applyText(String text) 
 	{
-		typing.restart("");
 		textWhenVisible = text ; 
 		appearing = true ;
 		disappearing = false ; 
-		alphaGrowingSpeed = 1 ; 
+		typing.restart(textStartUp + text);
 	}
 	
 	public void makeDisappear() {
@@ -108,9 +116,7 @@ public class DialogBubble extends VisTable
 		{
 			if(this.getColor().a >= 1) 
 			{
-				if(textWhenVisible != null)
-					typing.restart(textStartUp + textWhenVisible);
-				
+				this.getColor().a = 1 ; 
 				appearing = false ; 
 			}
 			else 
@@ -123,6 +129,7 @@ public class DialogBubble extends VisTable
 		{
 			if(this.getColor().a <= 0) 
 			{	
+				this.getColor().a = 0 ; 
 				typing.restart("") ; 
 				textWhenVisible = "" ;
 				disappearing = false ; 
