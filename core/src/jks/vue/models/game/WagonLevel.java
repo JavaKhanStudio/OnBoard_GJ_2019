@@ -103,28 +103,35 @@ public class WagonLevel
     		gameItem.updateHover(pointer);
     	
     	staticBatch.begin();
-    	staticBatch.draw(wagon,0,decalYBot, (Gdx.graphics.getWidth()  * 2) - proportionMinus, Gdx.graphics.getHeight() - decalYBot - decalYTop);
+    	staticBatch.draw(wagon, 0, BAR, WIDTH, GVars_Camera.WORLD_HEIGHT - BAR);
     	for(GameItem gameItem : listItems)
     	{
     		gameItem.draw(staticBatch);
     	}
     	staticBatch.end();
     	
+    	// In the world too, under the view wherever it has panned to, so it always meets the art.
+    	GVars_Camera.shapeRenderer.setProjectionMatrix(GVars_Camera.camera.combined);
     	GVars_Camera.shapeRenderer.begin(ShapeType.Filled);
     	GVars_Camera.shapeRenderer.setColor(0, 0, 0, 1);
-    	GVars_Camera.shapeRenderer.rect(0, 0, Gdx.graphics.getWidth(), decalYBot);
+    	GVars_Camera.shapeRenderer.rect(0, 0, WIDTH, BAR);
     	GVars_Camera.shapeRenderer.end();
 	}
 	
+	/** The black bar under the carriage, in world units: a ninth of the world's height. */
+	public static final float BAR = GVars_Camera.WORLD_HEIGHT / 9 ; 
+	/**
+	 * How long the carriage is drawn, in world units - 3000, the length it had at 1600x900, where
+	 * every item was placed. It used to follow the window, so the room grew and shrank under
+	 * items and clamps that did not (r64).
+	 */
+	public static final float WIDTH = GVars_Camera.WORLD_WIDTH * 2 - BAR * 2 ; 
+	
+	/** The bar's height in screen pixels, for the stage (the inventory row sits on it). */
 	public float decalYBot ;
-	float decalYTop ; 
-	float proportionMinus ; 
 	
 	public void resize() 
 	{
-		decalYBot = Gdx.graphics.getHeight()/9 ; 
-//		decalYTop = Gdx.graphics.getHeight()/9 ;
-		decalYTop = 0 ; 
-		proportionMinus = (decalYTop + decalYBot) * 2 ; 
+		decalYBot = BAR * Gdx.graphics.getHeight() / GVars_Camera.WORLD_HEIGHT ; 
 	}
 }

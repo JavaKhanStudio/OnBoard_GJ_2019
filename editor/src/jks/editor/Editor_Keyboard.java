@@ -89,7 +89,10 @@ public class Editor_Keyboard extends InputAdapter
 					workingOnLevel.listItems.add(itemIn) ; 
 				}
 				
-				itemIn.setPosition(screenX + GVars_Camera.camera.position.x - Gdx.graphics.getWidth()/2,  Gdx.graphics.getHeight() - screenY);
+				// Through the camera, whose world is 1600x900 whatever the window (r64): the
+				// screen-pixel sum this replaces only placed items right in a 1600x900 editor.
+				Vector3 at = GVars_Camera.camera.unproject(new Vector3(screenX, screenY, 0)) ;
+				itemIn.setPosition(at.x, at.y);
 			}
 		}
 		else

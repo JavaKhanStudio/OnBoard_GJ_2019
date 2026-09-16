@@ -9,6 +9,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.controllers.Controllers;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.math.Vector3;
 
 import jks.camera.GVars_Camera;
 import jks.input.GVars_Inputs;
@@ -103,27 +104,34 @@ public class Vue_Game extends AVue_Model
 	
 	float posX ; 
 	float posY ; 
+	final Vector3 bubbleAnchor = new Vector3() ; 
 	
 	@Override
 	public void update(float delta) 
 	{
 		if(dialogBubble != null) 
 		{
+			// Worked out beside Ross in the world, then taken to the stage's screen pixels
+			// through the camera: the offset from the camera used to add a fixed 800, which is
+			// only the middle of the screen at 1600 wide (r64).
 			if(ross.getIsReserve()) 
 			{	
 				dialogBubble.reverse(false) ; 
-				posX = ross.position.x - GVars_Camera.camera.position.x + 800 
-						+ ross.getFrameWidth() * 0.8f ;
+				bubbleAnchor.x = ross.position.x + ross.getFrameWidth() * 0.8f ;
 			}
 			else 
 			{
 				dialogBubble.reverse(true) ; 
-				posX = ross.position.x - GVars_Camera.camera.position.x + 800 
+				bubbleAnchor.x = ross.position.x 
 						- ((ross.getFrameWidth() * 0.8f) - ross.getFrameWidth()) 
 						;
 			}
 			
-			posY = ross.position.y + ross.getFrameHeight() * 0.8f ; 
+			bubbleAnchor.y = ross.position.y + ross.getFrameHeight() * 0.8f ; 
+			bubbleAnchor.z = 0 ; 
+			camera.project(bubbleAnchor) ; 
+			posX = bubbleAnchor.x ; 
+			posY = bubbleAnchor.y ; 
 			dialogBubble.setPosition(posX, posY);
 		}
 		
@@ -162,6 +170,9 @@ public class Vue_Game extends AVue_Model
 		// when the level was built, so a resolution change left the old aspect ratio behind.
 		if(GVars_Game.currentLevel != null && GVars_Game.currentLevel.parallax != null)
 			GVars_Game.currentLevel.parallax.resize(x, y);
+		// The bar's height on screen follows the window; the carriage itself is in world units.
+		if(GVars_Game.currentLevel != null)
+			GVars_Game.currentLevel.resize();
 		// The carried items are centred on the bar, so the middle moving moves them (r59).
 		if(GVars_Game.inventory != null)
 			GVars_Game.inventory.place();

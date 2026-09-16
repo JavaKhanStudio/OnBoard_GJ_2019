@@ -5,6 +5,7 @@ import jks.vinterface.GVars_UI;
 import jks.vinterface.controlling.Utils_Controllable;
 import jks.vue.models.game.GVars_Game;
 import jks.vue.models.game.GVars_Personnage; 
+import jks.vue.models.game.WagonLevel;
 
 public class GVars_Inputs 
 {
@@ -40,9 +41,9 @@ public class GVars_Inputs
 			if(cameraMovePower == 0)
 				cameraMovePower = speedX * delta ; 
 			
-			if(GVars_Camera.camera.position.x + (cameraMovePower) > 2192)
+			if(GVars_Camera.camera.position.x + (cameraMovePower) > maxCameraX())
 			{
-				GVars_Camera.camera.position.x = 2192 ; 
+				GVars_Camera.camera.position.x = maxCameraX() ; 
 			}
 			else
 			{
@@ -55,9 +56,9 @@ public class GVars_Inputs
 			if(cameraMovePower == 0)
 				cameraMovePower = -speedX * delta ; 
 			
-			if(GVars_Camera.camera.position.x + (cameraMovePower) < 800)
+			if(GVars_Camera.camera.position.x + (cameraMovePower) < minCameraX())
 			{
-				GVars_Camera.camera.position.x = 800 ; 
+				GVars_Camera.camera.position.x = minCameraX() ; 
 			}
 			else
 			{					
@@ -65,6 +66,18 @@ public class GVars_Inputs
 			}
 			
 		}	
+	}
+	
+	/** The view's centre when its left edge is on the start of the carriage. */
+	static float minCameraX()
+	{
+		return GVars_Camera.WORLD_WIDTH / 2 ; 
+	}
+	
+	/** The view's centre when its right edge is on the end of the carriage. */
+	static float maxCameraX()
+	{
+		return WagonLevel.WIDTH - GVars_Camera.WORLD_WIDTH / 2 ; 
 	}
 	
 	public static void updateInput_ControllingInterface()

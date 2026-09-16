@@ -196,15 +196,18 @@ class ItemHoverRenderTest
 	void looksOutlined() throws IOException
 	{
 		assertNotNull(lit, "the lit item was never captured");
-		// Drawn at its own size under a camera that does not zoom, so a screen pixel is a texel.
+		// Drawn at its own size in a 1600x900 world stretched to the window (r64), so a screen
+		// pixel is a texel only at 1600x900: go through the item's box on screen to find it.
 		BufferedImage texture = ImageIO.read(new File(System.getProperty("onboard.assets"), "game/wagon/wa1/" + ITEM));
+		double texelsX = texture.getWidth() / (double) (itemOnScreen[2] - itemOnScreen[0]);
+		double texelsY = texture.getHeight() / (double) (itemOnScreen[3] - itemOnScreen[1]);
 		int margin = 8, yellowed = 0, yellowedOutside = 0, inside = 0;
 		long insideChange = 0;
 		for (int y = itemOnScreen[1] - margin; y < itemOnScreen[3] + margin; y++)
 			for (int x = itemOnScreen[0] - margin; x < itemOnScreen[2] + margin; x++)
 			{
 				if (x < 0 || y < 0 || x >= lit.getWidth() || y >= lit.getHeight()) continue;
-				int tx = x - itemOnScreen[0], ty = y - itemOnScreen[1];
+				int tx = (int) Math.floor((x + 0.5 - itemOnScreen[0]) * texelsX), ty = (int) Math.floor((y + 0.5 - itemOnScreen[1]) * texelsY);
 				int alpha = tx < 0 || ty < 0 || tx >= texture.getWidth() || ty >= texture.getHeight()
 					? 0 : (texture.getRGB(tx, ty) >>> 24);
 				int before = resting.getRGB(x, y), after = lit.getRGB(x, y);
