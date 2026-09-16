@@ -171,6 +171,25 @@ public class GVars_Game
     	}
     }
 	
+	/**
+	 * Puts the story back to its first page, so looping round from the ending is a real new run
+	 * (r60) rather than a fifth carriage with nothing left in it.
+	 *
+	 * The carriages themselves are cached in preloadedlevel and keep everything the player did
+	 * to them - picked items stay picked, a used item keeps its after-texture (notice n13) - so
+	 * each one is put back rather than thrown away, which would leak its Parallax_Heart.
+	 */
+	public static void resetForNewRun()
+	{
+		currentLevelInt = 1 ; 
+		karma = 0 ; 
+		emptyInventory() ; 
+		
+		for(WagonLevel level : preloadedlevel.values())
+			for(GameItem item : level.listItems)
+				item.resetToStart() ; 
+	}
+	
 	public static void emptyInventory()
 	{
 		if(playerInventory != null)

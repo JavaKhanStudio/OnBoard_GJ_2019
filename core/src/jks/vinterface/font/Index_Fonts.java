@@ -14,6 +14,15 @@ public class Index_Fonts
     	BUBBLE_SMALL_TEXT_MEDIUM(PATH + regular,142),
     	BUBBLE_MEDIUM_TEXT_MEDIUM(PATH + regular,121),
     	BUBBLE_LARGE_TEXT_MEDIUM(PATH + regular,100),
+    	
+    	/**
+    	 * The card the game ends on (r60, ClosureMessage), and the FIN under it.
+    	 *
+    	 * GeosansLight, not OptimusPrinceps: the message is French and OptimusPrinceps has no
+    	 * accented glyph, which would leave holes rather than throw (doubt d8).
+    	 */
+    	STORY_CLOSURE(PATH + "GeosansLight.ttf",46),
+    	STORY_END(PATH + "GeosansLight.ttf",20),
     	;
     	
     	public String path ;

@@ -32,6 +32,10 @@ cannot be reached — unless you add `-Donboard.lab=true`, which puts a karma sl
 end of the black bar under the carriage (`item_lab` always has it). It sets the karma live, and
 says which ending that karma leads to.
 
+`outro` plays the leaving ending; `-Donboard.karma=` (0 to 4) picks the karma it starts with, so
+`-Donboard.karma=1` shows the staying one. Either ends on a closing card written from that karma,
+then goes back to the start screen with the run reset.
+
 Nothing needs to be installed first — Gradle fetches its own Java 21.
 
 ### Controls

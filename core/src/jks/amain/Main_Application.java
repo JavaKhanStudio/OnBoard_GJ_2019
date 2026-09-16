@@ -95,6 +95,33 @@ public class Main_Application extends ApplicationAdapter
 	 */
 	public static boolean lab = Boolean.getBoolean("onboard.lab") ; 
 	
+	/**
+	 * The karma OUTRO starts with, 0 to LEVEL_COUNT: -Donboard.karma=1 with -Donboard.start=outro.
+	 *
+	 * Starting at the ending has none of the run behind it, and the ending branches on karma
+	 * (r52): more than GVars_Game.KARMA_TO_LEAVE and Ross leaves, at it or under he stays. Four,
+	 * the leaving ending, is what this has always been, so nothing changes without the property.
+	 */
+	public static int outroKarma = karmaFrom(System.getProperty("onboard.karma")) ; 
+	
+	public static int karmaFrom(String requested)
+	{
+		if(requested == null)
+			return GVars_Game.LEVEL_COUNT ; 
+		
+		try
+		{
+			int karma = Integer.parseInt(requested.trim()) ; 
+			if(karma >= 0 && karma <= GVars_Game.LEVEL_COUNT)
+				return karma ; 
+		}
+		catch(NumberFormatException notANumber)
+		{}
+		
+		Utils_Debug.warn("Unknown onboard.karma value '" + requested + "', ending on the leaving one") ; 
+		return GVars_Game.LEVEL_COUNT ; 
+	}
+	
 	public static int levelFrom(String requested)
 	{
 		if(requested == null)
@@ -152,7 +179,7 @@ public class Main_Application extends ApplicationAdapter
 	
 	public void startAtOutro() 
 	{
-		GVars_Game.karma = 4 ; 
+		GVars_Game.karma = outroKarma ; 
 		GVars_Heart.changeVue(new Vue_Scenematic_Outro(),true) ; 	
 	}
 	

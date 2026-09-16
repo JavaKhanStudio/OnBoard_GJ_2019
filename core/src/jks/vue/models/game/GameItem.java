@@ -86,6 +86,26 @@ public class GameItem
 		
 	}
 	
+	/**
+	 * Back to the state a fresh run finds it in (r60, notice n13): not picked, and wearing its
+	 * first texture again rather than whatever an interaction left it in.
+	 *
+	 * GVars_Game.preloadedlevel caches one WagonLevel per carriage and hands the same instance
+	 * back on a second playthrough, so without this the carriage opens with its items already
+	 * taken. Dropping the cache instead would leak each level's Parallax_Heart.
+	 *
+	 * Does nothing to an item that was never made game ready: its texture is not loaded, and
+	 * setGameReady would throw asking the manager for it.
+	 */
+	public void resetToStart()
+	{
+		picked = false ; 
+		hovered = false ; 
+		
+		if(objectTexture != null)
+			setGameReady() ; 
+	}
+	
 	public void draw(Batch batch)
 	{	
 		if(objectTexture == null || picked)
@@ -110,6 +130,13 @@ public class GameItem
 	public boolean isHovered()
 	{
 		return hovered ; 
+	}
+	
+	/** Taken, so it is not drawn and not clickable. Put back by {@link #resetToStart()} (r60). */
+	@JsonIgnore
+	public boolean isPicked()
+	{
+		return picked ; 
 	}
 	
 	public void tryTouch(Vector3 touchPos, GameItem touchingWith, boolean inTest)
