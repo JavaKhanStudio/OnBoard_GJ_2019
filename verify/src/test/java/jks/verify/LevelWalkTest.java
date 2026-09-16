@@ -19,6 +19,7 @@ import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
 
 import jks.amain.Main_Application;
+import jks.camera.GVars_Camera;
 import jks.vue.models.game.GVars_Game;
 
 /**
@@ -42,6 +43,9 @@ class LevelWalkTest
 
 	private static final List<BufferedImage> frames = new ArrayList<>();
 	private static volatile Throwable error;
+	/** The renderers the first carriage drew with, and whether every later one used the same (r69). */
+	private static Object firstBatch, firstShapes;
+	private static volatile boolean sameRenderers = true;
 
 	@BeforeAll
 	void walkTheLevels()
@@ -62,6 +66,13 @@ class LevelWalkTest
 			if (error != null || frames.size() >= LAST_LEVEL || harness.gameSeconds < due[0]) return;
 			try
 			{
+				if (firstBatch == null)
+				{
+					firstBatch = GVars_Camera.staticBatch;
+					firstShapes = GVars_Camera.shapeRenderer;
+				}
+				else if (GVars_Camera.staticBatch != firstBatch || GVars_Camera.shapeRenderer != firstShapes)
+					sameRenderers = false;
 				frames.add(GameHarness.grab());
 				if (GVars_Game.currentLevelInt < LAST_LEVEL)
 					GVars_Game.nextLevel();
@@ -87,6 +98,8 @@ class LevelWalkTest
 		assertNull(error, error == null ? null : "moving to the next level threw: " + error + " - " + reached);
 		assertNull(harness.error, harness.error == null ? null : "the game threw: " + harness.error + " - " + reached);
 		assertEquals(LAST_LEVEL, frames.size(), "captured " + frames.size() + " levels - " + reached);
+		// A new SpriteBatch and ShapeRenderer per carriage, never disposed, is what r69 took out.
+		assertTrue(sameRenderers, "a carriage change replaced the sprite batch or the shape renderer - the old ones leak");
 
 		for (int i = 0; i < frames.size(); i++)
 		{

@@ -39,13 +39,25 @@ public class GVars_Camera
 	public static final float WORLD_WIDTH = 1600 ; 
 	public static final float WORLD_HEIGHT = 900 ; 
 	
+	/**
+	 * The renderers are made once: the startup path reaches here more than once, and every
+	 * carriage used to come back through here too, leaving a batch's mesh and shader and a
+	 * shape renderer's behind on the GPU each time (r69).
+	 */
 	public static void init()
 	{
-		staticBatch = new SpriteBatch();
-		shapeRenderer = new ShapeRenderer() ; 
+		if(staticBatch == null)
+			staticBatch = new SpriteBatch();
+		if(shapeRenderer == null)
+			shapeRenderer = new ShapeRenderer() ; 
+		resetCamera() ; 
+	}
+	
+	/** A fresh camera on the start of the carriage, for each new one. */
+	public static void resetCamera()
+	{
 		camera = new OrthographicCamera();
 		camera.setToOrtho(false, WORLD_WIDTH * GVars_Camera.worldMutiplier, WORLD_HEIGHT * GVars_Camera.worldMutiplier);	
-		
 	}
 	
 }

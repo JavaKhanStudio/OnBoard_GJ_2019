@@ -248,7 +248,7 @@ public class GVars_Game
 				GVars_Heart.changeVue(new Vue_Scenematic_Outro(),true) ; 
 			}
 			
-			GVars_Camera.init();
+			GVars_Camera.resetCamera();
 			loadLevel(++currentLevelInt) ; 
 		}) ;
 		
