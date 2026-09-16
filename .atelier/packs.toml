@@ -1,0 +1,343 @@
+# onboard's TAGS AND THEIR CONTEXT PACKS — read by Atelier (projects/onboard.toml says
+# packs = ".atelier/packs.toml"). A pack is what a session reads BEFORE the code it describes, so
+# when a change makes one wrong, fix it here IN THE SAME COMMIT. Only [tags.<slug>]
+# tables belong in this file: label, description, context, color, sort.
+
+[tags.flow]
+label = "Boot & screen flow"
+description = "The launcher, the config, the start point, the view chain"
+color = "#5eb1ff"
+sort = 10
+context = """
+The chain, in order: desktop/src/jks/launcher/Launcher_Game.java ->
+Utils_Launcher.loadConfig -> core/src/jks/amain/Main_Application.java (create) ->
+Vue_Preloading -> Vue_Scenematic_Intro -> Vue_StartScreen -> Vue_Game -> Vue_Scenematic_Outro.
+The views hand off to each other; GVars_Heart.changeVue(view, true) is the only switch.
+NEVER comment out an entry point to skip ahead — that is how a working intro shipped
+out of a build mid-story. Use the property:
+  ./gradlew :desktop:runGame                        the whole thing
+  ./gradlew :desktop:runGame -Donboard.start=game   straight to level 1
+  (logo | intro | start_screen | game | outro | sound_lab | item_lab | credits — the whole of
+   Main_Application.StartPoint; an unknown value warns and falls back to LOGO)
+  ./gradlew :desktop:runGame -Donboard.start=game -Donboard.level=3   into carriage 3
+  (1-4; anything else warns and starts in 1. The lab has one surface per carriage.
+   Nothing carries over from skipped carriages, which costs only karma: from 3 or 4 the
+   leaving ending, karma > 2, cannot be reached — unless -Donboard.lab=true, which the lab
+   passes: KarmaSlider sits in the black bar and sets GVars_Game.karma live (d11). Off by
+   default; a test that wants it sets Main_Application.lab.)
+Jouer and GVars_Game.nextLevel go through core/src/jks/vue/GVars_Fade.through(change): 1 s to
+black, the change runs AT BLACK, 2 s back up; keyboard, mouse and pad buttons are held off
+for all 3 s. So right after Jouer or nextLevel the old view/carriage is still current — a
+test must wait the fade out (LevelFadeTest, MenuKeyboardTest). Dev start points don't fade.
+changeVue DELIBERATELY does not stop the music — GVars_AudioManager.PlayMusic decides.
+Putting a stop back restarts the same track at every screen change.
+Settings are one choke point: core/src/jks/amain/Utils_Config.java + GameConfigs.java.
+GameConfigs MUST keep its field defaults — a first run with none wrote all zeroes, i.e. a
+0x0 window and volume 0. The path honours -Donboard.config, which is how the tests avoid
+the real file; keep that.
+Gate: OpeningRenderTest follows the opening all the way to the start screen and fails if
+the sequence stalls. `./gradlew build`.
+"""
+
+[tags.level]
+label = "Levels & the editor"
+description = "The four carriages, the .wa format, the puzzle state, the editor that writes it"
+color = "#ff9f43"
+sort = 20
+context = """
+A level is desktop/assets/game/wagon/wa{1..4}.wa — JSON read by Jackson into
+core/src/jks/vue/models/game/WagonLevel.java; its objects are GameItem.java. The art for a
+level lives in the sibling directory of the same name (wa1/), named by path_meta.
+The model classes are SHARED WITH THE EDITOR (editor/src/jks/editor/), which wrote those
+four files. A field added to WagonLevel or GameItem must round-trip through both — open it
+with ./gradlew :editor:runEditor and re-save a level before calling it done.
+GVars_Game.java holds the run: playerInventory, selectedItem, currentLevelInt, karma.
+karma decides the ending (Vue_Scenematic_Outro). Clef.java is the three-piece key; its
+hints are WagonLevel.hint1/2/3 and surface through GVars_Game.dialogBubble on hover.
+READ LEVELS THROUGH THE CLASSPATH, never FileHandle.file(): that resolves against the
+process working directory and cannot see inside the shipped jar. It is what blocked
+packaging for years.
+preLoadLevel throws GdxRuntimeException naming the level and the file. Keep it throwing —
+it used to print a trace, return null, and surface as an NPE inside Clef that said nothing.
+Gates: `./gradlew build` runs LevelDataTest (every .wa parses) and AssetPathTest (every
+path the code names exists).
+"""
+
+[tags.assets]
+label = "Assets & formats"
+description = "The asset tree, atlases, filenames, PNG recompression"
+color = "#2dd4bf"
+sort = 30
+context = """
+desktop/assets is a RESOURCES srcDir (desktop/build.gradle), not a java srcDir. As a java
+srcDir Gradle compiled the .java files there and copied nothing, so assets reached the
+runtime only through an explicit classpath entry and never reached the jar at all.
+FILENAMES ARE CASE-SENSITIVE and the game was written on Windows. One capital
+(UI_newGame.png vs UI_NewGame.png) was enough to stop it booting on Linux. AssetPathTest
+checks every path the code names — add yours to it.
+The backdrops — .plax, .plaxpj, the four .atlas/.png pairs at the ROOT of desktop/assets
+and core/jars/parallaxReader0.7.jar — belong to the `parallax` tag. Read that pack before
+moving, renaming or recompressing any of them: the root atlases look like stray duplicates
+and are the ones the game draws.
+.atlas/.png pairs are libGDX TextureAtlas — AtlasTest covers them.
+Recompress new PNGs losslessly with oxipng and verify pixel-identical before committing:
+the golden frames compare palette.
+Every file in ui/icon/pause/ is in use since r5 (OverlayPause), and the unused 'freezing'
+skin has been deleted.
+../JavaKhan-onboard-art-reserve/ holds 29 MB moved out of this repo.
+"""
+
+[tags.parallax]
+label = "Parallax backdrops"
+description = "The .plax backdrops and the parallax-background library that draws and reads them"
+color = "#36d7e0"
+sort = 35
+context = """
+Each carriage scrolls a backdrop: WagonLevel.init -> new Parallax_Heart(path_parallax), from
+io.github.javakhanstudio:parallax-background (parallaxVersion in build.gradle; source at
+../parralax/JKS_Tools2D_ParallaxBackground, tag v2.1.0), which draws it AND owns .plax.
+It replaced core/jars/parallaxReader0.7.jar in r33 (onboard 58f4a70).
+.plax is a Kryo binary written in 2019 by kryo 5.0.0-RC1. The library runs kryo 5.6.2 and
+reads that layout through jks.tools2d.parallax.heart.GVars_Serialization.prepareKryo() —
+the ONLY Kryo to read a .plax with. A plain new Kryo() FAILS SILENTLY: with references off,
+Printemps.plax "loads" with atlasName = six junk bytes + "Printemps.atlas" and 0 layers (run in r33).
+Its register() order assigns the class ids: never reorder, only append. On RC1, swapping two
+lines threw IndexOutOfBoundsException "-2" from inside Kryo, naming nothing.
+jks.vars.GVars_Serialization is now only the game's JSON (.wa levels); the tests read .plax
+through the library's class, so they check what the game reads.
+RE-SAVING A .plax CHANGES IT: the library writes format v3 (Printemps.plax 430 -> 444 bytes),
+which still reads back. The 2019 bytes survive only if you do not write. .plaxpj is the
+editor's JSON project (editor: separate download, never a dependency); keep it in step.
+THE ATLAS COMES FROM THE ASSET ROOT: WholePage_Model.preload() loads the bare atlasName into
+Gvars_Parallax.getManager(), so level 1 draws desktop/assets/Printemps.atlas, not the
+byte-identical game/wagon/wa1/ copy. Edit them together. Never clear() that manager while a
+page shows — the layers lose their textures.
+REGION NAMES MUST BE ASCII: libGDX reads the .atlas in the JVM's default charset; "été"
+stored as cp1252 matched nothing on today's JVMs and level 2 never loaded (r24; now 'ete').
+WagonLevel.init SWALLOWS the exception: a broken backdrop surfaces one step later as
+"Asset not loaded: game/wagon/waN/WAGON.png" — a red herring; look above it for the trace.
+Gates: ParallaxAssetTest (`./gradlew build`) reads the shipped bytes and fails on mojibake,
+non-ASCII region names or a regionName#regionPosition the ROOT atlas lacks. GameRunTest
+(-PwithGl) matches level 1 to its golden frame; LevelWalkTest (-PwithGl) walks 1->4.
+"""
+
+[tags.ui]
+label = "UI, fonts & dialogue"
+description = "Overlays, the menus, FreeType fonts, VisUI, the speech bubbles"
+color = "#ff8cc6"
+sort = 40
+context = """
+core/src/jks/vinterface/overlay/ (OverlayPause, OverlayOptions, OverlayCredits, all over
+OverlayModel), fonts in core/src/jks/vinterface/font/GVars_Font.java, bubbles in
+core/src/jks/vinterface/tools/DialogBubble.java.
+A scene2d label with a null style throws "style cannot be null" AT CONSTRUCTION.
+GVars_Font.prebuild() must have run first — with it commented out, the start screen and
+the options screen died on their first label and nobody noticed, because the game had been
+launching straight into level 1.
+NEVER dispose a font a live label still holds. Its glyph cache points at the old texture
+and every character then draws as a solid black block — correct spacing, dead texture.
+GVars_Font retires them into retiredFonts and releases them together in dispose().
+GVars_Font.resize() is a no-op when the window width has not changed. It used to
+regenerate all four menu fonts on every call and drop the old textures on the floor, and
+Vue_StartScreen calls it immediately after building the menu.
+Dialogue is TextraTypist, NOT typing-label: setAlignment takes one argument, there is no
+setStyle(Label.LabelStyle), and the face comes from setFont — GVars_Font.buildTextraFont()
+wraps the same FreeType BitmapFont once and caches it. COLOR/EASE/WAVE markup still parses.
+VisUI is loaded here with libGDX's STOCK skin, not VisUI's own, so a widget style that
+uiskin.json does not declare will not resolve.
+An ImageButton left alone draws its drawable at natural size — give it a size and its
+aspect ratio, or a full-size asset covers the screen.
+FreeType only rasterises the characters it is asked for, and a missing glyph does not
+throw — it leaves a hole. Check accented text ("Bédard", "Réalisé", "Fumée") renders.
+THE TITLE FACE CANNOT SPELL FRENCH. ui/fonts/OptimusPrinceps.ttf — behind
+labelStyle_ScreenTitle, so the start menu, the credits heading and the options block titles —
+has no é è à â ç, and its É does not draw either: "Crédits" renders "Cr¨dits" (doubt d8).
+ui/fonts/GeosansLight.ttf, behind labelStyle_Second, takes accents fine. Render and LOOK
+before putting an accented word in a title.
+Gates: `./gradlew build`, then the render tests:
+  ./gradlew :verify:test -PwithGl
+"""
+
+[tags.audio]
+label = "Audio"
+description = "The music, the volume path, the sound effects that do not exist"
+color = "#b48cff"
+sort = 50
+context = """
+core/src/jks/sounds/GVars_AudioManager.java is the only thing that plays anything;
+GVars_Audio.java holds mute and the volumes. Audio has one track: musics/intro.mp3,
+2:44, looping.
+Music volume is masterVolume * musiqueVolume, clamped, applied on playback. masterVolume
+once reached sound effects only — which do not exist — so Music.setVolume was never called
+and the setting in the config file changed nothing you could hear.
+PlayMusic compares the RESOLVED FILE, not the enum: STARTING_SCREEN and GAME_INTRO are two
+names for the same recording, so moving between them is not a reason to restart it. The
+requested track is remembered separately from what is playing, so unmuting resumes rather
+than waiting for the next screen change.
+setMasterVolume and setMuted take effect on what is ALREADY playing — that is what a volume
+slider needs. dispose() must release the decoder and the OpenAL source.
+Enum_Sounds_Game names jump, run and idle, the loader for them is commented out, and THERE
+ARE NO FILES — they were never recorded. Adding sound effects means recording them, not
+uncommenting a loader.
+Gate: MusicTest, and a green one now DOES prove the sound came out. Since b3f280f the
+tests play into build/audio/<task>.wav instead of the speakers (ALSOFT_DRIVERS=wave, set by
+gradle/offscreen.gradle), and MusicTest reads that file back through AudioCapture.java: music,
+then >=200 ms of silence while muted, then music. The wave device exists on any machine, so
+there is nothing left to skip.
+"""
+
+[tags.input]
+label = "Input"
+description = "Keyboard, gamepad, AZERTY, and the shortcuts players must not get"
+color = "#6ee787"
+sort = 60
+context = """
+core/src/jks/input/: Player_Inputs, IKM_Game_Keyboard, IKM_Game_XBoxController,
+Utils_Controller, GVars_Controller.
+gdx-controllers is 2.x (a separate project since libGDX 1.9.11). ControllerListener no
+longer has povMoved/xSliderMoved/ySliderMoved/accelerometerMoved, and button and axis
+numbers come FROM THE DEVICE through ControllerMapping — never hard-code them.
+GVars_Heart.isAzerty is true: arrow keys and Q/D both move.
+A developer shortcut must be gated, and the default must be off. SPACE calls nextLevel(),
+and SPACE is roughly the first key anyone presses — four presses walk past every puzzle to
+the ending. It sits behind debugMode. The gamepad BACK button restarts the level, behind
+coreInformationDebug, which defaults FALSE. Do not flip either default to make your own
+testing easier.
+Logging goes through core/src/jks/tools/Utils_Debug.java: log() is silent unless
+coreInformationDebug, warn() stays loud on stderr where a player's report would pick it up.
+No System.out.println — 34 of them once shipped to players, including a dump of every
+keypress.
+MENUS FROM THE KEYBOARD: a menu button must act in a ChangeListener, NEVER in a
+touchDown/touchUp InputListener. Enter goes through Button.toggle(), the same path as a
+click, and a raw touch listener ignores the keyboard without any error. Every menu was like
+that until r11. A new menu widget also goes in its screen's mapInterface(). GVars_UI.reset()
+drops the menu on a view change; without it the arrows stay with the menu and Ross can't
+walk. MenuKeyboardTest (-PwithGl) drives the whole path.
+"""
+
+[tags.verify]
+label = "Tests & goldens"
+description = "verify/**, the golden frames, the offscreen harness"
+color = "#b5e853"
+sort = 70
+context = """
+verify/src/test/java/jks/verify/. Two suites:
+  ./gradlew build                    7 classes, 50 tests, no display
+  ./gradlew :verify:test -PwithGl    13 more classes, 35 tests, each booting the real game
+Never open a window on Simon's screen: Gradle handles that itself since 24eecf1 — the GL
+tests always, runGame/runEditor whenever ATELIER_AGENT is set. Wrap anything OUTSIDE Gradle
+in tools/offscreen.sh: dist/OnBoard-*/onboard, a fat jar, a scratch program.
+Their sound goes to build/audio/<task>.wav instead of the speakers (b3f280f), path in
+ONBOARD_AUDIO_CAPTURE. AudioCapture.java reads it back, which is how MusicTest checks what
+was actually played rather than what the code asked for.
+forkEvery = 1 in verify/build.gradle — ONE JVM PER CLASS. libGDX, VisUI and the controller
+manager keep static state that cannot be torn down and set up again, and VisUI.load()
+throws outright on a second call in a process. Do not "optimise" this away.
+The GL tests run at 1280x720 because that is cage's headless output size, which neither
+cage nor wlroots lets you change. A window size change is NOT a scale change here: with a
+ScreenViewport a smaller window shows MORE of the carriage, so goldens cannot be reused
+across sizes.
+CAPTURE ON THE GAME'S OWN CLOCK (GameHarness.captureAfterSeconds), never a frame index.
+Anything driven by a timer — a fade, the typing effect, the parallax scroll — sits
+somewhere different at frame N depending on how fast the machine drew those N frames. That
+made the ending golden swing 40% between an idle run and a busy one.
+Frames.java compares 64x36 thumbnails on purpose: the game animates, so no two runs are
+pixel-identical. distinctColourRatio catches a blank or half-drawn frame, which is what an
+engine upgrade actually breaks.
+Re-record with -PwithGl -PrecordGolden and LOOK at the images before committing them.
+verify/src/test/resources/golden/reference-1.9.10/ is EVIDENCE, not a comparison target —
+nothing tests against it. Leave it there.
+ONBOARD_NO_OFFSCREEN=1 puts the windows back, and the sound with them, when you want to
+watch: ONBOARD_NO_OFFSCREEN=1 ./gradlew :desktop:runGame
+"""
+
+[tags.build]
+label = "Build & dependencies"
+description = "Gradle, the version pins, the toolchain"
+color = "#f2d45c"
+sort = 80
+context = """
+Every version lives in one ext block at the top of build.gradle: gdxVersion, visuiVersion,
+textratypistVersion, parallaxVersion, jacksonVersion, junitVersion, javaTarget. Change it
+there and nowhere else.
+THE ENGINE VERSION IS ENFORCED BY A resolutionStrategy over an explicit lockstep list.
+vis-ui and typing-label each declare their own libGDX and Gradle resolves a conflict by
+taking the HIGHEST — which silently gave the runtime a different engine than the compiler
+saw, and is how a class that existed at compile time went missing at run time. Only add an
+artifact released in lockstep with the engine; gdx-jnigen-loader carries its own version
+and must be left alone.
+There is NO kryo line: parallax-background brings kryo 5.6.2 and the .plax reader tuned to it
+(see the `parallax` pack). The old 5.0.0-RC1 pin went with the jar in r33. jackson-databind
+stays — the game reads its .wa levels and config through ObjectMapper.
+typing-label is dead: its last release (1.4.0) calls com.badlogic.gdx.utils.StringBuilder,
+which libGDX deleted in 1.14.0. TextraTypist is the maintained successor.
+Java 21 everywhere: a toolchain in build.gradle, the foojay resolver in settings.gradle so
+Gradle fetches a JDK on a machine that has none, and gradle/gradle-daemon-jvm.properties
+pinning the daemon. Those three must agree — jlink refuses to link across versions.
+:core is desktop-bound ON PURPOSE: Block_Resolution re-centres the window and libGDX has no
+cross-platform window-position API. It was already true and arrived by accident through
+gdx-controllers-lwjgl3; it is declared openly now. Moving Block_Resolution into :desktop
+would let it go.
+vis-ui 1.5.9 was built against libGDX 1.14.1 and printed a version warning on every startup.
+No vis-ui release targets 1.14.2 yet (1.5.9 was still the latest on Maven Central on
+2026-09-11), so GVars_UI.init calls VisUI.setSkipGdxVersionCheck(true) before VisUI.load to
+silence it — that call is the only thing hiding a real mismatch, so drop it when visuiVersion
+catches up to the engine.
+Gate: `./gradlew build`.
+"""
+
+[tags.ship]
+label = "Packaging & release"
+description = "The fat jar, natives, jlink, construo, the four platform builds"
+color = "#ff8a65"
+sort = 90
+context = """
+desktop/build.gradle: fatJar -> checkDistNatives -> construo, landing in dist/ at the top
+of the project (construo's default is five directories inside a build folder).
+  ./gradlew :desktop:packageWindows | packageLinux | packageMacAppleSilicon | packageMacIntel
+ONE AT A TIME. The fat jar carries a single platform's native libraries, so two targets in
+one invocation is REFUSED rather than silently shipping the wrong ones.
+taskToDistTarget is an EXPLICIT MAP and must stay one. The first version inferred the
+target from the task name, and "packageMacAppleSilicon" does not contain "macarm", so it
+fell through to Intel: an arm64 runtime wrapped around an x86 jar. checkDistNatives could
+not catch it, because the jar itself was perfectly consistent — it is the PAIRING that was
+wrong.
+checkDistNatives fails the build if a package carries another platform's libraries. That is
+otherwise invisible until a player runs it, and the player is who finds out.
+jlink modules are PINNED, not guessed (guessModulesFromJar = false): java.base,
+java.desktop, java.sql, jdk.unsupported. Construo's jdeps guess emits a phantom module
+called "JDK removed internal API/sun.misc" that jlink rejects. java.desktop is NOT
+optional — the LWJGL3 backend uses javax.sound.sampled for music and java.awt.
+Which platform would this invocation build for?
+  ./gradlew :desktop:packageMacIntel :desktop:whichDistTarget --dry-run
+THE macOS BUILDS ARE UNSIGNED. Gatekeeper says "On Board is damaged and can't be opened",
+which means unsigned, not broken: right-click -> Open once, or
+  xattr -dr com.apple.quarantine "On Board.app"
+Signing properly needs a Mac and a paid Apple Developer account.
+Only the Linux package can be executed on this machine. Say in the report what you ran and
+what you inferred from an identical configuration — do not call an unrun .exe verified.
+"""
+
+[tags.docs]
+label = "README & credits"
+description = "The one document, and who gets named in the game"
+color = "#9fa8ff"
+sort = 95
+context = """
+README.md is the whole doc surface and doubles as the agent guide — there is no CLAUDE.md
+and no docs/ directory. Two of its sections carry load and are where a discovery goes:
+"Things worth knowing before you change anything" is the trap list, and "Built but never
+finished" is the backlog someone will pick from. A surprise recorded only in a code comment
+is a surprise the next person will not find.
+Commit bodies are the handover log here — no session directory, nothing to ingest. A change
+worth explaining is explained in the commit, at the length the existing ones use: what was
+wrong, what it cost, what was verified rather than assumed.
+Credits content is entirely core/src/jks/index/Index_Credits.java and the screen follows it.
+Roles are plain strings so they can be reworded; "Art visuel" is a placeholder for something
+more precise. Nobody's name appeared anywhere in this repository until that screen was
+written.
+The intro smoke (desktop/assets/ui/story/intro/smoke.jpg) began as an iStock image by
+AnnaFomina (its XMP says so). Settled in 7c80345: a team artist bought and reworked it, the
+game is non-commercial, and it is deliberately NOT credited on screen — do not add it back.
+Gate: CreditsRenderTest asserts everyone appears exactly once and renders the screen.
+"""
