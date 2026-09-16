@@ -36,8 +36,10 @@ for step in "${STEPS[@]}"; do
     echo "  ok   $step  ($((SECONDS - start))s, $(grep -c ' PASSED$' "$LOG") tests passed)"
   else
     echo "  FAIL $step  ($((SECONDS - start))s)"
-    grep -E ' FAILED$|^\* What went wrong|error:' "$LOG" | head -20
-    tail -30 "$LOG"
+    # The worker quotes only the last lines: end on what failed, not Gradle's advice.
+    grep -A3 -E '^\* What went wrong' "$LOG"
+    grep -E 'error:|warning: \[' "$LOG" | head -10
+    grep -E ' FAILED$' "$LOG" | grep -v '^> Task' | head -20
     exit 1
   fi
 done
