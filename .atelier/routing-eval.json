@@ -1,0 +1,357 @@
+{
+ "board": "onboard",
+ "built_at": "2026-09-18 15:55:55",
+ "tags": [
+  "assets",
+  "audio",
+  "build",
+  "coordinator",
+  "docs",
+  "flow",
+  "input",
+  "level",
+  "parallax",
+  "ship",
+  "ui",
+  "verify"
+ ],
+ "tickets": [
+  {
+   "ref": "r24",
+   "title": "Game crash when trying to move to next scene with following error \n\n[Controllers] added manager for application, 1 managers active\njava.lang.IndexOutOfBoundsException: index can't be >= size: 4 >= 0\n\tat com.badlogic.gdx.utils.Array.get(Array.java:173)\n\tat jks.tools2d.parallax.pages.WholePage_Model.findLayer(WholePage_Model.java:177)\n\tat jks.tools2d.parallax.pages.WholePage_Model.buildLayer(WholePage_Model.java:141)\n\tat jks.tools2d.parallax.pages.WholePage_Model.load(WholePage_Model.java:131)\n\tat jks.tools2d.parallax.pages.WholePage_Model.load(WholePage_Model.java:207)\n\tat jks.tools2d.parallax.pages.WholePage_Model.preload(WholePage_Model.java:110)\n\tat jks.tools2d.parallax.pages.WholePage_Model.getDrawing(WholePage_Model.java:79)\n\tat jks.tools2d.parallax.pages.WholePage_Model.getDrawing(WholePage_Model.java:88)\n\tat jks.tools2d.parallax.heart.Parallax_Utils_Page.setPage(Parallax_Utils_Page.java:12)\n\tat jks.tools2d.parallax.heart.Parallax_Heart.<init>(Parallax_Heart.java:62)\n\tat jks.vue.models.game.WagonLevel.init(WagonLevel.java:58)\n\tat jks.vue.models.game.GVars_Game.preLoadLevel(GVars_Game.java:143)\n\tat jks.vue.models.game.GVars_Game.loadLevel(GVars_Game.java:110)\n\tat jks.vue.models.game.GVars_Game.nextLevel(GVars_Game.java:203)\n\tat jks.vue.models.game.Clef.applySucces(Clef.java:114)\n\tat jks.vue.models.game.GVars_Game.addKey(GVars_Game.java:165)\n\tat jks.vue.models.game.GVars_Game.pickItem(GVars_Game.java:95)\n\tat jks.vue.models.game.GameItem.tryTouch(GameItem.java:105)\n\tat jks.input.IKM_Game_Keyboard.touchDown(IKM_Game_Keyboard.java:227)\n\tat com.badlogic.gdx.InputMultiplexer.touchDown(InputMultiplexer.java:113)\n\tat com.badlogic.gdx.InputEventQueue.drain(InputEventQueue.java:67)\n\tat com.badlogic.gdx.backends.lwjgl3.DefaultLwjgl3Input.update(DefaultLwjgl3Input.java:190)\n\tat com.badlogic.gdx.backends.lwjgl3.Lwjgl3Window.update(Lwjgl3Window.java:414)\n\tat com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application.loop(Lwjgl3Application.java:181)\n\tat com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application.<init>(Lwjgl3Application.java:153)\n\tat jks.launcher.Launcher_Game.main(Launcher_Game.java:40)\nException in thread \"main\" com.badlogic.gdx.utils.GdxRuntimeException: Asset not loaded: game/wagon/wa2/WAGON.png\n\tat com.badlogic.gdx.assets.AssetManager.get(AssetManager.java:173)\n\tat com.badlogic.gdx.assets.AssetManager.get(AssetManager.java:144)\n\tat jks.vue.models.game.WagonLevel.setAsGameReady(WagonLevel.java:77)\n\tat jks.vue.models.game.GVars_Game.loadLevel(GVars_Game.java:125)\n\tat jks.vue.models.game.GVars_Game.nextLevel(GVars_Game.java:203)\n\tat jks.vue.models.game.Clef.applySucces(Clef.java:114)\n\tat jks.vue.models.game.GVars_Game.addKey(GVars_Game.java:165)\n\tat jks.vue.models.game.GVars_Game.pickItem(GVars_Game.java:95)",
+   "detail": "Note (fedora1-onboard-7): DIAGNOSED (not fixed), routed to #parallax. Level 2 can never load, on any platform. ete.plax stores its region name as 'Ã©tÃ©' (code points c3,a9,74,c3,a9: the UTF-8 bytes of 'été' read as cp1252), while desktop/assets/ete.atlas (UTF-8) declares 'été'. libGDX reads an atlas through FileHandle.reader(), which uses the platform default charset. In 2019 that was cp1252 on Windows/Java 8, so the atlas also came back as 'Ã©tÃ©' and the names matched. Since Java 18 (JEP 400) the default is UTF-8 everywhere, so atlas.findRegions('Ã©tÃ©') is empty and .get(4) throws 'index can't be >= size: 4 >= 0'. WagonLevel.init swallows it, and setAsGameReady then fails on 'Asset not loaded: game/wagon/wa2/WAGON.png', which is a red herring. The other three .plax files use ASCII region names (parallax1, Automne1-4, parallax4) and are fine. Nothing catches it: ParallaxAssetTest checks only atlasName, and GameRunTest draws only level 1. Fix options for whoever takes it: (a) rename the region to ASCII 'ete' in BOTH ete.atlas copies AND re-serialise ete.plax with the pinned kryo 5.0.0-RC1 and the same register() order (check ete.plaxpj too); (b) rewrite the atlas's region line as 'Ã©tÃ©' in UTF-8, which needs no code but is ugly; (c) in WagonLevel, read the page through GVars_Serialization, repair the names, then Parallax_Heart() + setPage. Whichever it is, extend ParallaxAssetTest to check that every regionName#regionPosition exists in the ROOT atlas (TextureAtlasData pars",
+   "tags": [
+    "parallax"
+   ]
+  },
+  {
+   "ref": "r1",
+   "title": "Run the Windows package on Windows, or under Wine — nothing ever has",
+   "detail": "Note (connect): Commit bdeeed0 says it outright: 'Not verified: the .exe has not been run on Windows - there is no Wine on this machine.' The Linux package IS built from identical configuration and was run end to end, so the layout, module set and native filtering are proven — but the Windows artifact differs in JDK and native libraries and no one has ever launched it. dist/OnBoard-windows/onboard.exe exists now. Either install wine here, or send the zip to someone with Windows and get a report back.\n\nRan dist/OnBoard-windows/onboard.exe under Wine 11.17 (portable Kron4ek wow64 build, sha256 checked, unpacked under ~/.cache/onboard-wine; no sudo, nothing installed system-wide). Runs were in headless cage (the tools/offscreen.sh trick), with XTest clicks standing in for the player and audio going to a temporary null sink (now removed). The Linux package ran the same way as a control.\nWHAT WORKS UNDER WINE: the launcher starts the bundled jlink JVM; LWJGL/GLFW/OpenGL, gdx-freetype, jamepad and OpenAL natives all load from the fat jar; libGDX logo -> story pages (they turn on click) -> start menu, the same path and timing as the Linux control; music plays, continuous from ~3 s; closing the window with the title-bar X exits 0. Renders attached.\nFOUND: (1) Quit on the start menu crashes the Windows build on the way out: unhandled c0000409 inside LWJGL's OpenAL.dll, exit 9, 2 of 2 runs. Linux exits 0, and the X button exits 0 on Windows too. Cause is System.exit(0) at StartScreen_S",
+   "tags": [
+    "ship"
+   ]
+  },
+  {
+   "ref": "r55",
+   "title": "I selected the background sound rail ride. Next : We have access to music generation, let's say we need one track per wagon, i need you to make a prompt for each. Just describe the ambiance and the instrument best fitting and i'll generate outside of the application",
+   "detail": "Note (fedora1-onboard-21): Routed to #audio and released by fedora1-onboard-21: this is writing music-generation prompts, one track per carriage, for a generator outside the game — no code, and I hold flow/input/level rather than audio. From the level side, for whoever takes it: the four carriages are Ross's four ages and their backdrops are seasons — wa1 Printemps (childhood), wa2 ete (youth), wa3 automne (adulthood), wa4 Hiver (old age) — so that is the mood and the order to describe.\n\n7942e3c adds desktop/assets/musics/PROMPTS.md: four paste-ready generation prompts, one per carriage, in the order of Ross's ages (wa1 Printemps enfance, wa2 ete jeunesse, wa3 automne age adulte, wa4 Hiver vieillesse), each grounded in that carriage's props. They are one voice that ages rather than four pieces: same detuned upright piano and same motif, plain in wa1, troubled/late-night jazz in wa2, strings and a distant trumpet in wa3, half-forgotten and alone in wa4. Shared rules come from the audio as it is: the rails bed holds the low end permanently, so no drums/bass, nothing below ~200 Hz, sparse enough to sit under dialogue, seamless 2-3 min loops, no intro or ending. NOTE: nothing plays them yet - GVars_AudioManager knows only musics/intro.mp3 and no carriage change switches track; playing them per carriage, with a crossfade, is a separate task. Judging the candidates is Simon's ear, as with the effects.",
+   "tags": [
+    "audio"
+   ]
+  },
+  {
+   "ref": "r35",
+   "title": "I want to be able to start the current version of the game from the board. I want this to be test, then added as a ticket on the atelier board so that every game on the board can be started that way",
+   "detail": "Note (fedora1-onboard-14): Routed to #flow + #build: launching the current game is the launcher/start point (flow) run through Gradle (build). It's not assets or ui, so I'm releasing it. Heads-up for the taker: the second half ('add a ticket so every game on the board can be started that way') is a ticket for the Atelier board itself, not onboard code. Also, per the gl-runs-offscreen memory, Gradle runs go offscreen, and a launch Simon wants to see must NOT.\n\nCommit: atelier 421b9f1 (projects/onboard.toml; no onboard code needed — runGame already builds the working tree and honours the board).\nAdded [tools.play] 'Play the game' -> the existing game viewer (./gradlew :desktop:runGame). It shows on the board's Tools screen with an Open button.\nTESTED through the board's launch path: `atelier tools open play` spawned it via launch._spawn (log atelier/var/launch/game-20260915-150857.log). From this agent session it went offscreen as it must: 'renders to a headless display (cage, wayland-1 / :2)'; its sound went to desktop/build/audio/runGame.wav, which filled with 44 s of music (rms rising 450 -> 2000), so the game was running. Stopped it; BUILD SUCCESSFUL.\nNot tested by clicking the web button, on purpose: that would open a window and sound on Simon's desk. Checked instead that the running 'atelier serve' (pid 85234) has DISPLAY/WAYLAND_DISPLAY and NO ATELIER_AGENT, so gradle/offscreen.gradle leaves its launches on the screen. No frame attached: I found no way to grab cage's Way",
+   "tags": [
+    "build",
+    "flow"
+   ]
+  },
+  {
+   "ref": "r60",
+   "title": "Getting a white screen at the end, the game should have a short closure message, and loop back to the start. For now invent the closure message, base on the decisions and the result from the karma",
+   "detail": "Note (fedora1-onboard-16): Routed #flow,#ui (coordinator). The white screen is the end of Vue_Scenematic_Outro.update: when the last page has faded out and imageSequence is empty, nothing replaces it and nothing switches view, so the screen stays blank forever. Looping back is GVars_Heart.changeVue(new Vue_StartScreen(), true), the only switch (flow), and it must not restart the music by hand — PlayMusic decides. A fresh run also needs the state reset: GVars_Game currentLevelInt, karma, playerInventory and the picked flags, or the second run starts mid-story. The two endings already differ: leaving is GVars_Game.leavingEnding() (karma > KARMA_TO_LEAVE, r52) and shows outroPage_leave; staying shows outroPage_stay_1 and _2. That is what the invented message should be written from. The text is the #ui half: the outro draws textures only today, so the message needs a font through GVars_Font, and if it is in French, read the ui pack first — OptimusPrinceps cannot draw accents and GeosansLight can. Render both endings (the KarmaSlider from r52 in a lab start sets karma) and attach them.\nNote (fedora1-onboard-16): Heads-up before looping back to the start (coordinator): notice n13 from r59 says preloadedlevel caches each WagonLevel, and picking an item sets GameItem.picked on that cached instance. A second playthrough in the same process therefore opens carriages with their items already taken. Resetting currentLevelInt, karma and the inventory is not enough — the cached levels need",
+   "tags": [
+    "flow",
+    "ui"
+   ]
+  },
+  {
+   "ref": "r65",
+   "title": "Odd, investigate how this happened",
+   "detail": "Simon read notice n15 and asked for this.\n\nWHAT HE ASKED: Odd, investigate how this happened\n\nTHE NOTICE (n15): The board handed fitzroy a task under ref r62, but r62 on this board is fedora1-onboard-16's closed 'Publish - push what this board's sessions committed'. The projection-critique task did not exist on the board at all.\nThe dispatch told me to close with 'atelier answer r62 --agent $ATELIER_AGENT'. atelier show r62 returns the Publish task, status done, agent fedora1-onboard-16. Answering there would have appended a projection critique to another agent's closed publish record, so I did not. I filed the brief verbatim as a new task (r63), claimed it, did the work and answered there; the collision is this notice.\n\nTwo other mismatches in the same dispatch, in case they share a cause: it told me to use the agent name 'fitzroy' while $ATELIER_AGENT in this session is 'fedora1-onboard-23' (I used fitzroy, as instructed, and it is the name on r63 and n14); and it named a flag 'atelier answer --answer' which the CLI does not have - answer takes the text positionally.\n\nWorth knowing: atelier answer attributes the step to 'simon', because it is the human side of an ask. The writeup on r63 timestamped 16 Sep 01:15 reads 'simon answered' but is fitzroy's. A note on r63 says so.\n\nThe notice is the finding; the line above is what he wants done about it. If the two do not agree, his line wins. If you cannot tell what it asks, `atelier ask` this task rather than guessing.\n\nThe boar",
+   "tags": [
+    "coordinator"
+   ]
+  },
+  {
+   "ref": "r69",
+   "title": "Every carriage change leaks a SpriteBatch and a ShapeRenderer: nextLevel calls GVars_Camera.init()",
+   "detail": "core/src/jks/vue/models/game/GVars_Game.java nextLevel() calls GVars_Camera.init() inside the fade, to put the camera back at the start of the carriage. init() also does staticBatch = new SpriteBatch() and shapeRenderer = new ShapeRenderer() and never disposes the old ones, so each carriage (and each loop back from the ending, r60) leaves a batch's mesh + shader and a renderer's behind on the GPU. Fix: split the camera reset (camera.position.x = WORLD_WIDTH/2, or setToOrtho again) from creating the renderers, and call only the reset from nextLevel. Seen while fixing r64; not changed there. Proven by LevelWalkTest / LevelFadeTest still passing, and a check that GVars_Camera.staticBatch is the same instance before and after nextLevel.\n\nCommit 30-char summary below; hash in the first line.\nNote (juno-fedora1-onboard-27): CORRECTION: ignore the done note above (\"Commit 30-char summary below\"). It was a placeholder I sent by mistake. This is the account.\n\nCommit 47cee1a (not pushed). GVars_Camera.init() now builds the SpriteBatch and the ShapeRenderer only if they don't exist yet. It then calls the new resetCamera(), which makes a fresh 1600x900 camera at the start of the carriage. GVars_Game.nextLevel calls only resetCamera(), so a carriage change no longer leaves a batch's mesh and shaders and a shape renderer behind on the GPU. That includes the loop back from the ending. The startup path also reached init() twice (Main_Application.mainInit and GVars_Heart.init) and leaked one ",
+   "tags": [
+    "level"
+   ]
+  },
+  {
+   "ref": "r20",
+   "title": "Apply d3: A — I need to see it in action. Let's have an option to test it in the existing lab",
+   "detail": "Simon settled doubt d3, and it needs writing.\n\nTHE DOUBT: 'docs' covers exactly one file, README.md, plus Index_Credits.java. That is thin for a tag, but the README is doing the job a CLAUDE.md would and keeping it true is real work.\nTHE QUESTION: A = keep 'docs'  B = drop it and let a doc change carry the tag of whatever it documents\nHIS DECISION: A — I need to see it in action. Let's have an option to test it in the existing lab\n\nWrite what the decision asks for, and check it where it lives. Closing this with `atelier done` marks d3 applied. If it turns out to need no change, say why in the note. If you cannot tell what it asks, `atelier ask` this task rather than guessing.\nNote (fedora1-onboard-4): Reading d3 as: keep #docs, and give it an inspectable surface in the existing board lab (like SoundLab = viewer 'start', point=sound_lab). Added StartPoint.CREDITS (-Donboard.start=credits): Vue_StartScreen opens with OverlayCredits already up, Retour slides the menu in. Did not touch StartScreen_SmoothSideSelect (#ui is held by onboard-5). Next: build, render it offscreen, register lab surface 'Credits' tagged docs.\n\nCommit c77fbe8. Read d3 as: keep #docs, and let Simon see what it produces from the board's existing Labs screen, the way SoundLab works. The only thing #docs puts on screen is the credits, so: new StartPoint.CREDITS (-Donboard.start=credits) opens Vue_StartScreen with OverlayCredits already up, the state the Credits button leaves it in, so Retour lands on the real",
+   "tags": [
+    "docs",
+    "flow"
+   ]
+  },
+  {
+   "ref": "r32",
+   "title": "Apply d8: Credits is fine",
+   "detail": "Simon settled doubt d8, and it needs writing.\n\nTHE DOUBT: The menu font cannot write 'Crédits': desktop/assets/ui/fonts/OptimusPrinceps.ttf, the face behind GVars_Font.labelStyle_ScreenTitle, has no é (U+00E9), and its É (U+00C9) does not draw either. Found while applying d6: I translated the start menu's last two English words, rendered it and looked, as the #ui pack says to. 'Quitter' is fine. 'Crédits' comes out 'Cr¨dits' — FreeType leaves a bare accent where the letter should be — on the button AND on the credits screen's own heading (Index_Credits.TITLE). In caps it is no better: 'CRÉDITS' renders 'CRDITS' with a floating acute. Renders of both attached. The font's coverage is German/Nordic (ä æ ö ø ü ß) and it is missing é è à â ç, so this will bite again the next time an accented French word goes into a title. Everything in GeosansLight takes accents fine, which is why 'Résolution' and 'Simon Bédard' look right. I left the word as 'Credits' with the reason written next to it — defensible, since the face draws everything as capitals and unaccented capitals are ordinary French typography — but it is your game's typography, not my call.\nTHE QUESTION: Leave the menu reading 'Credits' — which is how French capitals are normally written anyway — or should the menu font be made able to spell 'Crédits', by patching the missing glyphs into OptimusPrinceps.ttf or by using a different face for the menu?\nHIS DECISION: Credits is fine\nRAISED FROM: r31\n\nWrite what the decision asks ",
+   "tags": [
+    "assets",
+    "ui"
+   ]
+  },
+  {
+   "ref": "r57",
+   "title": "Text seem to take a long time before appearing when i over the key parts",
+   "detail": "Note (fedora1-onboard-16): Routed #ui (coordinator). The wait is in core/src/jks/vinterface/tools/DialogBubble.act: applyText sets appearing with alphaGrowingSpeed 1, so the bubble fades from alpha 0 to 1 over about a second, and typing.restart(textStartUp + text) only runs once alpha has REACHED 1. Nothing is typed until the fade finishes. The hint itself comes from Clef.buildListener -> GVars_Game.dialogBubble.applyText on hover (hints are WagonLevel.hint1/2/3), and exit calls tryMakeDiseaper, which fades back down at the same rate. This is the same bubble r42 sped up ({SPEED=1.5} / typingSpeed), so it is the fade-in, not the typing. Options are a faster ramp or starting the text while it fades in. Render it and attach before/after.\nNote (fedora1-onboard-20): Routed to #ui by fedora1-onboard-20 and released (I hold #audio only). Hovering a carriage item is GameItem.hovered / ItemOutline (r40); the text that follows is the speech-bubble typing path (r42 put {SPEED=1.5} in every bubble). Whoever takes it: work out whether the wait is the bubble's own open/type delay or a threshold before the hover asks for the text at all.\nNote (fedora1-onboard-22): Taking r57. Confirmed the wait in DialogBubble: applyText sets appearing/alpha ramp 1.0 (1 s to full) and act() only calls typing.restart(textStartUp+text) once alpha has REACHED 1, so nothing is typed for a whole second after the mouse enters a key part (Clef.buildListener -> applyText). Plan: type while it fades in, and ramp fas",
+   "tags": [
+    "ui"
+   ]
+  },
+  {
+   "ref": "r51",
+   "title": "Apply d10: Outilnes. small, somewhat transparent and yellow, make of small line, like a shine. Make a",
+   "detail": "Simon settled doubt d10, and it needs writing.\n\nTHE DOUBT: r40 hover highlight: the look is an additive re-draw of the item at 0.35, so pale items (the white bundle, papers) wash toward white rather than gaining an outline. And every unpicked item lights, including the fixed ones (cage, tableau, trou...) whatever is in the hand — a click on them only acts with the right item, but lighting only on a match would give the puzzle away.\nTHE QUESTION: How should hovered items light? A = keep it: brighten inside the outline, every item lights B = brighter/stronger glow C = an outline/halo instead (needs a small shader) D = fixed items light only when the held item fits them\nHIS DECISION: Outilnes. small, somewhat transparent and yellow, make of small line, like a shine. Make a lab to test it\nRAISED FROM: r40\n\nWrite what the decision asks for, and check it where it lives. Closing this with `atelier done` marks d10 applied. If it turns out to need no change, say why in the note. If you cannot tell what it asks, `atelier ask` this task rather than guessing.\n\nd10 applied. onboard 1657293 (unpushed): the additive glow is gone. core/.../game/ItemOutline.java is a shader that draws a thin, semi-transparent yellow line just outside the item's alpha, cut into short diagonal strokes that drift like a shine. Defaults: width 2.5 px, opacity 0.7, 12 px strokes 60% filled, 18 px/s, colour (1, 0.86, 0.25). The item's own pixels are untouched, and every unpicked item still lights (D not chosen). LA",
+   "tags": [
+    "input",
+    "level"
+   ]
+  },
+  {
+   "ref": "r22",
+   "title": "Correct 'no source survives' for parallaxReader0.7.jar, and point ParallaxAssetTest at the atlas the game actually loads",
+   "detail": "Found while writing the parallax pack (r19, atelier d25210d).\n1) Three places still say the jar has no source: README.md (line ~149, '**core/jars/parallaxReader0.7.jar has no source.**'), the kryoVersion comment in build.gradle, and ParallaxAssetTest's javadoc. Wrong: the jar ships its own 21 .java files (unzip -l core/jars/parallaxReader0.7.jar), and the upstream is ../parralax/JKS_Tools2D_ParallaxBackground (github JavaKhanStudio/JKS_Tools2D_ParallaxBackground). Upstream is on kryo 5.6.2 now, with renamed classes, so it is not a drop-in replacement. The real point is still true: re-serialising the .plax is not a small job.\n2) ParallaxAssetTest resolves the atlas next to the .plax (game/wagon/waN/X.atlas). The game loads it from the asset ROOT, because the jar calls new TextureAtlas(atlasName) on the bare name, so desktop/assets/X.atlas. Today the two are byte-identical, so the test passes, but deleting the root copy would get past it. Make the test check the root copy (or both), and check the .png each atlas names too.\n\nCommit 76d8ca6. (1) README, both build.gradle comments and ParallaxAssetTest's javadoc now say the jar ships its own .java and names the upstream (JavaKhanStudio/JKS_Tools2D_ParallaxBackground, kryo 5.6.2, renamed classes -> a migration, not a drop-in). README also gains a paragraph: the backdrop atlas comes from the asset root. (2) ParallaxAssetTest now checks desktop/assets/<atlasName> (case-exact), parses it with TextureAtlasData and checks every page PNG",
+   "tags": [
+    "parallax"
+   ]
+  },
+  {
+   "ref": "r50",
+   "title": "Apply d9: A",
+   "detail": "Simon settled doubt d9, and it needs writing.\n\nTHE DOUBT: I read 'separate slider' as a new Effets slider for the train sounds. The existing Volume slider stays the master, so it scales both the music and the effects. The music has no slider of its own. (musiqueVolume exists in GVars_Audio, but nothing sets it.)\nTHE QUESTION: Which sliders should Options > Son have? A = Volume (master) + Effets, as built now. B = Musique + Effets. C = Volume + Musique + Effets.\nHIS DECISION: A\nRAISED FROM: r39\n\nWrite what the decision asks for, and check it where it lives. Closing this with `atelier done` marks d9 applied. If it turns out to need no change, say why in the note. If you cannot tell what it asks, `atelier ask` this task rather than guessing.\n\nd9=A was already what r39 built: Options > Son = Couper le son, Volume (master: musicVolume=master*musique, effectsVolume=master*effect), Effets; no music slider, musiqueVolume stays 1. No behaviour change. 9978589 adds a SettingsTest record that Volume scales both music and effects, and a Block_Sound comment naming d9. SettingsTest, EffectSoundTest, MusicTest green with -PwithGl. Render of the options screen attached.",
+   "tags": [
+    "audio"
+   ]
+  },
+  {
+   "ref": "r33",
+   "title": "Let's change the old parralax jar into the newly hosted one. Delete the old jar once done.",
+   "detail": "Note (fedora1-onboard-13): Routed #parallax + #build. It is the migration the #parallax pack names: core/jars/parallaxReader0.7.jar -> io.github.javakhanstudio:parallax-background:2.1.0 per the attached MIGRATING.md. It rewrites build.gradle's pins (kryoVersion 5.0.0-RC1 goes, jackson-databind goes if only there for the parallax, new Maven dep brings gdx — mind the lockstep resolutionStrategy), hence #build. Already true here: gdxVersion is 1.14.2 and the toolchain is Java 21, so section 1's version checks pass. Watch: the game reads through the jar's GVars_Serialization but the tests read core/src/jks/vars/GVars_Serialization.java, a copy on kryo RC1 — that copy and ParallaxAssetTest must move with it. Utils_Parralax->Utils_Parallax and Parallax_Heart constructor changes likely. Gates: ./gradlew build plus -PwithGl GameRunTest and LevelWalkTest (all 4 backdrops), render attached. When done, the #parallax and #build packs both say kryo stays at 5.0.0-RC1 — they will be wrong and need rewriting.\nNote from Simon: If you have any request, adresse them to the parralax board, like upgrade, optimization, new methods, etc\n\nCommit onboard 58f4a70. core/jars/parallaxReader0.7.jar deleted; build.gradle takes io.github.javakhanstudio:parallax-background:$parallaxVersion (2.1.0) from Maven Central. kryoVersion and the kryo dep are gone (the library brings 5.6.2). jackson-databind STAYS: the game reads its .wa levels and config through it. Runtime classpath checked: one gdx 1.14.2, kryo 5",
+   "tags": [
+    "build",
+    "parallax"
+   ]
+  },
+  {
+   "ref": "r52",
+   "title": "Apply d11: Let's make it a variable that can be set with a slider",
+   "detail": "Simon settled doubt d11, and it needs writing.\n\nTHE DOUBT: r43: starting in a later carriage counts no karma from the carriages skipped (each can add 1; the leaving ending needs karma > 2), so from carriage 3 or 4 the leaving ending cannot be reached from the lab.\nTHE QUESTION: Should a mid-run start credit karma? A = no, start at 0 (as now) B = assume the best run so far (1 per skipped carriage) C = a separate -Donboard.karma=N to choose\nHIS DECISION: Let's make it a variable that can be set with a slider\nRAISED FROM: r43\n\nWrite what the decision asks for, and check it where it lives. Closing this with `atelier done` marks d11 applied. If it turns out to need no change, say why in the note. If you cannot tell what it asks, `atelier ask` this task rather than guessing.\n\nd11 applied. onboard 8460cab (unpushed): the board has no slider for a lab argument, so the slider is in the game. core/.../game/KarmaSlider.java sits at the right end of the black bar under the carriage and sets GVars_Game.karma (0-4). It follows karma earned in play and says 'N leaving ending / staying ending'; the threshold is now GVars_Game.KARMA_TO_LEAVE (2) via leavingEnding(), which the outro also reads. It shows only with -Donboard.lab=true (Main_Application.lab) or in item_lab, so a plain dev start and the goldens are unchanged. atelier 932292b (unpushed): viewer 'level' passes -Donboard.lab=true, so Carriage1..4 all have the slider, and the #flow pack and the surface descriptions say so. No -Donboard",
+   "tags": [
+    "flow",
+    "level"
+   ]
+  },
+  {
+   "ref": "r66",
+   "title": "Write tools/publish_gate.sh so the worker publishes without a session",
+   "detail": "From atelier r144. Every push on this board costs a Publish session (0.4-1M tokens each; 53.5M across 64 passes on five boards, 11-16 Sep). The worker can publish by itself (atelier worker.publish_gate): it runs [coordinator] gate on a detached worktree of the exact SHA it would push, with ATELIER_CHECKOUT naming the real checkout and ATELIER_GATE_SHA the commit; exit 0 pushes that SHA, anything else queues a Publish pass with the script's last lines. Model it on SynAndKaya/tools/publish_gate.sh (borrow heavy dirs from $ATELIER_CHECKOUT rather than rebuilding; fail if the checks change tracked files; print one ok/FAIL line per step). Checks: its gradle fast tests (the checks onboard's publish passes ran by hand; the #build pack names them). Prove it both ways: exit 0 on HEAD, and non-zero on a commit you break on purpose in a scratch worktree. Commit the script in this repo. The config line lives in the atelier repo, which this checkout cannot commit to (atelier r140): once your commit exists, file it there — atelier add --project atelier --tags config \"onboard: add [coordinator] gate\" — naming the script path and that the block goes at the END of projects/onboard.toml (a bare key after a [table] is trapped in it).\n\nWrote tools/publish_gate.sh (fee293e, 77e17b0). It runs `./gradlew build` (compile + the fast tests, no display — the gate the #build/#flow/#level packs name), prints one ok/FAIL line, and fails if a tracked file changed. It borrows nothing from $ATELIER_CHECKOUT:",
+   "tags": [
+    "coordinator"
+   ]
+  },
+  {
+   "ref": "r64",
+   "title": "Why where there no task born of this ? This is a real bug, requiring news task. See why t…",
+   "detail": "Simon read notice n14 and asked for this.\n\nWHAT HE ASKED: Why where there no task born of this ? This is a real bug, requiring news task. See why this did not spawn a need queued element, send that correction to the atelier board, and get on to it\n\nTHE NOTICE (n14): Three reachable geometry bugs found while reading the drawing path for r63, all from the same root: the carriage art is sized in fractions of the live window while the camera, the item coordinates, Ross's height and the pan clamps are absolute pixels of a 1600x900 design.\n1. WALK OFF THE END. GVars_Inputs clamps camera.position.x to 800..2192, absolute. The carriage is drawn (2W - 2*H/9) wide. At a 1280x720 launch that is 2400 but the view reaches 2832, so the right third of the screen is backdrop and bare white, with wa1's cage.png (x=2569) and cube.png (x=2760) outside the room. At 1920x1080 the opposite: 448 px of carriage is unreachable. Only 1600x900 fits (3000 vs 2992). Render attached to r63 (probe-1280x720-walks-off-the-end.png).\n\n2. ROSS CLIPPED. Enum_AGE gives soldier 1001*0.67 = 671 world units standing at positionY 130, so his head reaches 801. GVars_Camera.init sets the world to the launch resolution, so at 1280x720 the world is 720 tall and his head is cut off. Visible in verify/build/frames/walk-level3.png, attached to r63.\n\n3. LEFT PRESS TELEPORTS. OrthographicCamera.setToOrtho leaves position.x = W/2. At any launch narrower than 1600 that is below the 800 clamp, so the first press of Left snaps th",
+   "tags": [
+    "level"
+   ]
+  },
+  {
+   "ref": "r3",
+   "title": "Confirm the licence of ui/story/intro/smoke.jpg before the game goes out widely",
+   "detail": "Note (connect): desktop/assets/ui/story/intro/smoke.jpg is a stock image and carries dc:creator 'AnnaFomina' in its own XMP metadata — that was the only human name recorded anywhere in the repo before the credits screen was written (commit 14bc5e7). It is credited on screen. What is missing is the licence: where it came from and what it permits. Read it back with exiftool or exiv2, then find the source. The README already flags this as worth confirming before wide distribution; the answer belongs in the README next to the flag.\nAnswer from Simon: Remove the credit line. It was bought and modifyed by one of the artist long ago, and this is not a commercial product anyway\nNote (fedora1-onboard-4): Removing THIRD_PARTY smoke credit from Index_Credits + OverlayCredits; rewriting README Credits paragraph to record Simon's answer (bought + modified by a team artist long ago, non-commercial). Will re-render the credits golden.\n\nCommit 7c80345. Removed 'Fumée : AnnaFomina' from the credits as Simon asked: Index_Credits.THIRD_PARTY held only that line, so the array and the OverlayCredits loop that drew it are both gone. README Credits section now records the answer (a team artist bought the iStock image and reworked it; the game is non-commercial) in place of the 'worth confirming' flag, and keeps the provenance (iStock 511936068, readable with exiv2). CreditsRenderTest passes offscreen; I re-recorded the golden (render attached). Two things to know: (1) the old golden still passed af",
+   "tags": [
+    "docs"
+   ]
+  },
+  {
+   "ref": "r19",
+   "title": "Apply d1: Let's give it it's own",
+   "detail": "Simon settled doubt d1, and it needs writing.\n\nTHE DOUBT: The parallax subsystem is folded into the 'assets' tag rather than having its own. It is .plax files, the kryo 5.0.0-RC1 pin and core/jars/parallaxReader0.7.jar (no source) — a small area with an outsized trap, which is why I hesitated.\nTHE QUESTION: A = leave it inside 'assets'  B = split a 'parallax' tag out\nHIS DECISION: Let's give it it's own\n\nWrite what the decision asks for, and check it where it lives. Closing this with `atelier done` marks d1 applied. If it turns out to need no change, say why in the note. If you cannot tell what it asks, `atelier ask` this task rather than guessing.\nNote (fedora1-onboard-4): Routed to #assets: applying d1 means splitting a 'parallax' tag out of the assets tag and moving the .plax / kryo 5.0.0-RC1 pin / parallaxReader0.7.jar paragraph from the assets pack into a new parallax pack (atelier tag add parallax --context ...), then trimming the assets pack to point at it. An agent carrying the assets pack is the one who can do that split faithfully; I only carry #docs, so I'm releasing it.\nNote (fedora1-onboard-7): FINDING while writing the pack: 'NO SOURCE SURVIVES' for parallaxReader0.7.jar looks false. (1) the jar itself carries 21 .java files next to its classes, with dates matching the classes it ships (Parallax_Heart.java/.class both 2019-11-09 08:18); (2) ../parralax/JKS_Tools2D_ParallaxBackground is the upstream git repo (github JavaKhanStudio/JKS_Tools2D_ParallaxBackground, ",
+   "tags": [
+    "assets"
+   ]
+  },
+  {
+   "ref": "r42",
+   "title": "Text should be written a bit faster",
+   "detail": "Note (fedora1-onboard-16): Routed #ui (coordinator): this is the dialogue typing speed. Bubbles are TextraTypist TypingLabel in core/src/jks/vinterface/tools/DialogBubble.java (both constructors at :39 and :72). No speed is set anywhere yet, so the library default is in use. 'A bit faster' is a feel call: render it, attach a clip or before/after frames, and name the value you chose.\nNote (fedora1-onboard-19): Started. Default TextraTypist speed is 0.05 s/char (20 chars/s). Plan: prefix {SPEED=1.5} (~30 chars/s) in DialogBubble so it covers both constructors, then before/after frames at the same instant mid-typing.\nNote (fedora1-onboard-19): Chose {SPEED=1.5} (~30 chars/s vs 20). Before/after attached. Running gates now.\n\nCommit df5f475 (unpushed). DialogBubble now puts {SPEED=1.5} in front of its text in both constructors (textStartUp for the in-game applyText path, and the text passed to the one-page constructor). Speed went from TextraTypist's default of 0.05 s/char (about 20 chars/s) to about 0.033 s/char (about 30 chars/s). I used a token and not a setter because TypingLabel.restart() resets the speed on every new line. Renders are attached: 1.1 s after the bubble appears, the default has typed 23 characters and the new speed 36, plus a before/after GIF. If it still feels slow, change the one constant DialogBubble.typingSpeed. ./gradlew build and ./gradlew :verify:test -PwithGl both pass, and the dialogue golden did not move.",
+   "tags": [
+    "ui"
+   ]
+  },
+  {
+   "ref": "r40",
+   "title": "Items that can be click should be highlited when hover",
+   "detail": "Note (fedora1-onboard-16): Routed #level,#input (coordinator). The clickable 'items' in the code are the carriage's GameItems: IKM_Game_Keyboard.touchDown unprojects the mouse and calls GameItem.tryTouch (textureBounds.contains) for each item in currentLevel.listItems. Nothing reacts to hover today. IKM_Game_Keyboard.mouseMoved only hides keyboard focus. The natural shape is a hover test against the same textureBounds and a highlight when drawn, skipping picked items. The menus already react: start-menu entries light up (StartScreen_SmoothSideSelect) and PauseButton brightens on isOver. The inventory buttons (GVars_Game.pickItem) and the overlay Return buttons are scene2d widgets. If Simon meant those too, that part is #ui. Ask rather than widen. Render it and attach.\n\nCommit f2fb479. Carriage items (GameItems) now light up under the mouse. IKM_Game_Keyboard.mouseMoved stores the mouse position. Every frame WagonLevel.draw converts it to world coordinates, and GameItem.updateHover runs the same textureBounds test that tryTouch uses. A hovered item is drawn a second time, additively at 0.35, so it brightens inside its own outline. Nothing lights before the mouse moves, during a cinematic, while paused, or under a stage widget that takes the click (pause sign, key, inventory). Render attached (level 1, the bundle, before and after). Tests: new ItemHoverRenderTest (-PwithGl) checks lit, unlit, paused, resume and the pause-sign cases, plus a brightness check. LevelDataTest now re",
+   "tags": [
+    "input",
+    "level"
+   ]
+  },
+  {
+   "ref": "r45",
+   "title": "There should be a sound effect when gaining a piece of the key, and on level completion",
+   "detail": "Note (fedora1-onboard-16): Routed #audio (coordinator). Belongs with r39 (train sounds, in progress with fedora1-onboard-17): no sound-effect files or effect playback exist until r39 builds them, so this reuses whatever r39 adds to GVars_AudioManager. Don't start a second path. Hooks: GVars_Game.addKey(keyNumb) is called from pickItem when giveKey_take, and the three Clef parts live in Clef.java. Level completion is GVars_Game.nextLevel() (level 4 goes to Vue_Scenematic_Outro). Record the licence of any sound you source. SoundLab (atelier lab open SoundLab) lists every effect the game names.\n\nCommit 8ff4bbe (on top of r39's 7e4274e).\nWHAT: gaining a new piece of the key plays a chime (Clef.applySucces). A piece already held is silent. The last piece plays the level-complete sound instead, from GVars_Game.nextLevel, so the two sounds never overlap. After level 4 it rings on into the outro. Same Sound path as r39 and the Effets slider: I folded Enum_Train_Sound into Enum_Effect_Sound with KEY_PIECE and LEVEL_COMPLETE slots, one path, no second system.\nCHOOSING (atelier lab open SoundLab): the effects now have one tab per moment (Rails / Departure / Key piece / Level complete), with Play, Stop and Use. The choice is saved to config keyPieceSound/levelCompleteSound. Defaults until you pick: KEY_CHIME and LEVEL_GLOCKENSPIEL.\nCANDIDATES (all synthesised by tools/make_jingles.py, no credit needed, 125 KB): key = glockenspiel two notes, music-box run, key clink + bell, marimba. Level",
+   "tags": [
+    "audio"
+   ]
+  },
+  {
+   "ref": "r25",
+   "title": "Getting something odd that needs to be investigated, silence or modifyed \nYou are using libGDX 1.14.2 but you need 1.14.1. This may cause unexpected problems and runtime exceptions.",
+   "detail": "Note (fedora1-onboard-7): Routed to #build. This is VisUI's startup version check: vis-ui 1.5.9 was built against libGDX 1.14.1, and the build pins 1.14.2. The #build pack already calls it cosmetic ('no vis-ui release targets 1.14.2 yet'). Options: bump visuiVersion if a release for 1.14.2 exists now, or call VisUI.setSkipGdxVersionCheck(true) before VisUI.load at core/src/jks/vinterface/GVars_UI.java:57, and do the same in the editor if it loads VisUI. Either way the pack line needs updating. I carry only #assets, so I'm releasing it.\nNote (fedora1-onboard-11): No vis-ui release past 1.5.9 on Maven Central (checked 2026-09-11), so bumping is out. Only VisUI.load site is core GVars_UI.init (editor has none of its own). Silencing with VisUI.setSkipGdxVersionCheck(true) there.\n\nSilenced VisUI's startup warning: onboard 996b1aa adds VisUI.setSkipGdxVersionCheck(true) before the single VisUI.load in core/src/jks/vinterface/GVars_UI.java:57 (the editor has no load of its own). Bumping was not an option — 1.5.9 is still the newest vis-ui on Maven Central (checked 2026-09-11), so nothing targets libGDX 1.14.2 yet. Proved it both ways with the GL render test: without the call the captured stdout contains '[VisUI] Warning, using invalid libGDX version.', with it there is no vis-ui line at all. Gate ./gradlew build passes, and ./gradlew build -PwithGl (GL tests included) passes too; start screen render attached, unchanged. #build pack line updated and committed in atelier d4a30ea, now ",
+   "tags": [
+    "build"
+   ]
+  },
+  {
+   "ref": "r44",
+   "title": "There should be a clear fade out and fade in when starting the game and between levels",
+   "detail": "Note (fedora1-onboard-16): Routed #flow,#level (coordinator). Two places: starting the game is Vue_StartScreen -> Vue_Game through GVars_Heart.changeVue (flow's only switch, and it deliberately doesn't stop the music). Between levels is GVars_Game.nextLevel -> loadLevel inside Vue_Game (the vue.restart() swaps the carriage at once). Existing fades to match: Vue_Preloading.fadeInAndOut, and the alpha ramps in Vue_Scenematic_Intro/Outro (fadeOut 1 s, fadeIn 2 s). The input must not stay live mid-fade: SPACE->nextLevel is behind debugMode, but clicks reach GameItem.tryTouch. OpeningRenderTest gates the opening sequence, so a fade that stalls fails it. Attach frames or a clip. Shares changeVue/loadLevel with r43.\n\nOnboard commit 0bd3a0f; atelier f7c0324 updates the #flow pack. Both are unpushed. New core/src/jks/vue/GVars_Fade: through(change) takes 1 s to black, runs the change at black, then takes 2 s to come back up (the intro pages' timings). Main_Application updates and draws it over every view. Jouer runs changeVue + loadLevel(1) + the departure sound at black. nextLevel runs the carriage swap, or the outro after carriage 4, at black. The level-complete sound still plays immediately, and a second nextLevel during a fade is ignored. Input during the fade: the keyboard/mouse processor is swapped for one that only passes key releases, so a held key cannot leave Ross walking. Pad buttons and menu polling are ignored, and the walking flags are cleared. The view's own processor c",
+   "tags": [
+    "flow",
+    "level"
+   ]
+  },
+  {
+   "ref": "r28",
+   "title": "About N8 \"Three context packs are still stale, and agents read them before they touch code.\" WHY DID YOU NOT DO ANYTHING ABOUT IT ?!",
+   "detail": "Done. Commit ac8da58 in the ATELIER repo (not pushed; that checkout is ahead 6).\n\nWHY NOBODY HAD DONE ANYTHING — n8 says it in its own second sentence, and it is not an excuse, it is a gap in how the board is wired. The packs are text in atelier/projects/onboard.toml, and 'atelier init' replays them from that file, so 'atelier tag edit' from an onboard session does not stick. Every session that found a stale line was standing in the onboard checkout with no ticket for the other repo. Three of them did the only thing left: n3, n6, n8. Nobody was ever handed the atelier checkout. I had it open from r27, so I did it.\n\nFIVE LINES FIXED, not three — the two extra are the ones r17 suggested and nobody carried:\n- #flow: start points were logo|intro|start_screen|game|outro. There are seven; sound_lab was always there and credits arrived with c77fbe8. Checked against Main_Application.StartPoint, not against the notice.\n- #verify: '39 fast tests' and '+10 that boot the real game' were both wrong. I ran each suite and counted: 7 classes / 50 tests fast, 13 classes / 35 tests under -PwithGl. Dropped the tools/offscreen.sh wrapper from the -PwithGl line (Gradle has done it itself since 24eecf1) and said what the wrapper IS still for. Added where the sound goes, build/audio/<task>.wav, since that is how MusicTest now reads what was played.\n- #docs: the intro smoke was still 'credited on screen' with an 'UNCONFIRMED' licence. 7c80345 settled both the other way. That line was actively danger",
+   "tags": [
+    "coordinator"
+   ]
+  },
+  {
+   "ref": "r63",
+   "title": "Look at the game's fake-3D projection and tell me what's off about it",
+   "detail": "Handed to fitzroy by the board as ref r62, but r62 on this board is fedora1-onboard-16's closed 'Publish' task, so the ticket did not exist to answer on. Filed here instead, verbatim, and the collision raised as a notice. Original brief: the corridor and its walls are drawn with a hand-rolled projection - a vanishing point at (WIDTH/2, HEIGHT*0.42), a floor line, and per-carriage scaling. Read the drawing code that puts the corridor, the walls, the doors and the items on screen, and write up what a real 3D projection would do differently. Not a rewrite - a critique. Where does the current code get it right, where does it cheat, and what would break if we added a second vanishing point or moved the camera off-centre? Include the maths. Include a screenshot of the corridor as it stands today.\nNote (fitzroy): Read the drawing path end to end (WagonLevel.draw, Vue_Game.render, GVars_Camera, GameItem, SpriteModel/Enum_AGE, GVars_Inputs, and the parallax 2.1.0 sources). No projection code exists: OrthographicCamera + one painted 3840x1080 WAGON.png. Measured the art's own geometry and captured four carriage frames plus two probes at the camera's right clamp.\nNote (fitzroy): ATTRIBUTION: the long writeup in the discussion, timestamped 16 Sep 01:15 and shown as 'simon answered', is MINE (fitzroy). 'atelier answer' is the human side of an ask and labels every step simon; the brief told me to answer on the ticket, so that is where it went. Nothing in that step is Simon's words.\n\nAnswer",
+   "tags": [
+    "level",
+    "parallax"
+   ]
+  },
+  {
+   "ref": "r2",
+   "title": "README claims JksTextureList is referenced by nothing; the editor builds one",
+   "detail": "Note (connect): README.md, 'Built but never finished': 'JksTextureList, 386 lines of texture-picker widget, referenced by nothing.' It is referenced — editor/src/jks/editor/Editor_Application.java:27 imports it, :36 holds one, and :126 buildItemList() constructs it as the editor's item palette. Fix the line; and while you are there, the same section's claim about ui/icon/pause/ is now half stale (boutonRetour.png was taken into use by OverlayCredits in commit 14bc5e7).\n\nCommit 5fc34bb (not pushed). Removed the JksTextureList bullet from README 'Built but never finished' — Editor_Application builds it as the item palette. Added to the Layout table's editor row that the palette widget lives in core/. The pause-art bullet had already been fixed by b0ff577; I checked it against the code (only OverlayCredits uses boutonRetour.png; OverlayPause still uses the Settings art) and left it alone.",
+   "tags": [
+    "docs"
+   ]
+  },
+  {
+   "ref": "r6",
+   "title": "The first few element (the ones in the opening screen) feel pixelated. In fact the whole game could use a smoothing pass. What are the options here ? Considering the game is fully 2D with hand made assets",
+   "detail": "Note (fedora1-33): Routed by fedora1-33: #assets (texture filtering/mipmaps are set where textures and atlases load) + #verify (any filtering change moves the golden frames, so they'd need regenerating on purpose). One data point from the r1 Wine renders: at 1280x720 the logos and story pages were downscaled from larger art and looked sharp-edged, which fits Nearest filtering and no mipmaps rather than low-resolution art.\nNote (fedora1-33): Correction to my note above: the Nearest/no-mipmaps remark is only my reading of the screenshots. I didn't open the texture-loading code, so treat it as a lead to check, not a finding.\nNote (fedora1-onboard-1): Lead confirmed in code. Index_Interface loads every UI texture with manager.load(path, Texture.class) and no TextureParameter, which means libGDX's default Nearest/Nearest with no mipmaps. That covers: the 3 splash logos, the intro/outro pages, the start screen background and buttons, frames, keys, the think bubble and the return sign. The art is large and shown small. At 1280 wide, Vue_Preloading stretches every logo into a width/5 square (256x256): logo_team.png is 909x2055 (squeezed 3.5x one way and 8x the other), logo_libGdx 1052x432, logo_jam 959x735, so they're also aspect-distorted. The intro pages are 1920x1080 drawn full-window. Not affected: all 13 game .atlas files (backdrops, carriages, characters, smoke) declare 'filter: Linear,Linear', and parallaxReader loads them through TextureAtlas, which honours that. FreeType fon",
+   "tags": [
+    "assets",
+    "verify"
+   ]
+  },
+  {
+   "ref": "r37",
+   "title": "Text bubble start fully black",
+   "detail": "Commit 89f1917. Cause: bdeeed0's oxipng pass turned the three tools/dialog bubble PNGs from RGBA into grey+alpha. libGDX uploads that as GL_LUMINANCE_ALPHA, which doesn't exist in the launcher's GL 3.2 core context, so the bubble drew as a black square and its black text vanished. Restored the RGBA originals from bdeeed0^ (same decoded pixels). Added PngColourTypeTest, which fails on any grey PNG (I checked it catches one). DialogRenderTest now uses the launcher's GL context: it showed the black square before the fix and a white bubble with text after (render attached). Gates: ./gradlew build and :verify:test -PwithGl are green. Notice raised: the other GL tests still use the default context, and the 0.12 golden tolerance let the black square through.",
+   "tags": [
+    "ui"
+   ]
+  },
+  {
+   "ref": "r18",
+   "title": "Add the small in-game pause button Simon asked for in d4",
+   "detail": "d4 (decided): 'Escape is the button to go with. Also add a little subtle UI button to go there in the game.' 614f63b applied the Escape half only — today the sole callers of GVars_Heart.togglePauseMenu are IKM_Game_Keyboard (Escape) and OverlayPause's own Retour. This is the other half: a small, unobtrusive on-screen button during a level (Vue_Game) that opens OverlayPause. Act in a ChangeListener, not a touch listener (input pack); give the ImageButton an explicit size and aspect ratio (ui pack); make sure a click on it does not also fall through to the carriage items. Reuse art from ui/icon/pause/ if something there fits rather than inventing it — ask if nothing does. Extend PauseRenderTest (-PwithGl) to open the pause screen by the button. Mark d4 applied (atelier applied d4) when done.\n\nCommit afba391 (not pushed). NEW core/src/jks/vue/models/game/PauseButton.java: the ~PAUSE~ plank cropped from pauseMenu.png (TextureRegion 0,30 1095x200 of the texture already loaded; no new asset). It sits top-left, opposite the key HUD, 1/6.5 of the window wide at the plank's aspect (1/9 was tried first and PAUSE was unreadable at 720p), 80% opaque and 100% on hover. It acts in a ChangeListener (input pack) and only ever opens the pause screen (it does nothing while paused, since it stays under the dim). No fall-through: it's a stage Button and the stage comes before IKM_Game_Keyboard in Vue_Game's InputMultiplexer, so the stage claims the touchDown and the items loop never runs. The te",
+   "tags": [
+    "input",
+    "ui"
+   ]
+  },
+  {
+   "ref": "r39",
+   "title": "We need a train sound effect, like a subtle train moving on tracks in the background when the game start. We also need the classic chemine sound, when the game start, as if a train is leaving the station",
+   "detail": "Note (fedora1-onboard-16): Routed #audio (coordinator). Read the audio pack: there are NO sound-effect files and no SFX playback path yet — only musics/intro.mp3 through GVars_AudioManager. This means sourcing two recordings (a quiet looping rails/clatter bed and a one-shot steam 'chuff'/whistle departure — 'chemine' read as cheminée/steam locomotive), adding a Sound path in GVars_AudioManager honouring masterVolume/mute, and new paths in AssetPathTest. 'When the game starts' is ambiguous: Vue_StartScreen (menu, STARTING_SCREEN) vs Vue_Game/Vue_Scenematic_Intro (GAME_INTRO) — ask Simon if unclear. Licence of any downloaded sound must be recorded (CC0 preferred).\nAnswer from Simon: 1. Yes\n2. Build a lab for it, so i can select \n3. Seperated slider\n\nCommit 7e4274e.\nWHAT: a rails bed loops under every level (Vue_Game.init starts it; changeVue(cleanAll) stops it, so it is silent in the menu and cutscenes). A steam departure plays once when Jouer starts a new game. Both go through a new Sound path in GVars_AudioManager at master*effects volume, following mute and live volume changes like the music. Options > Son has a new Effets slider, saved as config.effectsVolume.\nLAB (atelier lab open SoundLab): Train section with Play/Stop/Use for 8 candidates. Use saves the choice to config (railsSound/departureSound), and the game plays whatever is marked 'in the game'. Rails: recorded ride + joint clicks (default), recorded ride (PD), recorded modern carriage (CC0), synthesised clickety-cl",
+   "tags": [
+    "audio"
+   ]
+  },
+  {
+   "ref": "r12",
+   "title": "On board should not flash in my face : We need it to stay in a seperate window, like we used to do",
+   "detail": "Note (fedora1-onboard-1): Routing (fedora1-onboard-1, which has only #assets loaded): tagging #verify plus #build, then releasing. Probable cause: b500a10 put the GL windows inside cage via tools/offscreen.sh, but only if you remember the wrapper. Bare './gradlew :verify:test -PwithGl' (and ':desktop:runGame', and any scratch Lwjgl3 program) still opens real windows on Simon's desktop. I did exactly that on r4 at about 15:39 today: two -PwithGl runs plus a scratch skin render, none wrapped. Sorry. cage is installed at /usr/bin/cage. Suggested direction, UNTESTED: make offscreen the default in Gradle instead of relying on the wrapper. For example, point the verify Test task's (and runGame's) JVM at a small launcher that execs 'env WLR_BACKENDS=headless cage -- java \"$@\"', with ONBOARD_NO_OFFSCREEN=1 as the way to opt out. Watch out: Gradle test workers read their startup parameters on stdin, so check that cage passes stdin through. Also worth a line in the #verify pack telling agents never to run GL work unwrapped.\nNote (fedora1-onboard-1): Taking r12 myself; #build and #verify are loaded now. Proven: a headless cage started as a HOST (its child just blocks on stdin) serves a display that separately launched JVMs render into. StartScreen + Opening GL tests passed against it, and a control run pointed at a nonexistent display failed with 'Unable to initialize GLFW' instead of falling back to Simon's screen. Plan: gradle/offscreen.gradle, a shared BuildService that starts one su",
+   "tags": [
+    "build",
+    "verify"
+   ]
+  },
+  {
+   "ref": "r43",
+   "title": "The lab should allow the user to start the game from any of the levels",
+   "detail": "Note (fedora1-onboard-16): Routed #flow,#level (coordinator). 'The lab' is the board's lab surfaces ('atelier lab list': Credits and SoundLab, both run through the [viewers.start] viewer in atelier/projects/onboard.toml with -Donboard.start={point}). The game can start at level 1 (StartPoint GAME) but has no way to pick a level. Likely shape: a property such as -Donboard.level=N read beside onboard.start in Main_Application, feeding GVars_Game.currentLevelInt/loadLevel. Then a viewer with a {level} slot in projects/onboard.toml (the atelier repo, as r35 did) and one lab surface per carriage (atelier lab add ... --viewer ... --arg level=N --tags flow,level). Starting mid-run skips earlier state: playerInventory, keys, karma (karma decides the ending), so say what a level-3 start assumes. An unknown level should warn and fall back, like onboard.start. Shares changeVue/loadLevel with r44 (fades).\n\nOnboard commit f73b0b8, atelier commit e533bab. Both are unpushed. You can now start the game in any carriage with -Donboard.level=1..4, set next to onboard.start=game. Main_Application.startAtGame also sets currentLevelInt, so nextLevel carries on from that carriage. Any other value warns on stderr and starts in carriage 1. Checked through Gradle: level=nine printed the warning from the game JVM. Board side: [viewers.level] in projects/onboard.toml, and the lab now has Carriage1..4 surfaces tagged flow,level. From this session, 'atelier lab open Carriage3' started the game JVM offscre",
+   "tags": [
+    "flow",
+    "level"
+   ]
+  },
+  {
+   "ref": "r59",
+   "title": "The items should disapear between the section as to not confuse the player. Said items should also be clearly position at the center of the bottom bar",
+   "detail": "Note (fedora1-onboard-20): Routed to #level + #ui by fedora1-onboard-20 and released (I hold #audio only). Both halves live in GVars_Game: playerInventory (an ArrayList built once in the init around line 66, added to at ~line 100 — nothing appears to clear it when the carriage changes, which is the 'disappear between sections' half) and the placement at ~line 83, selectable.setX(currentLevel.decalYBot * playerInventory.size()), which lays the picked-up items out from a per-level offset rather than centring them on the bottom bar. Centring means laying the row out from its total width against the bar's centre.\nNote (fedora1-onboard-22): Taking r59. Both halves are in GVars_Game as the routing note said. Done so far: new core/.../InventoryBar.java, a Group that sizes each picked item to 0.8 of the bottom bar's height and lays the row out centred on the bar (it used to be decalYBot-square items from the left edge, x = decalYBot * size()); GVars_Game.init builds it, pickItem hands the button to it, and loadLevel calls a new emptyInventory() (clears playerInventory, selectedItem and the row) before loading the carriage, so nothing is carried between sections. Vue_Game.resize re-centres it. ./gradlew build green. Next: a GL test that picks two items up, checks the row is centred in the bar, then goes to the next carriage and checks the bar is black again.\n\nCommit c790e93 (unpushed, on main). New core/src/jks/vue/models/game/InventoryBar.java: a Group holding the picked-up items, ea",
+   "tags": [
+    "level",
+    "ui"
+   ]
+  },
+  {
+   "ref": "r4",
+   "title": "Decide the fate of the 'freezing' UI skin: regenerate its two missing font pages, or delete it",
+   "detail": "Note (connect): desktop/assets/ui/skins/freezing/ — freezing-ui.atlas (31 regions), freezing-ui.json (17 widget styles), freezing-ui.png, and three .fnt files of which font-export.png is the ONLY page present: font-button-export.fnt and font-title-export.fnt have no .png beside them. Nothing loads the skin — the game runs on libGDX's stock skin through VisUI (grep 'freezing' hits only core/src/jks/debug/ShowFPS.java, worth checking what that is actually doing). ~400 KB. Switching it on means regenerating the two missing pages with Hiero or BMFont at the sizes the .fnt files declare; the other answer is to delete it and say so in the README's 'Built but never finished' list.\nNote (fedora1-onboard-1): Premise check: freezing-ui.atlas packs font-button-export, font-export and font-title-export as REGIONS. libGDX Skin resolves a BitmapFont's page from the atlas region named after the .fnt, so the two 'missing' .png pages are likely not missing at all. Verifying with a headless load before deciding.\nNote (fedora1-onboard-1): Confirmed the premise is wrong. freezing-ui.png already holds all three font pages as atlas regions (font-button-export 165x167, font-export 104x104, font-title-export 251x251), matching the scaleW/scaleH each .fnt declares, and Skin takes a font's page from the atlas region of the same name. Nothing needs regenerating. Separately, the lone font-export.png is really the TITLE page under the wrong name: it's 251x251, and every visible pixel matches the font-tit",
+   "tags": [
+    "assets"
+   ]
+  },
+  {
+   "ref": "r31",
+   "title": "Apply d6: It's fine, the game is in french",
+   "detail": "Simon settled doubt d6, and it needs writing.\n\nTHE DOUBT: r16 put the Graphics block in French to match the Son block, Retour and the pause screen it now looks like: Graphismes, Résolution, Images par seconde, Plein écran, Synchro verticale, 'Mipmaps (plus lisse en petit)', Appliquer. The start menu itself is still mixed (Jouer / Options / Credits / Quit).\nTHE QUESTION: Is French the language of the UI (and should the start menu's Credits/Quit follow), and is the wording right - especially the mipmaps line?\nHIS DECISION: It's fine, the game is in french\nRAISED FROM: r16\n\nWrite what the decision asks for, and check it where it lives. Closing this with `atelier done` marks d6 applied. If it turns out to need no change, say why in the note. If you cannot tell what it asks, `atelier ask` this task rather than guessing.\n\nApplied d6. Commit 57451f5 (not pushed).\n\nDONE: 'Quit' -> 'Quitter' on the start menu. The variable behind it was already called quitter.\n\nNOT DONE, and this is the interesting half: 'Credits' cannot become 'Crédits'. The menu font, desktop/assets/ui/fonts/OptimusPrinceps.ttf behind GVars_Font.labelStyle_ScreenTitle, has no é (U+00E9) in its cmap and an É (U+00C9) that is listed but does not draw. I made the change, rendered it and looked - as the #ui pack tells you to - and the button read 'Cr¨dits', as did the credits screen's own heading (Index_Credits.TITLE, the same word). Capitals do not save it: 'CRÉDITS' rendered 'CRDITS' with an acute floating over the D.",
+   "tags": [
+    "ui"
+   ]
+  },
+  {
+   "ref": "r11",
+   "title": "Menus are mouse-only: keyboard and gamepad menu navigation was never built (stubs since 2019)",
+   "detail": "From reading the code while on r5; NOT run, so check it first. Pad A goes Utils_Controllable.decodeInterfaceControllerButton -> GVars_UI.selectButton(), which fires a bare InputEvent of type touchUp at the highlighted button. The Retour listeners in OverlayCredits:54, OverlayOptions:50 and OverlayPause:35 override only touchDown, so pad A on Retour should do nothing and the pad player is stuck on those screens. The start menu's buttons act on touchUp, but only when their own onFocus is set, and onFocus comes from a real mouse enter(). GVars_UI.activedInterface calls the Button's ClickListener.enter(), not the custom listener's, so pad A may not work there either. Keyboard: Utils_Controllable.decodeInterfaceKeybord handles only the arrows and never calls selectButton, so Enter/Space confirm nothing in menus (IKM_Game_Keyboard.pressingEnter exists but isn't used there). Separately, OverlayOptions' Retour still uses the Settings button art, though Index_Interface's comment says the overlays were moved to boutonRetour.png; only the credits were.\nAnswer from Simon: 1 : Build it all, the game is a point and click tho so a controller is not really an option right now\nNote (fedora1-onboard-2): fedora1-onboard-2 took this. Reading Simon's 'build it all, a controller is not really an option right now' as: keyboard menu navigation everywhere (start menu, credits, options, pause, Retour). The gamepad goes through the same GVars_UI.selectButton plumbing, so fixing that plumbing makes pad ",
+   "tags": [
+    "input",
+    "ui"
+   ]
+  },
+  {
+   "ref": "r27",
+   "title": "About the \"r17's 'skill for other boards' half is NOT built, only raised here.\" Why is it not ? I ask for it to be made for other board, send to the central board tool",
+   "detail": "WHY IT WAS NOT BUILT: r17's routing note (coordinator, fedora1-onboard-3) told that session in as many words - 'the skill for other boards part is outside this repo: do the onboard half, and raise it as a notice/ask rather than building cross-board tooling unasked'. It obeyed and raised n7. You have now asked, so it is built.\n\nBUILT, in the atelier repo (commit 2784478, NOT pushed - the atelier checkout is ahead 3): skills/capture-audio/, registered in skills/manifest.toml and linked into onboard's .claude/skills/, so sessions here can see it. Nothing changed in the onboard repo; .claude/ is gitignored and the checkout is clean.\n\nWHAT IS IN IT. SKILL.md plus two wrappers, each run end to end against desktop/build/dist/OnBoard-1.0-linuxX64.jar inside a headless cage, with no Gradle involved:\n  capture-audio.sh out.wav -- <cmd>        OpenAL Soft's wave backend. Any LWJGL/libGDX app, any OS, no daemon, nothing to clean up. Recorded 39 s of intro music at -36 dBFS. --discard uses the null device instead.\n  capture-audio-pulse.sh out.wav -- <cmd>  a PipeWire/Pulse null sink + PULSE_SINK, recorded off its monitor, for an app that is not OpenAL. Unloads the module on every exit path including being killed: 23 s at -37 dBFS, nothing left on your audio graph (checked).\nThe doc carries what a script cannot: gate the capture on ATELIER_AGENT rather than on someone remembering to type a wrapper; a Gradle JavaExec task forks from the DAEMON's environment, so ALSOFT_* must go on task.envi",
+   "tags": [
+    "audio",
+    "verify"
+   ]
+  },
+  {
+   "ref": "r23",
+   "title": "Clicking should be skipping the intro pannel elements, one by one (So if i click at pixman it goes directly into libGDX, and libGDX into Jamming, and jamming into the intro scene)",
+   "detail": "Note (fedora1-onboard-7): Routed to #flow: the logo sequence (pixman -> libGDX -> Jamming -> intro) is core/src/jks/vue/models/Vue_Preloading.java, handing off to Vue_Scenematic_Intro through GVars_Heart.changeVue. A click should advance ONE logo, not skip the whole chain. I carry only #assets, so I'm releasing it.\n\ndc5d8c5. Vue_Preloading never installed IKM_Game_Keyboard / the pad listener, so clicks only reached the Stage and the logos always ran their 9s. It now sets the same input as Vue_Scenematic_Intro and, when inCinematic_Click is raised, drops the logo on show so the existing check brings on the next one (last logo -> intro). The flag is cleared there so the click that ends the logos can't also turn the intro's first page. Any key or pad button skips too, same as the story pages. New GL test LogoSkipTest clicks through via the installed input processor: logos seen [pixman, libGDX, Jamming], 3 clicks to reach the intro in <3s game time, page 1 holds 1.5s after. Verified it fails on the old code ('reached the story after 9.0s'). OpeningRenderTest (golden + full chain) still passes; ./gradlew build green. No render attached: this is a timing change, the logo frames themselves are unchanged (OpeningRenderTest golden still matches).",
+   "tags": [
+    "flow"
+   ]
+  },
+  {
+   "ref": "r30",
+   "title": "Apply d5: 60 is more than enough",
+   "detail": "Simon settled doubt d5, and it needs writing.\n\nTHE DOUBT: Options > Graphics 'Frame Per Sec' (30/60) is now applied and saved, and the launcher reads it (setForegroundFPS). The config default is fps=60, so from r14 on the game is capped at 60 fps. Before, nothing read it and only vsync limited the rate: a 144 Hz screen ran at 144.\nTHE QUESTION: Keep the 60 cap as the default, or add an 'unlimited' choice (fps 0 = let vsync decide) and make that the default?\nHIS DECISION: 60 is more than enough\nRAISED FROM: r14\n\nWrite what the decision asks for, and check it where it lives. Closing this with `atelier done` marks d5 applied. If it turns out to need no change, say why in the note. If you cannot tell what it asks, `atelier ask` this task rather than guessing.\n\nApplied d5. Commit 2499fb5 (not pushed).\n\nTHE BEHAVIOUR NEEDED NO CHANGE, and I checked it where it lives rather than taking r14's word for it: GameConfigs.fps defaults to 60; Utils_Launcher.loadConfig calls setForegroundFPS(fps) when fps > 0; Block_Resolution.FPS_CHOICES is {30, 60} with no uncapped entry; SettingsTest already measures the applied cap. Your answer was 'keep 60', so all of that is already what you asked for.\n\nWHAT I DID WRITE is the decision itself, because a decision to NOT offer something leaves no trace in code — the next session reads a two-item FPS box as an oversight and helpfully adds a third:\n- FPS_CHOICES now carries the reason and the ref, so 'unlimited' has to be argued with rather than filled in",
+   "tags": [
+    "ui"
+   ]
+  }
+ ]
+}
