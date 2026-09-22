@@ -45,8 +45,9 @@ class CarriageGeometryTest
 	private static final int CARRIAGE = 3;
 	private static final double GIVE_UP_AT = 20;
 	/** The world the carriage was laid out in, and the carriage's length in it. Written out rather
-	 *  than read from the game, so the same test says what was wrong before the fix. */
-	private static final float WORLD_HEIGHT = 900, CARRIAGE_LENGTH = 3000;
+	 *  than read from the game, so the same test says what was wrong before the fix. The length
+	 *  was 3000 until d13 (r70) drew the art at its painted 3840:1080 in the 800 above the bar. */
+	private static final float WORLD_HEIGHT = 900, CARRIAGE_LENGTH = 800f * 3840 / 1080;
 
 	private static final int WIDTH = 1280, HEIGHT = 720;
 

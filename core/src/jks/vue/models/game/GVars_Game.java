@@ -136,7 +136,7 @@ public class GVars_Game
     	ross = new SpriteModel(SIW_Data.getRoss(age)) ; 
 		ross.reverse(true);
 		ross.position.y = age.positionY ; 
-		ross.position.x = 200 ; 
+		ross.position.x = 190 ; 
     	
     	Index_Interface.manager.finishLoading() ; 
 		currentLevel.setAsGameReady(); 

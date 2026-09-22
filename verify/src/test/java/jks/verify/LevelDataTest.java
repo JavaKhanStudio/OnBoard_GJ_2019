@@ -140,6 +140,20 @@ class LevelDataTest
 			fail(problems.size() + " unresolved level texture(s):\n  - " + String.join("\n  - ", problems));
 	}
 
+	@ParameterizedTest(name = "level wa{0}'s art is the shape the carriage is drawn at")
+	@ValueSource(ints = {1, 2, 3, 4})
+	void carriageArtIsDrawnAtItsPaintedShape(int n) throws Exception
+	{
+		// d13 (r70): the art was drawn 5.5% wider than painted and the items placed against the
+		// stretch. A WAGON.png of another shape would be stretched again, under items that fit it.
+		WagonLevel level = load(n);
+		File art = new File(Assets.DIR, "game/wagon/" + level.path_meta + "/WAGON.png");
+		java.awt.image.BufferedImage image = javax.imageio.ImageIO.read(art);
+		float painted = (float) image.getWidth() / image.getHeight();
+		assertEquals(WagonLevel.PAINTED_ASPECT, painted, 0.001f, art + " is " + image.getWidth() + "x"
+			+ image.getHeight() + ", but the carriage is drawn at 3840:1080 (WagonLevel.PAINTED_ASPECT)");
+	}
+
 	private static boolean notBlank(String s)
 	{
 		return s != null && !s.trim().isEmpty();

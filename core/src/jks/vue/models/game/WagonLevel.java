@@ -120,12 +120,15 @@ public class WagonLevel
 	
 	/** The black bar under the carriage, in world units: a ninth of the world's height. */
 	public static final float BAR = GVars_Camera.WORLD_HEIGHT / 9 ; 
+	/** The shape every WAGON.png was painted at: 3840x1080. */
+	public static final float PAINTED_ASPECT = 3840f / 1080f ; 
 	/**
-	 * How long the carriage is drawn, in world units - 3000, the length it had at 1600x900, where
-	 * every item was placed. It used to follow the window, so the room grew and shrank under
-	 * items and clamps that did not (r64).
+	 * How long the carriage is drawn, in world units: the height above the bar at the art's
+	 * painted shape, 2844.4. It was 3000 until d13 (r70), 5.5% wider than painted, and the
+	 * items were placed against that stretch - their x in the .wa files were scaled by 0.948
+	 * to follow. Before r64 it followed the window.
 	 */
-	public static final float WIDTH = GVars_Camera.WORLD_WIDTH * 2 - BAR * 2 ; 
+	public static final float WIDTH = (GVars_Camera.WORLD_HEIGHT - BAR) * PAINTED_ASPECT ; 
 	
 	/** The bar's height in screen pixels, for the stage (the inventory row sits on it). */
 	public float decalYBot ;
