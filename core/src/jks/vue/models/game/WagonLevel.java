@@ -65,6 +65,7 @@ public class WagonLevel
 			for(GameItem item : listItems)
 			{
 				item.init(); 
+				item.outline = ItemOutline.of(item, listItems) ; 
 			}
 		} 
 		catch (Exception e) 

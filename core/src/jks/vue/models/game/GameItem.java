@@ -45,6 +45,9 @@ public class GameItem
 	/** Under the mouse: a click now would reach it, so it is drawn outlined (r40, d10). */
 	@JsonIgnore
 	boolean hovered ; 
+	/** Which line it is outlined with: what it gives (r71). Set by WagonLevel.init. */
+	@JsonIgnore
+	ItemOutline.Kind outline = ItemOutline.Kind.NEUTRAL ; 
 	
 	public GameItem() 
 	{}
@@ -115,7 +118,7 @@ public class GameItem
 		
 		// A line around it, not over it (d10): see ItemOutline.
 		if(hovered || ItemOutline.lightAll)
-			ItemOutline.draw(batch, objectTexture, posX, posY);
+			ItemOutline.draw(batch, objectTexture, posX, posY, outline);
 	}
 	
 	/** Takes the pointer in world coordinates, or null when nothing in the carriage can be clicked. */
@@ -124,6 +127,12 @@ public class GameItem
 		// The same test tryTouch makes, so what lights up is exactly what a click reaches.
 		hovered = pointer != null && !picked && textureBounds != null
 				&& textureBounds.contains(pointer.x, pointer.y) ;
+	}
+	
+	@JsonIgnore
+	public ItemOutline.Kind getOutline()
+	{
+		return outline ; 
 	}
 	
 	@JsonIgnore

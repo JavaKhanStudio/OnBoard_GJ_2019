@@ -15,6 +15,9 @@ import com.badlogic.gdx.utils.GdxRuntimeException;
  * The line follows the texture's alpha, not its box, and is drawn on a quad grown by the line's
  * width so it can sit outside an item painted right to the edge of its image (cube.png).
  *
+ * Its colour says what the item gives (r71), see {@link Kind}: gold and unbroken for a piece of
+ * the key, blue or red strokes for the two sides of a choice, d10's yellow for the rest.
+ *
  * The numbers are static and not saved: the item lab (-Donboard.start=item_lab, Vue_Game with
  * ItemOutlineLab over it) moves them live to choose them. Pin a choice here.
  */
@@ -33,6 +36,60 @@ public final class ItemOutline
 	public static final Color color = new Color(1f, 0.86f, 0.25f, 1f) ;
 	/** Lab only: every unpicked item outlined, hovered or not, to compare them side by side. */
 	public static boolean lightAll ;
+	
+	/**
+	 * What an item gives, which picks its line (r71). Worked out from the carriage's data by
+	 * {@link #of}, so the .wa files carry nothing new.
+	 */
+	public enum Kind
+	{
+		/** Hands over a piece of the key when picked up: an unbroken gold line. */
+		KEY(new Color(1f, 0.72f, 0.05f, 1f), true, 1f),
+		/** Used on something, the side of a choice that counts no karma: blue strokes. */
+		GOOD(new Color(0.1f, 0.35f, 1f, 1f), false, 1f),
+		/** Used on something, the side that counts a point of karma, towards Ross leaving his son: red strokes. */
+		BAD(new Color(1f, 0.15f, 0.1f, 1f), false, 1f),
+		/** Used on something with no choice attached, and everything else: d10's yellow strokes. */
+		NEUTRAL(ItemOutline.color, false, -1f) ;
+		
+		public final Color color ; 
+		/** An unbroken line rather than strokes. */
+		public final boolean solid ; 
+		/**
+		 * Its own opacity, or negative to follow {@link ItemOutline#opacity}. The coloured lines
+		 * say something, so they are drawn whole: at 0.7 the blue vanished on carriage 1's blue floor.
+		 */
+		public final float opacity ; 
+		
+		Kind(Color color, boolean solid, float opacity)
+		{
+			this.color = color ; 
+			this.solid = solid ; 
+			this.opacity = opacity ; 
+		}
+	}
+	
+	/**
+	 * The kind of an item among the others of its carriage. An item used on something is
+	 * named by that thing's name_Interaction_1 or _2; where both exist the thing is a choice,
+	 * and _2 is the one GVars_Game.applyItem counts a point of karma for. More than
+	 * GVars_Game.KARMA_TO_LEAVE of those and Ross walks out on his son, so _2 is the bad side.
+	 */
+	public static Kind of(GameItem item, Iterable<GameItem> carriage)
+	{
+		if(item.giveKey_take)
+			return Kind.KEY ; 
+		
+		for(GameItem target : carriage)
+		{
+			boolean choice = target.name_Interaction_1 != null && target.name_Interaction_2 != null ; 
+			if(choice && item.name.equals(target.name_Interaction_2))
+				return Kind.BAD ; 
+			if(choice && item.name.equals(target.name_Interaction_1))
+				return Kind.GOOD ; 
+		}
+		return Kind.NEUTRAL ; 
+	}
 
 	private static final String VERTEX =
 		"attribute vec4 " + ShaderProgram.POSITION_ATTRIBUTE + ";\n"
@@ -101,9 +158,16 @@ public final class ItemOutline
 		clock = (clock + delta) % 3600f ;
 	}
 
-	/** Draws the line around a texture drawn at x, y at its own size. Call between begin and end. */
+	/** Draws d10's yellow line around a texture drawn at x, y at its own size. Call between begin and end. */
 	public static void draw(Batch batch, Texture texture, float x, float y)
 	{
+		draw(batch, texture, x, y, Kind.NEUTRAL) ; 
+	}
+	
+	/** Draws the line of that kind around a texture drawn at x, y at its own size. Call between begin and end. */
+	public static void draw(Batch batch, Texture texture, float x, float y, Kind kind)
+	{
+		Color color = kind.color ; 
 		float w = texture.getWidth(), h = texture.getHeight() ;
 		float grow = (float) Math.ceil(width) + 1f ;
 		float du = grow / w, dv = grow / h ;
@@ -112,8 +176,8 @@ public final class ItemOutline
 		batch.setShader(shader()) ;
 		shader.setUniformf("u_texel", 1f / w, 1f / h) ;
 		shader.setUniformf("u_width", width) ;
-		shader.setUniformf("u_lineColor", color.r, color.g, color.b, color.a * opacity) ;
-		shader.setUniformf("u_strokeLength", strokeLength) ;
+		shader.setUniformf("u_lineColor", color.r, color.g, color.b, color.a * (kind.opacity < 0 ? opacity : kind.opacity)) ;
+		shader.setUniformf("u_strokeLength", kind.solid ? 0f : strokeLength) ;
 		shader.setUniformf("u_strokeFill", strokeFill) ;
 		shader.setUniformf("u_offset", clock * speed) ;
 		// v runs top to bottom in the texture, as in Batch.draw(texture, x, y, w, h).
