@@ -8,6 +8,62 @@ you get.
 Built with libGDX. Originally Java 8 and libGDX 1.9.10; brought up to Java 21 and libGDX
 1.14.2 without changing how the game looks or plays.
 
+## The story
+
+Read this before choosing words, sounds or pictures for the game (r75). It was worked out from
+what the 2019 team left behind: the story pages in `ui/story/`, the art of the four carriages,
+the items in them, and Ross's key-piece hints. None of the team wrote it down. Where it is a
+reading and not a fact, it says so.
+
+**Premise.** A train platform in autumn, a ticket for the 9:30 Line Expresse, a man with a
+suitcase stepping aboard (`intro/introPage1-3`). The train runs through Ross's life, one
+carriage per age. The carriages are memories, not places. In each he gathers the three pieces
+of a key to open the door into the next.
+
+**The four carriages.** Each has one item that holds a choice between two uses. The second
+use in each pair counts a point of karma (`GVars_Game.applyItem`, choice 2).
+
+| | Ross is | The carriage | The choice: first use / second use (karma) |
+|---|---|---|---|
+| wa1 | a child (`enfant`) | a playroom: blocks, a teddy, a golden birdcage. He has packed a bundle (*baluchon*) to run away: "Je vais enfin partir d'ici !" | the caged bird: **feed it** (seed bag) / **set it free** (cage key) |
+| wa2 | a teenager (`ado`) | a shabby dark carriage: records, a police file on him, cigarettes, a portrait of his father in uniform | the father's portrait: **draw on it** (crayons) / **cut it** (knife) |
+| wa3 | a soldier and war photographer (`soldier`) | a carriage blown open: mail sacks, ammunition crates, his camera on its tripod, a letter to Diana he never sent | the hole in the wall: **patch it** / **finish it** (grenade) |
+| wa4 | a groom (`marie`, for *marié*) | a wedding car: veil, top hat, bouquet, cake. A portrait of his pregnant wife, a baby's rattle to gift-wrap | the empty glass: **water** (jug) / **whisky** |
+
+**The ending.** More than two points of karma (`KARMA_TO_LEAVE`, the same `> 2` as the 2019
+code) and Ross *leaves*. Otherwise he *stays*. Both endings open in a child's room: Ross, a
+young father, in the doorway, and his little son playing with a toy train (`outro1`). If he
+leaves, he walks out with something in his hand and the boy watches him go (`outroLeave`). If he
+stays, the 9:30 ticket is torn in two (`outroStay1`) and he sits down on the floor to play
+with a sailboat (`outroStay2`).
+
+**Reading it.** So the train is the 9:30 he nearly took, away from his son. The carriages are
+the life that brought him to that doorway: a child who wanted to escape, a teenager at war
+with a hard father, a man who photographed death and left letters unsent, a groom who has to
+choose what goes in his glass. Each choice asks the same thing: mend it or break out. Neither
+side is written as evil. The bird fed stays caged. The bird freed may starve. The two cage
+lines (`wa1.cage.message1/2`) are the model: each choice has a cost, and Ross is never told
+which one is right.
+
+**Tone, for anyone writing or choosing.**
+- Ross speaks in the first person, in short spoken French: *le paternel*, *foutu*, *nom de
+  non*. Wry on the surface, sad underneath. Never a narrator, never a moral.
+- A hint is his state of mind, and only by the way what he needs: "Ma douce Diana me manque, je
+  devrais vraiment lui envoyer un signe de vie" points at the letter without naming the mailbox.
+  Never tell the player the solution.
+- The voice ages with the carriages: wonder and complaint in wa1, anger in wa2, weariness
+  in wa3, tenderness under the nerves in wa4.
+- Music ages the same way, one piano through four seasons (`musics/PROMPTS.md`). The art
+  goes from bright to warm and domestic. Nothing should be cruel or loud for its own sake.
+- The ending does not judge either. The closing card says how often he took the way out, and
+  where that left him.
+
+**What is not settled.** Is the man boarding in the intro Ross himself, older? He wears a
+moustache and a cap, and the young father at the end does not. Or is it the uniformed father
+of the wa2 portrait, leaving before Ross could? The art allows both. The closing card's
+wording (r60) and the item click lines (r74) were written by agents from this reading, as
+placeholders. The hints and the cage lines are the team's own.
+
 ---
 
 ## Running it

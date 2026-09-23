@@ -338,6 +338,9 @@ and no docs/ directory. Two of its sections carry load and are where a discovery
 "Things worth knowing before you change anything" is the trap list, and "Built but never
 finished" is the backlog someone will pick from. A surprise recorded only in a code comment
 is a surprise the next person will not find.
+"The story" (r75) is the taste guide: what the game is about, each carriage's age and choice,
+the endings, and the voice Ross's lines are written in. Read it before writing words, or
+choosing a sound or a picture. A reading the art later disproves gets corrected there.
 Commit bodies are the handover log here — no session directory, nothing to ingest. A change
 worth explaining is explained in the commit, at the length the existing ones use: what was
 wrong, what it cost, what was verified rather than assumed.
