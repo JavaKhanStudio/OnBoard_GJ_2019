@@ -64,6 +64,8 @@ class ItemHoverRenderTest
 	void hoverAnItem()
 	{
 		Main_Application.startPoint = Main_Application.StartPoint.GAME;
+		// The bubble is measured against a still frame: no thought of the next step (r73).
+		GVars_Game.thinkAtEachStep = false;
 
 		Lwjgl3ApplicationConfiguration gl = new Lwjgl3ApplicationConfiguration();
 		gl.setWindowedMode(1280, 720);

@@ -90,6 +90,30 @@ public class GVars_Game
 		dialogBubble.showForReading(Index_Text.get(key)) ; 
 	}
 	
+	/**
+	 * What Ross has on his mind at each step of a carriage (r73): as it opens, and each time a
+	 * piece of the key comes, he thinks the hint of the first piece he still lacks - his state
+	 * of mind and, between the lines, what he needs to find. The same line the piece shows
+	 * under the mouse. Nothing once the key is whole: the carriage is on its way out.
+	 */
+	public static void thinkOfNextStep(float afterSeconds)
+	{
+		if(!thinkAtEachStep || dialogBubble == null || clef == null || currentLevel == null)
+			return ; 
+		
+		String key = currentLevel.hintKey(clef.firstMissing()) ; 
+		if(key == null)
+			return ; 
+		
+		String text = Index_Text.get(key) ; 
+		// After whatever is being said - an item's line (r81) - rather than over it.
+		afterSeconds = Math.max(afterSeconds, dialogBubble.secondsBusy()) ; 
+		if(afterSeconds > 0)
+			dialogBubble.showForReading(text, afterSeconds) ; 
+		else
+			dialogBubble.showForReading(text) ; 
+	}
+	
 	public static void pickItem(GameItem gameItem)
 	{
 		TextureRegionDrawable drawable = Utils_TexturesAcess.buildDrawingRegionTexture(gameItem.objectTexture) ; 
@@ -155,7 +179,19 @@ public class GVars_Game
     	
     	Index_Interface.manager.finishLoading() ; 
 		currentLevel.setAsGameReady(); 
+		
+		// Once the carriage has faded in (GVars_Fade.IN_SECONDS), so it is read, not missed.
+		thinkOfNextStep(CARRIAGE_THOUGHT_DELAY) ; 
     }
+	
+	/**
+	 * Off only for the render tests that measure the bubble or the carriage against a still
+	 * frame (KeyHintRenderTest, ItemHoverRenderTest): a thought typing at 1.5 s is not still.
+	 */
+	public static boolean thinkAtEachStep = true ; 
+	
+	/** How long a carriage's first thought waits after the carriage is swapped in (r73). */
+	public static final float CARRIAGE_THOUGHT_DELAY = 1.5f ; 
     
     public static WagonLevel preLoadLevel(int value)
     {

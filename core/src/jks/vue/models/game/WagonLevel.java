@@ -31,6 +31,12 @@ public class WagonLevel
 	public String hint2 ; 
 	public String hint3 ; 
 	
+	/** The text-table key of the hint for key piece 1 to 3. */
+	public String hintKey(int piece)
+	{
+		return piece == 1 ? hint1 : piece == 2 ? hint2 : piece == 3 ? hint3 : null ; 
+	}
+	
 	@JsonIgnore
 	public Texture wagon ; 
 	@JsonIgnore

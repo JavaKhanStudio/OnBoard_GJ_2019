@@ -176,8 +176,9 @@ public class GameItem
 				else
 				{
 					objectTexture = Index_Interface.manager.get(relativePath + path_EtatApres_1, Texture.class);
-					GVars_Game.applyItem(this, touchingWith.name,1) ; 
+					// Said first, so a key piece this gives thinks of the next step after it (r73).
 					GVars_Game.sayItemMessage(message_Crucial_1) ; 
+					GVars_Game.applyItem(this, touchingWith.name,1) ; 
 				}
 			}
 			else if (name_Interaction_2 != null && name_Interaction_2.equals(touchingWith.name))
@@ -187,8 +188,8 @@ public class GameItem
 				else
 				{
 					objectTexture = Index_Interface.manager.get(relativePath + path_EtatApres_2, Texture.class);
-					GVars_Game.applyItem(this, touchingWith.name,2) ;  
 					GVars_Game.sayItemMessage(message_Crucial_2) ; 
+					GVars_Game.applyItem(this, touchingWith.name,2) ;  
 				}
 			}
 		}

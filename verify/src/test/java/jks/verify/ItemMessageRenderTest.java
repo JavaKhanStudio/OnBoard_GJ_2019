@@ -29,7 +29,7 @@ import jks.vue.models.game.GameItem;
  * each of its two choices; until r81 they sat in wa1.wa and nothing ever showed them.
  *
  * Uses the sac on the cage the way a click does - GameItem.tryTouch with the sac selected - and
- * checks the bubble types message 1, then fades by itself once it has had time to be read.
+ * checks the bubble types message 1, then gives way to the thought of the next step (r73).
  */
 @Tag("gl")
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -45,7 +45,7 @@ class ItemMessageRenderTest
 
 	private static volatile BufferedImage before, said;
 	private static volatile String expected, shownText, afterText;
-	private static volatile float shownAlpha, afterAlpha;
+	private static volatile float shownAlpha;
 	private static volatile double goneAt;
 	private static volatile Throwable error;
 
@@ -82,6 +82,7 @@ class ItemMessageRenderTest
 						cage.posY + cage.objectTexture.getHeight() / 2f, 0);
 					cage.tryTouch(middle, sac, false);
 					// How long it should stay, from the moment it was said.
+					// The line has been read and faded, and the next thought has begun.
 					goneAt = harness.gameSeconds + expected.length() / 30.0 + DialogBubble.READING_SECONDS + 1.0;
 				}
 				else if (done[0] && !done[1] && harness.gameSeconds >= SHOWN_AT)
@@ -96,7 +97,6 @@ class ItemMessageRenderTest
 				{
 					done[2] = true;
 					afterText = GVars_Game.dialogBubble.getText();
-					afterAlpha = GVars_Game.dialogBubble.getColor().a;
 					harness.exitAfterSeconds = harness.gameSeconds + 0.2;
 				}
 			}
@@ -132,11 +132,15 @@ class ItemMessageRenderTest
 			"the frame did not change when the line was said - the bubble is not drawn");
 	}
 
+	/**
+	 * The cage gives key piece 3, so once its line has been read Ross thinks of the next step:
+	 * the hint of piece 1, the first he still lacks (r73). It replaces the line, not joins it.
+	 */
 	@Test
-	@DisplayName("the line fades by itself once it has had time to be read")
-	void theLineGoesAway()
+	@DisplayName("once the line has been read, Ross thinks of the next step instead")
+	void theLineMakesWayForTheNextStep()
 	{
-		assertEquals("", afterText, "the bubble still holds the line long after it was said");
-		assertEquals(0f, afterAlpha, 0.01f, "the bubble is still showing");
+		assertEquals(Index_Text.get("wa1.hint1"), afterText,
+			"after the cage's line the bubble should hold the thought of the first missing piece");
 	}
 }

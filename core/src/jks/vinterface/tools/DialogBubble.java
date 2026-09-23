@@ -69,6 +69,7 @@ public class DialogBubble extends VisTable
 	public void applyText(String text) 
 	{
 		secondsLeft = -1 ; 
+		waiting = null ; 
 		textWhenVisible = text ; 
 		appearing = true ;
 		disappearing = false ; 
@@ -95,6 +96,26 @@ public class DialogBubble extends VisTable
 	{
 		applyText(text) ; 
 		secondsLeft = text.length() / CHARACTERS_PER_SECOND + READING_SECONDS ; 
+	}
+	
+	/** Seconds until a text shown by {@link #showForReading} has faded away; 0 when there is none. */
+	public float secondsBusy()
+	{
+		return secondsLeft < 0 ? 0 : secondsLeft + 1f / alphaGrowingSpeed ; 
+	}
+	
+	/** A text {@link #showForReading} will show once {@link #waitingSeconds} have passed. */
+	String waiting ; 
+	float waitingSeconds ; 
+	
+	/**
+	 * {@link #showForReading}, after a pause (r73): a carriage's first thought waits for the
+	 * carriage to fade in. Anything shown in the meantime - a hint under the mouse - cancels it.
+	 */
+	public void showForReading(String text, float afterSeconds)
+	{
+		waiting = text ; 
+		waitingSeconds = afterSeconds ; 
 	}
 	
 	public void makeDisappear() {
@@ -135,6 +156,13 @@ public class DialogBubble extends VisTable
 	{
 		super.act(delta);
 
+		if(waiting != null)
+		{
+			waitingSeconds -= delta ; 
+			if(waitingSeconds <= 0)
+				showForReading(waiting) ; 
+		}
+		
 		if(secondsLeft >= 0)
 		{
 			secondsLeft -= delta ; 

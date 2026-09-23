@@ -119,12 +119,24 @@ public class Clef extends Table
 		// pickup would only blur each other. A piece already held makes no sound at all.
 		boolean complete = hasPiece1 && hasPiece2 && hasPiece3 ; 
 		if(!hadIt && has(value) && !complete)
+		{
 			GVars_AudioManager.PlayEffect(Enum_Effect_Sound.Slot.KEY_PIECE) ; 
+			GVars_Game.thinkOfNextStep(0) ; 
+		}
 		
 		if(complete)
 		{
 			GVars_Game.nextLevel() ; 
 		}
+	}
+	
+	/** The lowest piece not yet held, 1 to 3, or 0 once the key is whole. */
+	public int firstMissing()
+	{
+		for(int piece = 1 ; piece <= 3 ; piece++)
+			if(!has(piece))
+				return piece ; 
+		return 0 ; 
 	}
 	
 	private boolean has(int value)
