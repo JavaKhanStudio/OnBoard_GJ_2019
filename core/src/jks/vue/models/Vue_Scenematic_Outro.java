@@ -40,12 +40,11 @@ public class Vue_Scenematic_Outro extends AVue_Model
 	
 	int currentIndex = 0; 
 	
-	/** How long the closing words hold, once up, before the game goes back to the menu by itself. */
-	private static final float CLOSURE_SECONDS = 6f ;
-	
-	/** True once the pictures are done and the card is what is on screen (r60). */
+	/**
+	 * True once the pictures are done and the card is what is on screen (r60). The card stays
+	 * until a key, a click or a pad button (r78) - it used to leave by itself after 6 s.
+	 */
 	boolean closing ; 
-	float closureHold ; 
 	
 	/**
 	 * This view draws in window pixels. The batch is shared with the carriage, which leaves its
@@ -139,7 +138,6 @@ public class Vue_Scenematic_Outro extends AVue_Model
 					// blank for good (r60); the closing words come up in its place instead.
 					closing = true ; 
 					currentpage = null ; 
-					closureHold = CLOSURE_SECONDS ; 
 					inDescent = false ; 
 				}
 				else
@@ -159,17 +157,12 @@ public class Vue_Scenematic_Outro extends AVue_Model
 			if(currentAlpha > 1)
 			{currentAlpha = 1 ;}
 			
-			// The words leave on their own, so the ending finishes even if nobody clicks again.
-			if(closing && currentAlpha >= 1)
-			{
-				closureHold -= delta ; 
-				if(closureHold <= 0)
-					inDescent = true ; 
-			}
-			
 			if(GVars_Heart.inCinematic_Click)
 			{
-				inDescent = true ;
+				// The card only takes input once it is fully up: a click that came during its
+				// fade in, left over from the pictures, would otherwise skip it unread (r78).
+				if(!closing || currentAlpha >= 1)
+					inDescent = true ;
 				GVars_Heart.inCinematic_Click = false ; 
 			}
 		}

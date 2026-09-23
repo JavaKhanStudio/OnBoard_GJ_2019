@@ -34,6 +34,8 @@ import jks.vue.models.game.GameItem;
  *
  * One process plays both endings back to back: staying (karma 1) from a carriage whose items
  * have been taken, then leaving (karma 4) - the second pass is itself the loop being used.
+ * The card waits for input (r78): nothing is pressed for longer than the 6 s it used to hold by
+ * itself, then one click sends it back to the start screen.
  * The two cards are written to build/frames/closure-stay.png and closure-leave.png.
  */
 @Tag("gl")
@@ -44,6 +46,8 @@ class ClosureRenderTest
 
 	/** The card fades up over 2 s; this is past it. */
 	private static final double CARD_SETTLED = 2.5;
+	/** How long the card is left alone before the click - past the 6 s it used to leave after. */
+	private static final double CARD_LINGERS = 8;
 	/** Between clicks on the pictures: long enough for a fade out, short enough to be quick. */
 	private static final double CLICK_EVERY = 1.2;
 
@@ -65,7 +69,7 @@ class ClosureRenderTest
 		gl.useVsync(false);
 
 		boolean[] leaving = {false};
-		int[] phase = {0};           // 0 set up, 1 pictures, 2 card, 3 waiting for the menu
+		int[] phase = {0};           // 0 set up, 1 pictures, 2 card, 3 card left alone, 4 waiting for the menu
 		double[] mark = {0};
 
 		harness = new GameHarness(new Main_Application(), Integer.MAX_VALUE, 1_000_000);
@@ -123,8 +127,24 @@ class ClosureRenderTest
 					case 3:
 						if (GVars_Heart.vue instanceof Vue_StartScreen)
 						{
+							record((leaving[0] ? "leave" : "stay") + ": the card waited for input", false);
+							finished = true;
+							Gdx.app.exit();
+						}
+						else if (now - mark[0] > CARD_LINGERS)
+						{
+							record((leaving[0] ? "leave" : "stay") + ": the card waited for input", true);
+							GVars_Heart.inCinematic_Click = true;
+							phase[0] = 4;
+							mark[0] = now;
+						}
+						break;
+
+					case 4:
+						if (GVars_Heart.vue instanceof Vue_StartScreen)
+						{
 							String end = leaving[0] ? "leave" : "stay";
-							record(end + ": the ending goes back to the start screen by itself", true);
+							record(end + ": a click takes the ending back to the start screen", true);
 							record(end + ": the run is reset", GVars_Game.karma == 0 && GVars_Game.currentLevelInt == 1
 								&& GVars_Game.playerInventory.isEmpty());
 							boolean anyPicked = false;
@@ -144,9 +164,9 @@ class ClosureRenderTest
 								phase[0] = 0;
 							}
 						}
-						else if (now - mark[0] > 12)
+						else if (now - mark[0] > 5)
 						{
-							record("the card handed back to the start screen within 12 s", false);
+							record("the card handed back to the start screen within 5 s of the click", false);
 							finished = true;
 							Gdx.app.exit();
 						}
@@ -209,6 +229,6 @@ class ClosureRenderTest
 		assertTrue(finished, "not every step ran:\n" + report);
 		for (String line : seen)
 			assertTrue(line.startsWith("ok"), report);
-		assertTrue(seen.size() == 13, "expected 13 checks:\n" + report);
+		assertTrue(seen.size() == 15, "expected 15 checks:\n" + report);
 	}
 }
