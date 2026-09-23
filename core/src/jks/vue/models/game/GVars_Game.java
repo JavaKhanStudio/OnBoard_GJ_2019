@@ -145,6 +145,8 @@ public class GVars_Game
 			}
 		}) ; 	
 		
+		// So the bar can find it again when the item is used up (r77).
+		selectable.setUserObject(gameItem) ; 
 		playerInventory.add(gameItem) ; 
 		gameItem.picked = true ; 
 		
@@ -252,6 +254,21 @@ public class GVars_Game
 				item.resetToStart() ; 
 	}
 	
+	/**
+	 * An item that has been used is spent (r77): out of the hand and off the bar. No item in
+	 * the four carriages is used on two things, and one left in hand could be used on the same
+	 * thing again - giving its key piece, and its karma, a second time.
+	 */
+	public static void useUp(GameItem item)
+	{
+		if(selectedItem == item)
+			selectedItem = null ; 
+		if(playerInventory != null)
+			playerInventory.remove(item) ; 
+		if(inventory != null)
+			inventory.drop(item) ; 
+	}
+	
 	public static void emptyInventory()
 	{
 		if(playerInventory != null)
@@ -292,6 +309,8 @@ public class GVars_Game
 		
 		if(selected == null)
 			return ; 
+		
+		useUp(selected) ; 
 		
 		if(gameItem.giveKey_interfact)
 		{

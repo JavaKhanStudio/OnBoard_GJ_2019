@@ -29,6 +29,18 @@ public class InventoryBar extends Group
 		place() ;
 	}
 
+	/** Takes the one carried item out of the row, and closes the gap it leaves (r77). */
+	public void drop(GameItem item)
+	{
+		for(Actor carried : getChildren())
+			if(carried.getUserObject() == item)
+			{
+				removeActor(carried) ;
+				place() ;
+				return ;
+			}
+	}
+
 	/** Drops the lot: nothing is carried from one carriage into the next. */
 	public void empty()
 	{
