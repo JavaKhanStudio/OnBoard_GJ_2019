@@ -20,7 +20,6 @@ import com.kotcrab.vis.ui.widget.VisTextButton;
 import jks.amain.Utils_Config;
 import jks.index.Index_Interface;
 import jks.sounds.Enum_Music;
-import jks.sounds.Enum_Sounds_Game;
 import jks.sounds.Enum_Sounds_Interface;
 import jks.sounds.Enum_Effect_Sound;
 import jks.sounds.GVars_Audio;
@@ -40,9 +39,10 @@ import jks.vue.AVue_Model;
  * The volume sliders act live and are NOT saved - the options screen is where those settings
  * live. The effect rows are the exception: "Use" is how the game's sound effects are chosen
  * (r39, r45), so it is saved to the config, and the game plays whichever is marked. One tab per
- * moment - rails, departure, key piece, level complete - so every candidate fits on one screen.
- * The effects named in Enum_Sounds_Game and Enum_Sounds_Interface have no play button because
- * none have files: the names exist, the recordings were never made.
+ * moment - rails, departure, key piece, level complete, footsteps - so every candidate fits on one
+ * screen. A footstep candidate plays as a short walk, at the pace of Ross's walk cycle: one step
+ * alone is too short to judge. The effects named in Enum_Sounds_Interface have no play button
+ * because none have files: the names exist, the recordings were never made.
  */
 public class Vue_SoundLab extends AVue_Model
 {
@@ -55,6 +55,13 @@ public class Vue_SoundLab extends AVue_Model
 	private final EnumMap<Enum_Effect_Sound.Slot, VisTable> slotTables = new EnumMap<>(Enum_Effect_Sound.Slot.class) ;
 	private final EnumMap<Enum_Effect_Sound, VisLabel> marks = new EnumMap<>(Enum_Effect_Sound.class) ;
 	private final EnumMap<Enum_Effect_Sound.Slot, VisTextButton> tabs = new EnumMap<>(Enum_Effect_Sound.Slot.class) ;
+
+	/** A footstep candidate walking, the steps it has left, and the time to the next one. */
+	private static final int WALK_STEPS = 8 ;
+	private static final float STEP_SECONDS = 4 * 0.106f ;
+	private Enum_Effect_Sound walking ;
+	private int stepsLeft ;
+	private float nextStep ;
 
 	@Override
 	public void init()
@@ -114,10 +121,8 @@ public class Vue_SoundLab extends AVue_Model
 		showSlot(Enum_Effect_Sound.Slot.RAILS) ;
 
 		StringBuilder missing = new StringBuilder() ;
-		for(Enum_Sounds_Game effect : Enum_Sounds_Game.values())
-			missing.append(missing.length() == 0 ? "" : ", ").append(shown(effect.name())) ;
 		for(Enum_Sounds_Interface effect : Enum_Sounds_Interface.values())
-			missing.append(", ").append(shown(effect.name())) ;
+			missing.append(missing.length() == 0 ? "" : ", ").append(shown(effect.name())) ;
 		addMissingEffectRow(page, "Other effects: " + missing, "no file, never recorded") ;
 
 		GVars_UI.mainUi.addActor(page) ;
@@ -174,13 +179,7 @@ public class Vue_SoundLab extends AVue_Model
 		{
 			@Override
 			public void changed(ChangeEvent event, Actor actor)
-			{
-				GVars_AudioManager.StopEffects() ;
-				if(candidate.slot == Enum_Effect_Sound.Slot.RAILS)
-					GVars_AudioManager.PlayRails(candidate) ;
-				else
-					GVars_AudioManager.PlayEffect(candidate) ;
-			}
+			{play(candidate) ;}
 		}) ;
 
 		VisTextButton stop = new VisTextButton("Stop") ;
@@ -188,7 +187,7 @@ public class Vue_SoundLab extends AVue_Model
 		{
 			@Override
 			public void changed(ChangeEvent event, Actor actor)
-			{GVars_AudioManager.StopEffects() ;}
+			{stopEffects() ;}
 		}) ;
 
 		VisTextButton use = new VisTextButton("Use") ;
@@ -209,6 +208,41 @@ public class Vue_SoundLab extends AVue_Model
 		table.add(stop).padRight(8f) ;
 		table.add(use).padRight(12f) ;
 		table.add(mark).expandX().left().row() ;
+	}
+
+	/** What a candidate's Play button does: one at a time, and a footstep walks. */
+	public void play(Enum_Effect_Sound candidate)
+	{
+		stopEffects() ;
+		if(candidate.slot == Enum_Effect_Sound.Slot.RAILS)
+			GVars_AudioManager.PlayRails(candidate) ;
+		else if(candidate.slot == Enum_Effect_Sound.Slot.FOOTSTEPS)
+		{
+			walking = candidate ;
+			stepsLeft = WALK_STEPS ;
+			nextStep = 0f ;
+		}
+		else
+			GVars_AudioManager.PlayEffect(candidate) ;
+	}
+
+	private void stopEffects()
+	{
+		walking = null ;
+		GVars_AudioManager.StopEffects() ;
+	}
+
+	private void walk(float delta)
+	{
+		if(walking == null)
+			return ;
+		nextStep -= delta ;
+		if(nextStep > 0f)
+			return ;
+		GVars_AudioManager.PlayFootstep(walking) ;
+		nextStep += STEP_SECONDS ;
+		if(--stepsLeft <= 0)
+			walking = null ;
 	}
 
 	/** Saved at once: this is the one choice the lab exists to make. */
@@ -312,9 +346,13 @@ public class Vue_SoundLab extends AVue_Model
 	{
 		GVars_UI.mainUi.act(delta) ;
 		refreshMarks() ;
+		walk(delta) ;
 
 		Enum_Effect_Sound rails = GVars_AudioManager.currentRails() ;
-		effectsPlaying.setText(rails == null ? "No rails bed playing" : "Looping " + rails.label) ;
+		if(walking != null)
+			effectsPlaying.setText("Walking - " + walking.label) ;
+		else
+			effectsPlaying.setText(rails == null ? "No rails bed playing" : "Looping " + rails.label) ;
 
 		Enum_Music playing = GVars_AudioManager.currentMusic() ;
 		if(playing == null)

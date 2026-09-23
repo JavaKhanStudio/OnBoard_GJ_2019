@@ -3,7 +3,8 @@ package jks.sounds;
 /**
  * Every sound effect the game plays, as candidates grouped by the moment they are for. Where
  * each one comes from, and who must be credited, is in SOURCES.md next to the files:
- * desktop/assets/sounds/train (r39) and desktop/assets/sounds/game (r45).
+ * desktop/assets/sounds/train (r39), desktop/assets/sounds/game (r45) and desktop/assets/sounds/steps
+ * (r87).
  *
  * Each slot plays one candidate, chosen in the sound lab and saved to the config. Once Simon has
  * chosen, the losing candidates can go.
@@ -29,6 +30,11 @@ public enum Enum_Effect_Sound
 	LEVEL_MUSIC_BOX          (Slot.LEVEL_COMPLETE, "sounds/game/level_music_box.ogg", "Music box phrase"),
 	LEVEL_SWELL              (Slot.LEVEL_COMPLETE, "sounds/game/level_swell.ogg", "Soft chord swell with a bell"),
 	LEVEL_WHISTLE            (Slot.LEVEL_COMPLETE, "sounds/game/level_whistle.ogg", "Train whistle, then two bells"),
+
+	STEPS_SHOE               (Slot.FOOTSTEPS, "sounds/steps/steps_shoe.ogg", "Soft shoe on the wooden floor"),
+	STEPS_BOOT               (Slot.FOOTSTEPS, "sounds/steps/steps_boot.ogg", "Boot heel on the wooden floor"),
+	STEPS_RUNNER             (Slot.FOOTSTEPS, "sounds/steps/steps_runner.ogg", "Muffled, on a carpet runner"),
+	STEPS_THUD               (Slot.FOOTSTEPS, "sounds/steps/steps_thud.ogg", "Recorded dull thud"),
 	;
 
 	public enum Slot
@@ -40,7 +46,9 @@ public enum Enum_Effect_Sound
 		/** Ross gains a piece of the key, but not the last one. */
 		KEY_PIECE("Key piece - a piece of the key is gained"),
 		/** The last piece of the key: the level is done. */
-		LEVEL_COMPLETE("Level complete - the key is whole");
+		LEVEL_COMPLETE("Level complete - the key is whole"),
+		/** One step, each time Ross's heel comes down while he walks. */
+		FOOTSTEPS("Footsteps - one per step while Ross walks");
 
 		public final String label ;
 

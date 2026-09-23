@@ -172,7 +172,7 @@ Gates: `./gradlew build`, then the render tests:
 
 [tags.audio]
 label = "Audio"
-description = "The music, the volume path, the sound effects that do not exist"
+description = "The music, the volume path, the sound effects and the sound lab that picks them"
 color = "#b48cff"
 sort = 50
 context = """
@@ -188,14 +188,24 @@ requested track is remembered separately from what is playing, so unmuting resum
 than waiting for the next screen change.
 setMasterVolume and setMuted take effect on what is ALREADY playing — that is what a volume
 slider needs. dispose() must release the decoder and the OpenAL source.
-Enum_Sounds_Game names jump, run and idle, the loader for them is commented out, and THERE
-ARE NO FILES — they were never recorded. Adding sound effects means recording them, not
-uncommenting a loader.
+Sound effects are Enum_Effect_Sound: candidates grouped by Slot (RAILS, DEPARTURE, KEY_PIECE,
+LEVEL_COMPLETE, FOOTSTEPS), one chosen per slot with Use in the sound lab (Vue_SoundLab) and
+saved in the config (GameConfigs.chooseSound — a new Slot needs its field there). Files are
+under desktop/assets/sounds/<group>/ with a SOURCES.md giving each one's licence, and each
+group is rebuilt by a tools/make_*.py script. A new effect means making or finding the files,
+crediting them in SOURCES.md, and adding a Slot: there is no loader to uncomment.
+Footsteps (r87) are one-shots fired by SpriteModel.playFootsteps on the WALK frames that
+SIW_Data.stepFrames names (heel strikes, 3 and 7). Nothing times them, so they stop the moment
+Ross is IDLE. Ross has no jump or run: Enum_Sounds_Game is gone. Enum_Sounds_Interface
+(Move, Select) is still a name with no files.
 Gate: MusicTest, and a green one now DOES prove the sound came out. Since b3f280f the
 tests play into build/audio/<task>.wav instead of the speakers (ALSOFT_DRIVERS=wave, set by
 gradle/offscreen.gradle), and MusicTest reads that file back through AudioCapture.java: music,
 then >=200 ms of silence while muted, then music. The wave device exists on any machine, so
-there is nothing left to skip.
+there is nothing left to skip. EffectSoundTest and FootstepTest do the same for the effects.
+The capture is ONE file per checkout (verify/build/audio/test.wav): two sessions running GL
+tests in the same checkout at once overwrite each other's, so an effects test that goes red
+on a silent capture needs a rerun in a worktree of its own before it is believed.
 """
 
 [tags.input]

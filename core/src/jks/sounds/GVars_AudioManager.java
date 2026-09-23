@@ -2,9 +2,6 @@ package jks.sounds;
 
 import jks.tools.Utils_Debug;
 
-import static jks.sounds.GVars_Audio.masterVolume;
-
-import java.util.ArrayList;
 import java.util.EnumMap;
 
 import com.badlogic.gdx.Gdx;
@@ -17,11 +14,6 @@ import jks.debug.GVars_Debug;
 
 public class GVars_AudioManager 
 {	
-	private static ArrayList<Sound> jumpingSounds;
-
-	private static Sound runningSound;
-
-
 	private static FileHandle musicFile = Gdx.files.internal("musics/intro.mp3");
 
 	private static Music currentlyRunningMusic;
@@ -31,79 +23,6 @@ public class GVars_AudioManager
 	public static void init() 
 	{
 		
-	}
-
-	private static void PreLoadAllSounds()
-	{
-//		jumpingSounds = new ArrayList<>();
-//		jumpingSounds.add(Gdx.audio.newSound(Gdx.files.internal("sounds/Player_Jump_01.wav")));
-//		jumpingSounds.add(Gdx.audio.newSound(Gdx.files.internal("sounds/Player_Jump_02.wav")));
-//		jumpingSounds.add(Gdx.audio.newSound(Gdx.files.internal("sounds/Player_Jump_03.wav")));
-//
-//		runningSound = Gdx.audio.newSound(Gdx.files.internal("sounds/Player_Run_Loop.wav"));
-
-	}
-
-	public static void PlayGameSound(Enum_Sounds_Game whichOne) 
-	{
-		if(GVars_Audio.muted)
-			return ;
-		
-		if(GVars_Debug.soundDebug)
-			Utils_Debug.log("Trying to play sound : " + whichOne);
-		
-		switch (whichOne) 
-		{
-			case Jumping:
-				int randomizedIndex = MathUtils.random.nextInt(jumpingSounds.size());
-				runningSound.stop();
-				jumpingSounds.get(randomizedIndex).play(masterVolume);
-				break;
-	
-			case Running:
-				runningSound.stop();
-				runningSound.loop(masterVolume, 1.1f, 0) ;
-				break;
-	
-			case Idlling:
-				runningSound.stop();
-				break;
-						
-			default:
-				Utils_Debug.log("Unknown Sound requested in PlaySound : " + whichOne);
-				break;
-		}
-	}
-	
-	public static void PlayInterfaceSound(Enum_Sounds_Game whichOne) 
-	{
-		if(GVars_Audio.muted)
-			return ;
-		
-		if(GVars_Debug.soundDebug)
-			Utils_Debug.log("Trying to play sound : " + whichOne);
-		
-		switch (whichOne) 
-		{
-			case Jumping:
-				int randomizedIndex = MathUtils.random.nextInt(jumpingSounds.size());
-				runningSound.stop();
-				jumpingSounds.get(randomizedIndex).play(masterVolume);
-				break;
-	
-			case Running:
-				runningSound.stop();
-				runningSound.loop(masterVolume, 1.1f, 0) ;
-				break;
-	
-			case Idlling:
-				runningSound.stop();
-				break;
-						
-			default:
-				Utils_Debug.log("Unknown Sound requested in PlaySound : " + whichOne);
-				break;
-		}
 	}
 
 	/**
@@ -210,12 +129,12 @@ public class GVars_AudioManager
 		applyEffectsVolumeChange() ;
 	}
 
-	// --- Sound effects (r39, r45) ------------------------------------------------------------
+	// --- Sound effects (r39, r45, r87) -------------------------------------------------------
 	//
-	// A rails bed loops under every level. The departure, a key piece and a level completed each
-	// play once. All are Sounds, decoded whole into memory, rather than Music: a Sound loops
-	// sample-exactly, and the beds were cut to loop without a seam. Which candidate plays for
-	// each moment is GVars_Audio.choice(slot), picked in the sound lab.
+	// A rails bed loops under every level. The departure, a key piece, a level completed and each
+	// of Ross's steps play once. All are Sounds, decoded whole into memory, rather than Music: a
+	// Sound loops sample-exactly, and the beds were cut to loop without a seam. Which candidate
+	// plays for each moment is GVars_Audio.choice(slot), picked in the sound lab.
 	//
 	// Same rules as the music. The rails are a request that outlives muting, so unmuting
 	// brings them back, and volume changes reach what is already playing.
@@ -229,6 +148,7 @@ public class GVars_AudioManager
 			case DEPARTURE :      return 0.8f ;
 			case KEY_PIECE :      return 0.7f ;
 			case LEVEL_COMPLETE : return 0.8f ;
+			case FOOTSTEPS :      return 0.3f ;
 			default :             return 1f ;
 		}
 	}
@@ -292,7 +212,7 @@ public class GVars_AudioManager
 		playingRails = railsId == -1 ? null : requestedRails ;
 	}
 
-	/** The chosen candidate for a one-shot moment: DEPARTURE, KEY_PIECE or LEVEL_COMPLETE. */
+	/** The chosen candidate for a one-shot moment: DEPARTURE, KEY_PIECE, LEVEL_COMPLETE or FOOTSTEPS. */
 	public static void PlayEffect(Enum_Effect_Sound.Slot slot)
 	{
 		PlayEffect(GVars_Audio.choice(slot)) ;
@@ -300,6 +220,36 @@ public class GVars_AudioManager
 
 	/** A particular one-shot candidate. Silently nothing while muted: a missed chime is not replayed. */
 	public static void PlayEffect(Enum_Effect_Sound which)
+	{
+		PlayEffect(which, 1f) ;
+	}
+
+	private static int footsteps ;
+
+	/** How many footsteps have sounded since the game started. Muted or at zero volume, none do. */
+	public static int footstepsPlayed()
+	{
+		return footsteps ;
+	}
+
+	/**
+	 * One of Ross's steps (r87), the chosen candidate. Each is pitched a little differently, so a
+	 * walk across the carriage is not one sample repeated. It replaces the step before it, which
+	 * has always rung out by then: they come every 0.42 s and last a quarter of one.
+	 */
+	public static void PlayFootstep()
+	{
+		PlayFootstep(GVars_Audio.choice(Enum_Effect_Sound.Slot.FOOTSTEPS)) ;
+	}
+
+	/** A particular footstep candidate - the sound lab walks with each through this. */
+	public static void PlayFootstep(Enum_Effect_Sound which)
+	{
+		if(which != null && which.slot == Enum_Effect_Sound.Slot.FOOTSTEPS)
+			PlayEffect(which, MathUtils.random(0.93f, 1.07f)) ;
+	}
+
+	private static void PlayEffect(Enum_Effect_Sound which, float pitch)
 	{
 		if(which == null || which.slot == Enum_Effect_Sound.Slot.RAILS)
 			return ;
@@ -312,9 +262,11 @@ public class GVars_AudioManager
 		if(sound == null)
 			return ;
 		
-		long id = sound.play(effectsVolume() * gain(which.slot)) ;
+		long id = sound.play(effectsVolume() * gain(which.slot), pitch, 0f) ;
 		if(id != -1)
 		{
+			if(which.slot == Enum_Effect_Sound.Slot.FOOTSTEPS)
+				footsteps++ ;
 			playingOnce.put(which.slot, which) ;
 			playingOnceId.put(which.slot, id) ;
 		}

@@ -11,6 +11,8 @@ public class SIW_Data
 {
 	public HashMap<Enum_AnimState,Animation<TextureRegion>> animationList ;
 	public float scale ;
+	/** The WALK key frames where a heel comes down, each played as a footstep. None: a silent walk. */
+	public int[] stepFrames = {} ;
 	
 	public SIW_Data() 
 	{
@@ -39,6 +41,9 @@ public class SIW_Data
 		data.animationList.put(Enum_AnimState.WALK, new Animation(0.106f, textureAtlas.findRegions("move"))) ;
 		
 		data.scale = age.scale ; 
+		// Frames 4 and 8 of 'move', counted from 1: the front heel strikes in both, in every age's
+		// sheet. Two steps a cycle, one every 4 x 0.106 s.
+		data.stepFrames = new int[] {3, 7} ; 
 		
 		return data ; 
 	}

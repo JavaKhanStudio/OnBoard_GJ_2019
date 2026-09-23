@@ -15,13 +15,14 @@ public class GameConfigs
 	public boolean useVsynch = true ;
 	public int fps = 60 ; 
 	public float volume = 1f ; 
-	/** The effects slider: the train sounds, scaled again by volume. */
+	/** The effects slider: the train sounds and every other effect, scaled again by volume. */
 	public float effectsVolume = 1f ; 
 	/** Enum_Effect_Sound names, as picked in the sound lab. An unknown name falls back to the default. */
 	public String railsSound = null ; 
 	public String departureSound = null ; 
 	public String keyPieceSound = null ; 
 	public String levelCompleteSound = null ; 
+	public String footstepsSound = null ; 
 	/** Off: the UI, carriages and items are filtered Linear, which Simon chose as the default. */
 	public boolean useMipmaps = false ; 
 	
@@ -34,6 +35,7 @@ public class GameConfigs
 			case DEPARTURE :      return departureSound ; 
 			case KEY_PIECE :      return keyPieceSound ; 
 			case LEVEL_COMPLETE : return levelCompleteSound ; 
+			case FOOTSTEPS :      return footstepsSound ; 
 			default :             return null ; 
 		}
 	}
@@ -46,6 +48,7 @@ public class GameConfigs
 			case DEPARTURE :      departureSound = sound.name() ; break ; 
 			case KEY_PIECE :      keyPieceSound = sound.name() ; break ; 
 			case LEVEL_COMPLETE : levelCompleteSound = sound.name() ; break ; 
+			case FOOTSTEPS :      footstepsSound = sound.name() ; break ; 
 		}
 	}
 	

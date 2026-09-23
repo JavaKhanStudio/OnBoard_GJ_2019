@@ -9,6 +9,7 @@ import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 
+import jks.sounds.GVars_AudioManager;
 import jks.vars.GVars_Heart;
 import jks.vue.models.game.GVars_Personnage;
 
@@ -16,6 +17,8 @@ public class SpriteModel extends AnimationModel
 {
 
 	public Enum_AnimState lastState ; 
+	/** The WALK key frame drawn last, so a step sounds once as its frame comes up; -1 when not walking. */
+	private int lastWalkFrame = -1 ;
 	
 	public SIW_Data index;
 	public Animation<TextureRegion> currentState;
@@ -45,6 +48,7 @@ public class SpriteModel extends AnimationModel
 		{
 			if (currentState != null) {
 				currentFrame = currentState.getKeyFrame(stateTime, PlayMode.LOOP == currentState.getPlayMode());
+				playFootsteps() ;
 	
 				WIDTH = getFrameWidth(currentFrame);
 				HEIGHT = getFrameHeight(currentFrame);
@@ -60,6 +64,27 @@ public class SpriteModel extends AnimationModel
 			Utils_Debug.warn("Impossible de trouver " + currentAnimState.name());
 		}
 
+	}
+	
+	/**
+	 * A footstep each time a heel comes down (r87). Driven by the frame on screen rather than a
+	 * timer, so the sound stays on the foot, stops the moment he is IDLE, and holds while paused.
+	 */
+	private void playFootsteps()
+	{
+		if(currentAnimState != Enum_AnimState.WALK)
+		{
+			lastWalkFrame = -1 ;
+			return ;
+		}
+		
+		int frame = currentState.getKeyFrameIndex(stateTime) ;
+		if(frame == lastWalkFrame)
+			return ;
+		lastWalkFrame = frame ;
+		for(int step : index.stepFrames)
+			if(frame == step)
+				GVars_AudioManager.PlayFootstep() ;
 	}
 	
 	@Override
@@ -165,25 +190,7 @@ public class SpriteModel extends AnimationModel
 		else
 			currentState.setPlayMode(PlayMode.NORMAL);
 
-		handleAnimationSounds(state, repeat);
-		
 		lastState = state;
-	}
-	
-	private void handleAnimationSounds(Enum_AnimState state, boolean repeat) 
-	{
-		if (state == Enum_AnimState.JUMP && repeat == false) 
-		{
-//			GVars_AudioManager.PlayPlayerSound(Enum_Player_Sounds.Jumping);
-		} 
-		else if (state == Enum_AnimState.RUN && lastState != Enum_AnimState.RUN ) 
-		{
-//			GVars_AudioManager.PlayPlayerSound(Enum_Player_Sounds.Running);	
-		} 
-		else if (state == Enum_AnimState.IDLE) 
-		{
-//			GVars_AudioManager.PlayPlayerSound(Enum_Player_Sounds.Idlling);
-		}
 	}
 
 }

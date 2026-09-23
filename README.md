@@ -250,9 +250,10 @@ Cosmetic; no vis-ui release targets 1.14.2 yet.
 
 Left as the team left it, in case anyone wants to pick it up:
 
-- **Sound effects.** `Enum_Sounds_Game` names jump, run and idle, the loader for them is
-  commented out, and there are no files — they were never recorded. Music does work
-  (`musics/intro.mp3`, looping, volume-controlled); it is the effects that are missing.
+- **Menu sound effects.** `Enum_Sounds_Interface` names Move and Select, nothing plays them
+  and there are no files — they were never recorded. The game's own effects (rails,
+  departure, key, level, Ross's footsteps) are all there and chosen in the sound lab. The
+  jump, run and idle sounds named alongside them were dropped in r87: Ross only walks.
 - **A second UI skin**, removed in 2026. `assets/ui/skins/freezing/` was never loaded; the
   game uses libGDX's stock skin. It wasn't the team's art: it was Raymond Buckley's
   *Freezing UI* (CC BY 4.0, which requires crediting him), unmodified, and
