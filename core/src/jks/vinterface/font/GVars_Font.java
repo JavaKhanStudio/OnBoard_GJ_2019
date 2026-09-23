@@ -26,6 +26,17 @@ public class GVars_Font
 	public static FreeTypeFontGenerator generator_Seconds ;
 	public static FreeTypeFontParameter parameter ;
 	
+	/**
+	 * What every face is rasterised with (r82). FreeType draws only the characters it is asked
+	 * for and leaves a hole for the rest, and its default set stops at Latin-1 - so the curly
+	 * apostrophe of "s’il" and the "…" of the hints drew as nothing. This adds the punctuation
+	 * French writing uses. GeosansLight and OpenSans have all of it (TextGlyphTest checks each
+	 * against the text table); OptimusPrinceps has none of it and simply skips it (d8).
+	 * Not the narrow no-break space (U+202F): neither face has one.
+	 */
+	public static final String CHARACTERS = FreeTypeFontGenerator.DEFAULT_CHARS 
+			+ "\u2019\u2018\u201C\u201D\u2026\u00AB\u00BB\u2013\u2014\u0153\u0152" ; 
+	
 	public static BitmapFont font_Title ; 
 	public static BitmapFont font_MainMenu ; 
 	public static BitmapFont font_Second ; 
@@ -83,6 +94,7 @@ public class GVars_Font
 		generator_Titles = new FreeTypeFontGenerator(Gdx.files.internal("ui/fonts/OptimusPrinceps.ttf"));
 		generator_Seconds = new FreeTypeFontGenerator(Gdx.files.internal("ui/fonts/GeosansLight.ttf"));
 		parameter = new FreeTypeFontParameter();
+		parameter.characters = CHARACTERS ; 
 		
 		labelStyle_ScreenTitle = new LabelStyle(baseSkin.get("default", LabelStyle.class)) ; 
 		labelStyle_OptionsTitle = new LabelStyle(baseSkin.get("default", LabelStyle.class)) ; 
@@ -166,6 +178,7 @@ public class GVars_Font
 					fontGenerators.put(font.path, fontGenerator) ; 
 				}
 				parameter = new FreeTypeFontParameter();
+				parameter.characters = CHARACTERS ; 
 				parameter.size = (int) (Gdx.graphics.getWidth()/font.basedSizeDevide) ;
 				bitmapFont = fontGenerator.generateFont(parameter) ;
 				activeFont.put(font, bitmapFont) ; 
