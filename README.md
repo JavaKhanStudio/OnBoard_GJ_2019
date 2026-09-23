@@ -291,5 +291,6 @@ nothing left to confirm before distributing the game.
 `../JavaKhan-onboard-art-reserve/`. Nothing referenced it and it never shipped, but it's
 still in this repo's git history if you'd rather have it back. `Pause/pauseMenuOld.png` went
 the same way: an earlier cut of the PAUSE panel on a 1920x1080 canvas, superseded by
-`ui/icon/pause/pauseMenu.png`.
+`ui/icon/pause/pauseMenu.png`. So did `tools/dialog/ThinkBubble.png` (the bubbles draw
+`bubble_think_2.png`) and `ui/frame/borderDarkBlue.png`, which no code named.
 # OnBoard_GJ_2019
