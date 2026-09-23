@@ -46,8 +46,8 @@ credits.made_with	Credits, last line	Réalisé avec libGDX
 wa1.hint1	Carriage 1, thought bubble on key piece 1	Je vais enfin partir d'ici! Mais ou est mon bagage ? 
 wa1.hint2	Carriage 1, thought bubble on key piece 2	Nom de non, qui à laissé trainer tous ces cubes ?
 wa1.hint3	Carriage 1, thought bubble on key piece 3	Ce pauvre petit oiseau.\n Il a l'air affamé dans sa cage dorée. Si seulement je pouvais faire quelque chose pour lui.
-wa1.cage.message1	Carriage 1, cage used with sac (choice 1) - written, not shown in the game yet	Voila qui devrait remplir son estomac ! \nMais s’il était {WAVE}libre{ENDWAVE} tout ce serait plus simple... \nnon ?
-wa1.cage.message2	Carriage 1, cage used with clefCage (choice 2) - written, not shown in the game yet	Je pourrais le rendre libre comme l’air ! Mais je ne suis pas sûr qu’il trouvera de la {WAVE}nourriture{ENDWAVE} avant de tomber dans les pommes...
+wa1.cage.message1	Carriage 1, cage used with sac (choice 1), bubble by Ross for a few seconds	Voila qui devrait remplir son estomac ! \nMais s’il était {WAVE}libre{ENDWAVE} tout ce serait plus simple... \nnon ?
+wa1.cage.message2	Carriage 1, cage used with clefCage (choice 2), bubble by Ross for a few seconds	Je pourrais le rendre libre comme l’air ! Mais je ne suis pas sûr qu’il trouvera de la {WAVE}nourriture{ENDWAVE} avant de tomber dans les pommes...
 
 # == Carriage 2 ============================================================
 # Ross thinks these in the bubble while the mouse is on a piece of the key.

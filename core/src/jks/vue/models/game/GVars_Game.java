@@ -15,6 +15,7 @@ import com.kotcrab.vis.ui.widget.VisImageButton;
 
 import jks.camera.GVars_Camera;
 import jks.index.Index_Interface;
+import jks.index.Index_Text;
 import jks.sounds.Enum_Effect_Sound;
 import jks.sounds.GVars_AudioManager;
 import jks.personnage.model.Enum_AGE;
@@ -78,6 +79,17 @@ public class GVars_Game
 		
 	}
 
+	/**
+	 * What Ross says when something is used on an item (r81): message_Crucial_1 or _2 of the
+	 * .wa, a key of i18n/textes.tsv. Most items have none, and then nothing is said.
+	 */
+	public static void sayItemMessage(String key)
+	{
+		if(key == null || key.isEmpty() || dialogBubble == null)
+			return ; 
+		dialogBubble.showForReading(Index_Text.get(key)) ; 
+	}
+	
 	public static void pickItem(GameItem gameItem)
 	{
 		TextureRegionDrawable drawable = Utils_TexturesAcess.buildDrawingRegionTexture(gameItem.objectTexture) ; 
@@ -126,6 +138,9 @@ public class GVars_Game
 		// A carriage is entered empty-handed: its own items are the only ones its
 		// interactions name, so anything still carried would only read as unfinished (r59).
 		emptyInventory() ; 
+		// Whatever the last carriage was saying belongs to it (r81).
+		if(dialogBubble != null)
+			dialogBubble.makeDisappear() ; 
 		
 		clef = new Clef(level) ; 
 		GVars_UI.mainUi.addActor(clef);

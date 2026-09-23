@@ -68,10 +68,33 @@ public class DialogBubble extends VisTable
 	 */
 	public void applyText(String text) 
 	{
+		secondsLeft = -1 ; 
 		textWhenVisible = text ; 
 		appearing = true ;
 		disappearing = false ; 
 		typing.restart(textStartUp + text);
+	}
+	
+	/**
+	 * Seconds until a text shown by {@link #showForReading} fades by itself; negative while the
+	 * text stays until someone takes it away, as a key hint does when the mouse leaves (r81).
+	 */
+	float secondsLeft = -1 ; 
+	
+	/** Time to read what is left once the typing is done, on top of the typing itself. */
+	public static final float READING_SECONDS = 3f ; 
+	/** Characters typed per second at {@link #typingSpeed}: 1.5 x TextraTypist's 20. */
+	private static final float CHARACTERS_PER_SECOND = 30f ; 
+	
+	/**
+	 * Types the text and fades it again once it has had time to be read (r81): an item's line
+	 * when something is used on it, which nothing is held over to take away. Anything shown
+	 * after it - a key hint under the mouse - replaces it and keeps its own rules.
+	 */
+	public void showForReading(String text)
+	{
+		applyText(text) ; 
+		secondsLeft = text.length() / CHARACTERS_PER_SECOND + READING_SECONDS ; 
 	}
 	
 	public void makeDisappear() {
@@ -112,6 +135,13 @@ public class DialogBubble extends VisTable
 	{
 		super.act(delta);
 
+		if(secondsLeft >= 0)
+		{
+			secondsLeft -= delta ; 
+			if(secondsLeft < 0)
+				makeDisappear() ; 
+		}
+		
 		if(appearing) 
 		{
 			if(this.getColor().a >= 1) 
