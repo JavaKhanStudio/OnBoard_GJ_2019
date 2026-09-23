@@ -74,6 +74,13 @@ public class Vue_StartScreen extends AVue_Model
 		GVars_Game.preLoadLevel(1); 
 	}
 
+	/** Arrive already lit, without the rise out of black: the intro's steam lifts off it instead (r85). */
+	public Vue_StartScreen alreadyUp()
+	{
+		gettingUpPercent = 1 ;
+		return this ;
+	}
+
 	@Override
 	public void destroy()
 	{}

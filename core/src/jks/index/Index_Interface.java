@@ -6,6 +6,7 @@ import com.badlogic.gdx.assets.loaders.TextureLoader.TextureParameter;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.Texture.TextureFilter;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.utils.Array;
 
 import jks.amain.Utils_Config;
@@ -66,7 +67,8 @@ public class Index_Interface
 	public static String introPage_1 = intro + "introPage1.png" ; 
 	public static String introPage_2 = intro + "introPage2.png" ; 
 	public static String introPage_3 = intro + "introPage3.png" ; 
-	public static String smokeImage = intro + "smoke.jpg" ; 
+	/** The steam that rises over introPage3 as the intro leaves (r85): regions 'fumee' 1..9. See GVars_Steam. */
+	public static String steamFrames = "ui/cinematic/fumee.atlas" ;
 	
 	public static String outroPage1 = outro + "outro1.png" ;
 	public static String outroPage_stay_1 = outro + "outroStay1.png" ;
@@ -199,7 +201,7 @@ public class Index_Interface
 		loadTexture(introPage_1);
 		loadTexture(introPage_2);
 		loadTexture(introPage_3);
-		loadTexture(smokeImage);
+		manager.load(steamFrames, TextureAtlas.class);
 		manager.finishLoading();
 	}
 	

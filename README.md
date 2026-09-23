@@ -276,7 +276,8 @@ Left as the team left it, in case anyone wants to pick it up:
 Edit `core/src/jks/index/Index_Credits.java` — that file is the whole of the credits
 content, and the screen follows it. Roles are plain strings so they can be reworded.
 
-The smoke in the intro (`ui/story/intro/smoke.jpg`) started as a stock image: its metadata
+The intro's old smoke image (`ui/story/intro/smoke.jpg`, not shown since r85, when the painted
+fumee steam took its place) started as a stock image: its metadata
 names **iStock (Getty Images) asset 511936068**, "white smoke cloud" by AnnaFomina
 (`exiv2 -pa smoke.jpg` shows it). Settled in 2026 by Simon: one of the team's artists bought
 it long ago and modified it — that is the March 2017 Photoshop edit the metadata records —

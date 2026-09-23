@@ -18,6 +18,7 @@ import jks.sounds.GVars_AudioManager;
 import jks.vars.GVars_Heart;
 import jks.vinterface.GVars_UI;
 import jks.vue.AVue_Model;
+import jks.vue.GVars_Steam;
 
 public class Vue_Scenematic_Intro extends AVue_Model
 {
@@ -25,10 +26,6 @@ public class Vue_Scenematic_Intro extends AVue_Model
 	public Texture page_1 ;
 	public Texture page_2 ;
 	public Texture page_3 ;
-	
-	public Texture smokeScreen ;
-	public boolean smokeScreenOn ; 
-	public float smokePosition ; 
 	
 	public Texture currentpage ;
 	
@@ -54,7 +51,6 @@ public class Vue_Scenematic_Intro extends AVue_Model
 		page_1 = manager.get(introPage_1, Texture.class) ;
 		page_2 = manager.get(introPage_2, Texture.class) ;
 		page_3 = manager.get(introPage_3, Texture.class) ;
-		smokeScreen = manager.get(smokeImage, Texture.class) ;
 		
 		imageSequence.add(page_2) ; 
 		imageSequence.add(page_3) ; 
@@ -89,17 +85,10 @@ public class Vue_Scenematic_Intro extends AVue_Model
 			
 			if(currentAlpha < 0)
 			{
-				if( imageSequence.size() > 0)
-				{
-					currentIndex ++ ; 
-					currentpage = imageSequence.get(0) ;
-					imageSequence.remove(0) ; 
-					inDescent = false ; 
-				}
-				else
-				{
-					GVars_Heart.changeVue(new Vue_StartScreen(),true) ; 
-				}
+				currentIndex ++ ; 
+				currentpage = imageSequence.get(0) ;
+				imageSequence.remove(0) ; 
+				inDescent = false ; 
 			}
 			
 		}
@@ -112,21 +101,19 @@ public class Vue_Scenematic_Intro extends AVue_Model
 			
 			if(GVars_Heart.inCinematic_Click)
 			{
-				inDescent = true ;
 				GVars_Heart.inCinematic_Click = false ; 
+				// The last page does not fade: steam rises over it, and lifts off the menu, lit already.
+				if(imageSequence.isEmpty())
+					GVars_Steam.through(() -> GVars_Heart.changeVue(new Vue_StartScreen().alreadyUp(),true)) ;
+				else
+					inDescent = true ;
 			}
 		}
-		
-		if(smokeScreenOn)
-		{
-			smokePosition -= smokeSpeed * delta ; 
-		}		
 	}
 	
 	boolean inDescent = false ; 
 	float fadeInXSec = 2; 
 	float fadeOutXSec = 1; 
-	float smokeSpeed ; 
 	float currentAlpha ; 
 
 	@Override
@@ -138,20 +125,9 @@ public class Vue_Scenematic_Intro extends AVue_Model
 		GVars_Camera.staticBatch.setColor(1, 1, 1, currentAlpha); 
 		GVars_Camera.staticBatch.draw(currentpage, 0, 0,  Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 		
-		if(smokeScreenOn)
-		{
-			GVars_Camera.staticBatch.setColor(1, 1, 1, 1); 
-			GVars_Camera.staticBatch.draw(smokeScreen, smokePosition, 0,  Gdx.graphics.getWidth(), Gdx.graphics.getHeight());	
-		}
-		
 		GVars_Camera.staticBatch.end() ;
 	}
 
-	private void buildSmokeScreen()
-	{
-		
-	}
-	
 	
 	@Override
 	public void resize(int x, int y) 
