@@ -1,5 +1,6 @@
 package jks.vinterface;
 
+import jks.index.Index_Text;
 import jks.tools.Utils_Debug;
 
 import java.util.ArrayList;
@@ -67,7 +68,7 @@ public class StartScreen_SmoothSideSelect extends Table implements ReplayAction,
 		selectableOptionsMapped = new ArrayList<>() ;
 		selectableOptionsMapped.add(selectableOptionsX) ; 	
 		
-		Button jouer = buildButton("Jouer") ;
+		Button jouer = buildButton(Index_Text.get("menu.play")) ;
 		selectableOptionsX.add(jouer) ; 
 		jouer.addListener(new ChangeListener()
 		{
@@ -87,7 +88,7 @@ public class StartScreen_SmoothSideSelect extends Table implements ReplayAction,
 			}
 		}) ;
 		
-		Button options = buildButton("Options") ;
+		Button options = buildButton(Index_Text.get("menu.options")) ;
 		selectableOptionsX.add(options) ; 
 		options.addListener(new ChangeListener()
 		{
@@ -108,7 +109,7 @@ public class StartScreen_SmoothSideSelect extends Table implements ReplayAction,
 		// Index_Credits.TITLE, the heading of the screen this opens, is the same word for the
 		// same reason. Anything in GeosansLight - the options rows, "Simon Bédard" in the
 		// credits - takes accents fine.
-		Button credits = buildButton("Credits") ;
+		Button credits = buildButton(Index_Text.get("menu.credits")) ;
 		selectableOptionsX.add(credits) ; 
 		credits.addListener(new ChangeListener()
 		{
@@ -120,7 +121,7 @@ public class StartScreen_SmoothSideSelect extends Table implements ReplayAction,
 			}
 		}) ;
 		
-		Button quitter = buildButton("Quitter") ;
+		Button quitter = buildButton(Index_Text.get("menu.quit")) ;
 		selectableOptionsX.add(quitter) ; 
 		quitter.addListener(new ChangeListener()
 		{

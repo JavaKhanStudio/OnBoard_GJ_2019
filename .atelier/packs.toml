@@ -54,6 +54,8 @@ with ./gradlew :editor:runEditor and re-save a level before calling it done.
 GVars_Game.java holds the run: playerInventory, selectedItem, currentLevelInt, karma.
 karma decides the ending (Vue_Scenematic_Outro). Clef.java is the three-piece key; its
 hints are WagonLevel.hint1/2/3 and surface through GVars_Game.dialogBubble on hover.
+A .wa text field (hint1/2/3, message_Crucial_1/2) holds a KEY like "wa2.hint3", not words:
+the words are rows of desktop/assets/i18n/textes.tsv, fetched with Index_Text.get (r76).
 READ LEVELS THROUGH THE CLASSPATH, never FileHandle.file(): that resolves against the
 process working directory and cannot see inside the shipped jar. It is what blocked
 packaging for years.
@@ -154,6 +156,10 @@ labelStyle_ScreenTitle, so the start menu, the credits heading and the options b
 has no é è à â ç, and its É does not draw either: "Crédits" renders "Cr¨dits" (doubt d8).
 ui/fonts/GeosansLight.ttf, behind labelStyle_Second, takes accents fine. Render and LOOK
 before putting an accented word in a title.
+EVERY WORD THE PLAYER READS is a row of desktop/assets/i18n/textes.tsv (key | where | fr,
+a column per language), fetched with jks.index.Index_Text.get("menu.play") — never a string
+literal in the code (r76). A missing key shows on screen as the key. Rows drawn in the title
+face say [title face] and TextTableTest fails if one gains an accent. Dev labs stay English.
 Gates: `./gradlew build`, then the render tests:
   ./gradlew :verify:test -PwithGl
 """

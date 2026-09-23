@@ -22,6 +22,7 @@ import com.badlogic.gdx.utils.Align;
 import com.kotcrab.vis.ui.widget.VisLabel;
 import com.kotcrab.vis.ui.widget.VisTable;
 
+import jks.index.Index_Text;
 import jks.vars.GVars_Heart;
 import jks.amain.Utils_Config;
 import jks.index.Index_Interface;
@@ -65,18 +66,18 @@ public class Block_Resolution extends VisTable
 		setBackground(Utils_Board.board()) ;
 		align(Align.top) ;
 		
-		graphicLabel = new VisLabel("Graphismes",titleStyle) ;
+		graphicLabel = new VisLabel(Index_Text.get("options.graphics"),titleStyle) ;
 		graphicLabel.setAlignment(Align.center);
-		resolutionLabel = new VisLabel("Résolution",textStyle) ; 
-		fpsLabel = new VisLabel("Images par seconde",textStyle) ; 
+		resolutionLabel = new VisLabel(Index_Text.get("options.resolution"),textStyle) ; 
+		fpsLabel = new VisLabel(Index_Text.get("options.fps"),textStyle) ; 
 		
 		selectBox_Resolution = buildResolutionBox() ; 	
 		selectBox_FPS = buildFpsBox() ;
 		
-		vSynchCheckBox = new PaintedCheckBox("Synchro verticale", GVars_Font.font_Second, Utils_Board.INK) ;
+		vSynchCheckBox = new PaintedCheckBox(Index_Text.get("options.vsync"), GVars_Font.font_Second, Utils_Board.INK) ;
 		vSynchCheckBox.setChecked(Utils_Config.current.useVsynch);
 
-		fullScreenCheckBox = new PaintedCheckBox("Plein écran", GVars_Font.font_Second, Utils_Board.INK) ;
+		fullScreenCheckBox = new PaintedCheckBox(Index_Text.get("options.fullscreen"), GVars_Font.font_Second, Utils_Board.INK) ;
 		// ChangeListeners, not touchUp: a keyboard press has to reach them too, and touchUp
 		// also fired when the press started on the button and ended somewhere else.
 		fullScreenCheckBox.addListener(new ChangeListener()
@@ -94,7 +95,7 @@ public class Block_Resolution extends VisTable
 		
 		// Applied and saved the moment it is ticked, like the sound block, rather than waiting
 		// for Apply.
-		mipmapsCheckBox = new PaintedCheckBox("Mipmaps (plus lisse en petit)", GVars_Font.font_Second, Utils_Board.INK) ; 
+		mipmapsCheckBox = new PaintedCheckBox(Index_Text.get("options.mipmaps"), GVars_Font.font_Second, Utils_Board.INK) ; 
 		mipmapsCheckBox.setChecked(Utils_Config.current.useMipmaps);
 		mipmapsCheckBox.setName("mipmaps");
 		mipmapsCheckBox.addListener(new ChangeListener()
@@ -108,7 +109,7 @@ public class Block_Resolution extends VisTable
 			}
 		}) ; 
 		
-		apply = new TextButton("Appliquer",Utils_Board.tagButton()) ;
+		apply = new TextButton(Index_Text.get("options.apply"),Utils_Board.tagButton()) ;
 		apply.addListener(new ChangeListener()
 		{		
 			@Override

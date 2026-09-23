@@ -1,0 +1,84 @@
+# Every word the player reads, one row per line of text.
+#
+#   key    what the code and the .wa files name. Never change one without changing its callers.
+#   where  where it shows, for whoever translates it.
+#   fr     the French text. Each further column is a language, named in the header row below.
+#
+# Read by jks.index.Index_Text. Tab-separated: a tab ends a cell, so a cell cannot hold one.
+# In a cell, \n is a line break. {WAVE}...{ENDWAVE}, {COLOR=...} and the like are TextraTypist
+# markup - keep them around the translated word. A line starting with # is a comment.
+# A text missing in a language falls back to fr; a key missing altogether shows the key itself.
+#
+# Accents: a row marked [title face] is drawn in OptimusPrinceps, which has no é è à â ç and
+# no usable É (doubt d8) - write those without accents, in every language. TextTableTest checks.
+# Everything else is GeosansLight and takes accents.
+
+key	where	fr
+
+# == Start menu ============================================================
+menu.play	Start menu, button [title face: no accents, d8]	Jouer
+menu.options	Start menu, button [title face: no accents, d8]	Options
+menu.credits	Start menu, button - unaccented on purpose [title face: no accents, d8]	Credits
+menu.quit	Start menu, button [title face: no accents, d8]	Quitter
+
+# == Options ===============================================================
+options.graphics	Options, block title [title face: no accents, d8]	Graphismes
+options.resolution	Options > Graphismes, row	Résolution
+options.fps	Options > Graphismes, row	Images par seconde
+options.vsync	Options > Graphismes, checkbox	Synchro verticale
+options.fullscreen	Options > Graphismes, checkbox	Plein écran
+options.mipmaps	Options > Graphismes, checkbox	Mipmaps (plus lisse en petit)
+options.apply	Options > Graphismes, button	Appliquer
+options.sound	Options, block title [title face: no accents, d8]	Son
+options.mute	Options > Son and the pause screen, checkbox	Couper le son
+options.volume	Options > Son, slider	Volume
+options.effects	Options > Son, slider	Effets
+
+# == Credits ===============================================================
+# The names of the people are not translated and stay in Index_Credits.
+credits.title	Credits screen, heading - unaccented on purpose [title face: no accents, d8]	Credits
+credits.programming	Credits, role [title face: no accents, d8]	Programmation
+credits.art	Credits, role [title face: no accents, d8]	Art visuel
+credits.made_with	Credits, last line	Réalisé avec libGDX
+
+# == Carriage 1 ============================================================
+# Ross thinks these in the bubble while the mouse is on a piece of the key.
+wa1.hint1	Carriage 1, thought bubble on key piece 1	Je vais enfin partir d'ici! Mais ou est mon bagage ? 
+wa1.hint2	Carriage 1, thought bubble on key piece 2	Nom de non, qui à laissé trainer tous ces cubes ?
+wa1.hint3	Carriage 1, thought bubble on key piece 3	Ce pauvre petit oiseau.\n Il a l'air affamé dans sa cage dorée. Si seulement je pouvais faire quelque chose pour lui.
+wa1.cage.message1	Carriage 1, cage used with sac (choice 1) - written, not shown in the game yet	Voila qui devrait remplir son estomac ! \nMais s’il était {WAVE}libre{ENDWAVE} tout ce serait plus simple... \nnon ?
+wa1.cage.message2	Carriage 1, cage used with clefCage (choice 2) - written, not shown in the game yet	Je pourrais le rendre libre comme l’air ! Mais je ne suis pas sûr qu’il trouvera de la {WAVE}nourriture{ENDWAVE} avant de tomber dans les pommes...
+
+# == Carriage 2 ============================================================
+# Ross thinks these in the bubble while the mouse is on a piece of the key.
+wa2.hint1	Carriage 2, thought bubble on key piece 1	Je me suis toujours demandé ce qu'ils avaient écrit dans ce foutu rapport
+wa2.hint2	Carriage 2, thought bubble on key piece 2	Cette mauvaise habitude ma toujours fait cracher mes poumons, je devrais peut être m'en débarrasser
+wa2.hint3	Carriage 2, thought bubble on key piece 3	Le paternel a presque l'air gentil sur ce tableau. \nLe beau mensonge... \nIl mériterait des retouches sur sa tronche !
+
+# == Carriage 3 ============================================================
+# Ross thinks these in the bubble while the mouse is on a piece of the key.
+wa3.hint1	Carriage 3, thought bubble on key piece 1	Si les gens savait ce qui c'est passé ici. Je dois retranscrire tout ce que j'ai vu. \nJ'espère que le monde n'oublira jamais
+wa3.hint2	Carriage 3, thought bubble on key piece 2	Ma douce Diana me manques, je devrais vraiment lui envoyer un signe de vie
+wa3.hint3	Carriage 3, thought bubble on key piece 3	Le trou dans ce mur semble bien étrange. Je pourrais le fixer… ou le finir.
+
+# == Carriage 4 ============================================================
+# Ross thinks these in the bubble while the mouse is on a piece of the key.
+wa4.hint1	Carriage 4, thought bubble on key piece 1	Ca fait changement de prendre des photos de la vie plutôt que la mort
+wa4.hint2	Carriage 4, thought bubble on key piece 2	Il est tellement jolie le hochet. Il manque quelque chose par contre ...
+wa4.hint3	Carriage 4, thought bubble on key piece 3	J'ai la gorge sèche et le coeur qui s'agite. Je devrais boire quelque chose avant de partir... 
+
+# == Ending ================================================================
+# The card the story closes on (ClosureMessage), drawn in GeosansLight.
+ending.opening1	Ending card, line 1, both endings	La cage, le portrait, le mur, la bouteille :
+ending.opening2	Ending card, line 2, both endings	quatre fois l'occasion d'ouvrir.
+ending.tally.never	Ending card, line 3, karma 0	Ross ne l'a jamais prise.
+ending.tally.some	Ending card, line 3, karma 1 to 3 - {0} is the count below	Ross l'a prise {0} fois sur quatre.
+ending.tally.always	Ending card, line 3, karma 4	Ross l'a prise à chaque fois.
+ending.count.1	Ending card, the {0} of ending.tally.some (une fois)	une
+ending.count.2	Ending card, the {0} of ending.tally.some	deux
+ending.count.3	Ending card, the {0} of ending.tally.some	trois
+ending.stayed1	Ending card, line 5, he stayed	Cette fois, il a refermé la porte.
+ending.stayed2	Ending card, line 6, he stayed	Le billet de 9 h 30 est resté en morceaux par terre.
+ending.left1	Ending card, line 5, he left	Il a ouvert la porte, aussi.
+ending.left2	Ending card, line 6, he left	Le 9 h 30 est parti à l'heure, et il était dedans.
+ending.end	Ending card, under the message, larger	FIN

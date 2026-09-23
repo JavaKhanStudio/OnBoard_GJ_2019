@@ -117,9 +117,9 @@
       "keyNumb": 0
     }
   ],
-  "hint1": "Ca fait changement de prendre des photos de la vie plutôt que la mort",
-  "hint2": "Il est tellement jolie le hochet. Il manque quelque chose par contre ...",
-  "hint3": "J'ai la gorge sèche et le coeur qui s'agite. Je devrais boire quelque chose avant de partir... ",
+  "hint1": "wa4.hint1",
+  "hint2": "wa4.hint2",
+  "hint3": "wa4.hint3",
   "readyForUse": false,
   "rossAge" : "marie",
   "decalYBot": 100.0

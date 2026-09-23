@@ -136,9 +136,9 @@
       "keyNumb": 2
     }
   ],
-  "hint1": "Si les gens savait ce qui c'est passé ici. Je dois retranscrire tout ce que j'ai vu. \nJ'espère que le monde n'oublira jamais",
-  "hint2": "Ma douce Diana me manques, je devrais vraiment lui envoyer un signe de vie",
-  "hint3": "Le trou dans ce mur semble bien étrange. Je pourrais le fixer… ou le finir.",
+  "hint1": "wa3.hint1",
+  "hint2": "wa3.hint2",
+  "hint3": "wa3.hint3",
   "rossAge" : "soldier",
   "readyForUse": false
 }

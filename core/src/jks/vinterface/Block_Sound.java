@@ -11,6 +11,7 @@ import com.kotcrab.vis.ui.widget.VisLabel;
 import com.kotcrab.vis.ui.widget.VisSlider;
 import com.kotcrab.vis.ui.widget.VisTable;
 
+import jks.index.Index_Text;
 import jks.amain.Utils_Config;
 import jks.sounds.GVars_AudioManager;
 import jks.vinterface.font.GVars_Font;
@@ -46,12 +47,12 @@ public class Block_Sound extends VisTable
 		setBackground(Utils_Board.board()) ;
 		align(Align.top) ;
 
-		title = new VisLabel("Son", titleStyle) ;
+		title = new VisLabel(Index_Text.get("options.sound"), titleStyle) ;
 		title.setAlignment(Align.center) ;
 		titleCell = add(title).colspan(2).expandX().fillX() ;
 		row() ;
 
-		muted = new PaintedCheckBox("Couper le son", GVars_Font.font_Second, Utils_Board.INK) ;
+		muted = new PaintedCheckBox(Index_Text.get("options.mute"), GVars_Font.font_Second, Utils_Board.INK) ;
 		muted.setChecked(Utils_Config.current.volume <= 0f) ;
 		muted.addListener(new ChangeListener()
 		{
@@ -64,7 +65,7 @@ public class Block_Sound extends VisTable
 		mutedCell = add(muted).colspan(2).fillX() ;
 		row() ;
 
-		volumeLabel = new VisLabel("Volume", textStyle) ;
+		volumeLabel = new VisLabel(Index_Text.get("options.volume"), textStyle) ;
 		volumeCell = add(volumeLabel).left() ;
 		volume = new VisSlider(0f, 1f, 0.05f, false, Utils_Board.slider(24f)) ;
 		volume.setValue(Math.max(0f, Math.min(1f, Utils_Config.current.volume))) ;
@@ -86,7 +87,7 @@ public class Block_Sound extends VisTable
 
 		// The train sounds, on top of Volume (r39). Volume stays the master over music and effects,
 		// and the music has no slider of its own (d9). Muting still silences them with the music.
-		effectsLabel = new VisLabel("Effets", textStyle) ;
+		effectsLabel = new VisLabel(Index_Text.get("options.effects"), textStyle) ;
 		effectsCell = add(effectsLabel).left() ;
 		effects = new VisSlider(0f, 1f, 0.05f, false, Utils_Board.slider(24f)) ;
 		effects.setValue(Math.max(0f, Math.min(1f, Utils_Config.current.effectsVolume))) ;

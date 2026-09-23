@@ -1,5 +1,6 @@
 package jks.vue.models.game;
 
+import jks.index.Index_Text;
 import jks.tools.Utils_Debug;
 
 import com.badlogic.gdx.Gdx;
@@ -44,9 +45,10 @@ public class Clef extends Table
 		part2 = new VisImage(Index_Interface.manager.get(Index_Interface.key2, Texture.class)) ;	
 		part3 = new VisImage(Index_Interface.manager.get(Index_Interface.key3, Texture.class)) ;
 		
-		part1.addListener(buildListener(level.hint1)) ; 
-		part2.addListener(buildListener(level.hint2)) ; 
-		part3.addListener(buildListener(level.hint3)) ; 
+		// The .wa files name a row of i18n/textes.tsv, not the words themselves (r76).
+		part1.addListener(buildListener(Index_Text.get(level.hint1))) ; 
+		part2.addListener(buildListener(Index_Text.get(level.hint2))) ; 
+		part3.addListener(buildListener(Index_Text.get(level.hint3))) ; 
 		
 		
 		resize() ; 
