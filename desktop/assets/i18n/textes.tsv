@@ -62,6 +62,8 @@ wa1.baluchon.click	Carriage 1, baluchon.png clicked, bubble by Ross for a few se
 wa2.hint1	Carriage 2, thought bubble on key piece 1	Je me suis toujours demandé ce qu'ils avaient écrit dans ce foutu rapport
 wa2.hint2	Carriage 2, thought bubble on key piece 2	Cette mauvaise habitude ma toujours fait cracher mes poumons, je devrais peut être m'en débarrasser
 wa2.hint3	Carriage 2, thought bubble on key piece 3	Le paternel a presque l'air gentil sur ce tableau. \nLe beau mensonge... \nIl mériterait des retouches sur sa tronche !
+wa2.tableau.message1	Carriage 2, tableau used with crayon (choice 1), bubble by Ross for a few seconds	Une moustache, des cornes... Le voilà presque drôle, le paternel. \nMais il est toujours {WAVE}là{ENDWAVE}, accroché au mur, à me juger.
+wa2.tableau.message2	Carriage 2, tableau used with couteauSocle (choice 2), bubble by Ross for a few seconds	Un coup de lame, et il ne me juge plus. \nC'était son couteau, pourtant. Une toile, ça ne se {WAVE}recoud{ENDWAVE} pas...
 # Ross says these when the item is clicked (r74) - edit them in the line lab:
 #   ./gradlew :desktop:runGame -Donboard.start=line_lab
 wa2.tableau.click	Carriage 2, tableau.png clicked, bubble by Ross for a few seconds	Le paternel, en uniforme. Même en peinture, il me juge.
@@ -76,6 +78,8 @@ wa2.dossierPolice.click	Carriage 2, dossierPolice.png clicked, bubble by Ross fo
 wa3.hint1	Carriage 3, thought bubble on key piece 1	Si les gens savait ce qui c'est passé ici. Je dois retranscrire tout ce que j'ai vu. \nJ'espère que le monde n'oublira jamais
 wa3.hint2	Carriage 3, thought bubble on key piece 2	Ma douce Diana me manques, je devrais vraiment lui envoyer un signe de vie
 wa3.hint3	Carriage 3, thought bubble on key piece 3	Le trou dans ce mur semble bien étrange. Je pourrais le fixer… ou le finir.
+wa3.trou.message1	Carriage 3, trou used with porteTrou (choice 1), bubble by Ross for a few seconds	Voilà, le mur tient. Plus de courant d'air, plus rien à voir dehors. \nComme si on pouvait tout {WAVE}refermer{ENDWAVE} comme ça...
+wa3.trou.message2	Carriage 3, trou used with grenade (choice 2), bubble by Ross for a few seconds	Plus de mur du tout. Au moins, maintenant, on voit {WAVE}dehors{ENDWAVE}. \nJ'espère juste que personne n'était derrière...
 # Ross says these when the item is clicked (r74) - edit them in the line lab:
 #   ./gradlew :desktop:runGame -Donboard.start=line_lab
 wa3.trou.click	Carriage 3, trou.png clicked, bubble by Ross for a few seconds	Un trou dans le mur. Quelque chose est passé par là.
@@ -91,6 +95,8 @@ wa3.boite.click	Carriage 3, boite.png clicked, bubble by Ross for a few seconds	
 wa4.hint1	Carriage 4, thought bubble on key piece 1	Ca fait changement de prendre des photos de la vie plutôt que la mort
 wa4.hint2	Carriage 4, thought bubble on key piece 2	Il est tellement jolie le hochet. Il manque quelque chose par contre ...
 wa4.hint3	Carriage 4, thought bubble on key piece 3	J'ai la gorge sèche et le coeur qui s'agite. Je devrais boire quelque chose avant de partir... 
+wa4.verre.message1	Carriage 4, verre used with cruche (choice 1), bubble by Ross for a few seconds	De l'eau fraîche. J'ai les idées claires, et les mains qui tremblent encore. \nIl faudra bien {WAVE}rester{ENDWAVE} debout, comme ça...
+wa4.verre.message2	Carriage 4, verre used with wisky (choice 2), bubble by Ross for a few seconds	Une gorgée, et la gare me paraît déjà moins loin. \nElle a toujours eu un goût de {WAVE}départ{ENDWAVE}, cette bouteille...
 # Ross says these when the item is clicked (r74) - edit them in the line lab:
 #   ./gradlew :desktop:runGame -Donboard.start=line_lab
 wa4.cadre.click	Carriage 4, cadre.png clicked, bubble by Ross for a few seconds	Ma femme, et le bébé qui arrive. Le plus beau portrait que j'ai fait.

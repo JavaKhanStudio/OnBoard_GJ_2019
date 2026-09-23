@@ -61,8 +61,9 @@ which one is right.
 **What is not settled.** Is the man boarding in the intro Ross himself, older? He wears a
 moustache and a cap, and the young father at the end does not. Or is it the uniformed father
 of the wa2 portrait, leaving before Ross could? The art allows both. The closing card's
-wording (r60) and the item click lines (r74) were written by agents from this reading, as
-placeholders. The hints and the cage lines are the team's own.
+wording (r60), the item click lines (r74) and the use lines of the portrait, the hole and the
+glass (r83) were written by agents from this reading, as placeholders. The hints and the cage
+lines are the team's own.
 
 ---
 

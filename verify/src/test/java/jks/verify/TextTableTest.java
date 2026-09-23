@@ -76,6 +76,30 @@ class TextTableTest
 		assertTrue(missing.isEmpty(), "keys a level names that " + Index_Text.TABLE + " does not have: " + missing) ;
 	}
 
+	/**
+	 * An item with two uses is a carriage's choice, and each use has its line (r83): until then
+	 * only the cage did, and the portrait, the hole and the glass took their use in silence.
+	 */
+	@Test
+	@DisplayName("every choice item has a line for each of its two uses")
+	void choicesSpeak() throws Exception
+	{
+		ObjectMapper mapper = GVars_Serialization.prepareJson() ;
+		List<String> silent = new ArrayList<>() ;
+		for (int n = 1 ; n <= 4 ; n++)
+		{
+			WagonLevel level = mapper.readValue(new File(Assets.DIR, "game/wagon/wa" + n + ".wa"), WagonLevel.class) ;
+			for (GameItem item : level.listItems)
+			{
+				if (item.name_Interaction_2 == null)
+					continue ;
+				if (item.message_Crucial_1 == null) silent.add("wa" + n + " " + item.name + " with " + item.name_Interaction_1) ;
+				if (item.message_Crucial_2 == null) silent.add("wa" + n + " " + item.name + " with " + item.name_Interaction_2) ;
+			}
+		}
+		assertTrue(silent.isEmpty(), "uses of a choice item that say nothing: " + silent) ;
+	}
+
 	@Test
 	@DisplayName("every key the code asks for is a row of the table")
 	void codeKeysExist() throws Exception
