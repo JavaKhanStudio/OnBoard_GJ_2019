@@ -81,9 +81,24 @@ class LevelDataTest
 		Set<String> expected = new TreeSet<>(), actual = new TreeSet<>();
 		onDisk.fieldNames().forEachRemaining(expected::add);
 		// Data fields GameItem gained after the four files were last saved.
-		expected.addAll(List.of("message_Crucial_1", "message_Crucial_2"));
+		expected.addAll(List.of("message_Crucial_1", "message_Crucial_2", "path_Inventaire"));
 		resaved.fieldNames().forEachRemaining(actual::add);
 		assertEquals(expected, actual, "wa" + n + ": a re-saved item would not have the fields the file has");
+	}
+
+	@Test
+	@DisplayName("the knife's inventory image survives an editor re-save")
+	void inventoryImageRoundTrips() throws Exception
+	{
+		// path_Inventaire (r86) is what the bar shows for the knife; the editor has no widget for
+		// it, so a save must at least carry it through. The editor writes with a plain mapper.
+		ObjectMapper editor = new ObjectMapper();
+		WagonLevel resaved = GVars_Serialization.prepareJson()
+			.readValue(editor.writeValueAsString(load(2)), WagonLevel.class);
+		GameItem knife = resaved.listItems.stream()
+			.filter(item -> "couteauSocle.png".equals(item.name)).findFirst().orElseThrow();
+		assertEquals("couteau.png", knife.path_Inventaire, "an editor re-save of wa2 lost the knife's inventory image");
+		assertEquals("couteauSocle_1.png", knife.path_EtatApres_1, "an editor re-save of wa2 lost the empty mount");
 	}
 
 	@ParameterizedTest(name = "level wa{0} keeps a stable item count")
@@ -134,6 +149,8 @@ class LevelDataTest
 				check(base + item.path_EtatApres_1, "wa" + n + " item " + item.name + " [state 1]", problems);
 			if (notBlank(item.path_EtatApres_2))
 				check(base + item.path_EtatApres_2, "wa" + n + " item " + item.name + " [state 2]", problems);
+			if (notBlank(item.path_Inventaire))
+				check(base + item.path_Inventaire, "wa" + n + " item " + item.name + " [inventory]", problems);
 		}
 
 		if (!problems.isEmpty())

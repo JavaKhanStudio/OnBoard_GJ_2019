@@ -59,6 +59,9 @@ the words are rows of desktop/assets/i18n/textes.tsv, fetched with Index_Text.ge
 An item's CLICK LINE has no .wa field: its key is GameItem.clickKey(carriage, name), e.g.
 "wa2.clope.click" (r74). Renaming an item's png renames its key; TextTableTest catches it.
 Every item's lines are listed and edited in the line lab (-Donboard.start=line_lab).
+A PICKABLE item's path_EtatApres_1 is what it leaves in the carriage once taken (the knife's
+empty mount, r86), and path_Inventaire is what the bar shows for it; both null means it
+vanishes whole and the bar shows path_EtatDebut. Its name stays what interactions match on.
 READ LEVELS THROUGH THE CLASSPATH, never FileHandle.file(): that resolves against the
 process working directory and cannot see inside the shipped jar. It is what blocked
 packaging for years.

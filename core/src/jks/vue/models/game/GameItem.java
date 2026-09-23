@@ -16,6 +16,11 @@ public class GameItem
 	public String path_EtatDebut ; 
 	public String path_EtatApres_1 ; 
 	public String path_EtatApres_2 ; 
+	/**
+	 * What the inventory bar shows once it is taken, when that is not the item as it stands in
+	 * the carriage (r86): the bare knife, not the knife on its mount. Null: path_EtatDebut.
+	 */
+	public String path_Inventaire ; 
 	
 	public String name ; 
 	public String description ;
@@ -73,6 +78,37 @@ public class GameItem
 			Index_Interface.loadTexture(relativePath + path_EtatApres_1);
 		if(path_EtatApres_2 != null && !"".equals(path_EtatApres_2))
 			Index_Interface.loadTexture(relativePath + path_EtatApres_2);
+		if(path_Inventaire != null && !"".equals(path_Inventaire))
+			Index_Interface.loadTexture(relativePath + path_Inventaire);
+	}
+	
+	/** The picture the inventory bar carries: path_Inventaire, or the item as it was found (r86). */
+	@JsonIgnore
+	public Texture inventoryTexture()
+	{
+		if(path_Inventaire != null && !"".equals(path_Inventaire))
+			return Index_Interface.manager.get(relativePath + path_Inventaire, Texture.class) ; 
+		return Index_Interface.manager.get(relativePath + path_EtatDebut, Texture.class) ; 
+	}
+	
+	/**
+	 * A pickable item with an after-texture leaves it behind when taken (r86): the knife goes,
+	 * its empty mount stays on the wall. It is only drawn - not hovered, not clickable again.
+	 * No pickable item had an after-texture before, so none that vanished whole now changes.
+	 */
+	@JsonIgnore
+	public boolean leavesSomethingBehind()
+	{
+		return pickable && path_EtatApres_1 != null && !"".equals(path_EtatApres_1) ; 
+	}
+	
+	/** Taken into the inventory: gone from the carriage, or left as its after-texture (r86). */
+	void take()
+	{
+		picked = true ; 
+		hovered = false ; 
+		if(leavesSomethingBehind() && objectTexture != null)
+			objectTexture = Index_Interface.manager.get(relativePath + path_EtatApres_1, Texture.class) ; 
 	}
 	
 	public void setGameReady()
@@ -115,13 +151,14 @@ public class GameItem
 	
 	public void draw(Batch batch)
 	{	
-		if(objectTexture == null || picked)
+		if(objectTexture == null || (picked && !leavesSomethingBehind()))
 			return ;
 		
 		batch.draw(objectTexture, posX, posY, objectTexture.getWidth(), objectTexture.getHeight());
 		
-		// A line around it, not over it (d10): see ItemOutline.
-		if(hovered || ItemOutline.lightAll)
+		// A line around it, not over it (d10): see ItemOutline. What a taken item left is not
+		// something to click, so it is never outlined.
+		if(!picked && (hovered || ItemOutline.lightAll))
 			ItemOutline.draw(batch, objectTexture, posX, posY, outline);
 	}
 	
@@ -145,7 +182,10 @@ public class GameItem
 		return hovered ; 
 	}
 	
-	/** Taken, so it is not drawn and not clickable. Put back by {@link #resetToStart()} (r60). */
+	/**
+	 * Taken, so it is not clickable, and not drawn unless it leaves something behind (r86). Put
+	 * back by {@link #resetToStart()} (r60).
+	 */
 	@JsonIgnore
 	public boolean isPicked()
 	{

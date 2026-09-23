@@ -44,6 +44,7 @@
       "path_EtatDebut": "couteauSocle.png",
       "path_EtatApres_1": "couteauSocle_1.png",
       "path_EtatApres_2": null,
+      "path_Inventaire": "couteau.png",
       "name": "couteauSocle.png",
       "description": null,
       "path": "wa2",

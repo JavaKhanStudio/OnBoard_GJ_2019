@@ -127,7 +127,7 @@ public class GVars_Game
 	
 	public static void pickItem(GameItem gameItem)
 	{
-		TextureRegionDrawable drawable = Utils_TexturesAcess.buildDrawingRegionTexture(gameItem.objectTexture) ; 
+		TextureRegionDrawable drawable = Utils_TexturesAcess.buildDrawingRegionTexture(gameItem.inventoryTexture()) ; 
 		VisImageButton selectable = new VisImageButton(drawable) ; 
 		// VisUI's blue focus line stayed on the last button clicked, in hand or not (r84).
 		selectable.setFocusBorderEnabled(false) ; 
@@ -149,7 +149,7 @@ public class GVars_Game
 		// So the bar can find it again when the item is used up (r77).
 		selectable.setUserObject(gameItem) ; 
 		playerInventory.add(gameItem) ; 
-		gameItem.picked = true ; 
+		gameItem.take() ; 
 		
 		// The bar sizes and centres it, and every item already in the row moves over (r59).
 		inventory.carry(selectable);
