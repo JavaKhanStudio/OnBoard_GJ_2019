@@ -53,7 +53,7 @@ class TextTableTest
 	}
 
 	@Test
-	@DisplayName("every hint and message a level names is a row of the table")
+	@DisplayName("every hint and message a level names, and every item's click line, is a row of the table")
 	void levelKeysExist() throws Exception
 	{
 		ObjectMapper mapper = GVars_Serialization.prepareJson() ;
@@ -66,6 +66,8 @@ class TextTableTest
 			{
 				if (item.message_Crucial_1 != null) keys.add(item.message_Crucial_1) ;
 				if (item.message_Crucial_2 != null) keys.add(item.message_Crucial_2) ;
+				// What Ross says when it is clicked (r74): silence, not the key, when missing.
+				keys.add(GameItem.clickKey(n, item.name)) ;
 			}
 			for (String key : keys)
 				if (!Index_Text.has(key))
@@ -137,5 +139,45 @@ class TextTableTest
 	void missingKeyShowsItself()
 	{
 		assertEquals("no.such.key", Index_Text.get("no.such.key")) ;
+	}
+
+	@Test
+	@DisplayName("the line lab's write changes one cell and leaves every other line of the file alone")
+	void writeChangesOneCell() throws Exception
+	{
+		Path copy = Files.createTempFile("textes", ".tsv") ;
+		try
+		{
+			Files.copy(TABLE.toPath(), copy, java.nio.file.StandardCopyOption.REPLACE_EXISTING) ;
+			List<String> before = Files.readAllLines(copy, StandardCharsets.UTF_8) ;
+			String original = Index_Text.get("wa2.clope.click") ;
+
+			String edited = "Deux lignes,\nune barre \\ et « des guillemets »" ;
+			Index_Text.write(copy.toFile(), "wa2.clope.click", "fr", edited) ;
+			assertEquals(edited, Index_Text.get("wa2.clope.click"), "the game does not hand back the new text") ;
+
+			List<String> after = Files.readAllLines(copy, StandardCharsets.UTF_8) ;
+			assertEquals(before.size(), after.size(), "the write added or dropped lines") ;
+			List<String> changed = new ArrayList<>() ;
+			for (int i = 0 ; i < before.size() ; i++)
+				if (!before.get(i).equals(after.get(i)))
+					changed.add(after.get(i)) ;
+			assertEquals(1, changed.size(), "more than one line changed: " + changed) ;
+			assertTrue(changed.get(0).startsWith("wa2.clope.click\t"), "the wrong line changed: " + changed) ;
+			assertTrue(changed.get(0).endsWith("\tDeux lignes,\\nune barre \\\\ et « des guillemets »"),
+				"the cell is not escaped as the table writes it: " + changed.get(0)) ;
+
+			// What a fresh read of that file gives back is what was written.
+			Index_Text.reloadFrom(copy.toFile()) ;
+			assertEquals(edited, Index_Text.get("wa2.clope.click"), "the escaped cell does not read back") ;
+
+			Index_Text.write(copy.toFile(), "wa2.clope.click", "fr", original) ;
+			assertEquals(before, Files.readAllLines(copy, StandardCharsets.UTF_8), "writing the original back did not restore the file") ;
+		}
+		finally
+		{
+			Files.deleteIfExists(copy) ;
+			Index_Text.reloadFrom(TABLE) ;
+		}
 	}
 }

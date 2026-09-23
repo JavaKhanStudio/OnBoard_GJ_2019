@@ -48,6 +48,9 @@ public class GameItem
 	/** Which line it is outlined with: what it gives (r71). Set by WagonLevel.init. */
 	@JsonIgnore
 	ItemOutline.Kind outline = ItemOutline.Kind.NEUTRAL ; 
+	/** Something has been used on it: its click line no longer describes it (r74). */
+	@JsonIgnore
+	boolean used ; 
 	
 	public GameItem() 
 	{}
@@ -104,6 +107,7 @@ public class GameItem
 	{
 		picked = false ; 
 		hovered = false ; 
+		used = false ; 
 		
 		if(objectTexture != null)
 			setGameReady() ; 
@@ -148,6 +152,17 @@ public class GameItem
 		return picked ; 
 	}
 	
+	/**
+	 * The text-table key of what Ross says when the item is clicked (r74): "wa2.clope.click"
+	 * for clope.png in carriage 2. Named by the item, not stored in the .wa, so every item has
+	 * one without the editor having to learn a field. Vue_LineLab lists and edits them.
+	 */
+	public static String clickKey(int carriage, String itemName)
+	{
+		String stem = itemName.endsWith(".png") ? itemName.substring(0, itemName.length() - 4) : itemName ; 
+		return "wa" + carriage + "." + stem + ".click" ; 
+	}
+	
 	public void tryTouch(Vector3 touchPos, GameItem touchingWith, boolean inTest)
 	{
 		if(picked)
@@ -161,12 +176,16 @@ public class GameItem
 			{
 				if(!inTest)
 				{
+					// Said first, so a key piece this gives thinks of the next step after it (r73).
+					GVars_Game.sayClickLine(this) ; 
 					GVars_Game.pickItem(this);
 				}
 					
 			}	
 			else if(touchingWith == null)
 			{
+				if(!inTest && !used)
+					GVars_Game.sayClickLine(this) ; 
 				return ; 
 			}
 			else if(name_Interaction_1 != null && name_Interaction_1.equals(touchingWith.name))
@@ -176,6 +195,7 @@ public class GameItem
 				else
 				{
 					objectTexture = Index_Interface.manager.get(relativePath + path_EtatApres_1, Texture.class);
+					used = true ; 
 					// Said first, so a key piece this gives thinks of the next step after it (r73).
 					GVars_Game.sayItemMessage(message_Crucial_1) ; 
 					GVars_Game.applyItem(this, touchingWith.name,1) ; 
@@ -188,9 +208,15 @@ public class GameItem
 				else
 				{
 					objectTexture = Index_Interface.manager.get(relativePath + path_EtatApres_2, Texture.class);
+					used = true ; 
 					GVars_Game.sayItemMessage(message_Crucial_2) ; 
 					GVars_Game.applyItem(this, touchingWith.name,2) ;  
 				}
+			}
+			else if(!inTest && !used)
+			{
+				// Held something it does nothing with: he still says what it is.
+				GVars_Game.sayClickLine(this) ; 
 			}
 		}
 	}

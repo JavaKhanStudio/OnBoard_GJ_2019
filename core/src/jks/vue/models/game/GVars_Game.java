@@ -91,6 +91,17 @@ public class GVars_Game
 	}
 	
 	/**
+	 * What Ross says when an item is clicked (r74): the row GameItem.clickKey names. An item
+	 * the table has no row for says nothing - TextTableTest makes sure none is missing.
+	 */
+	public static void sayClickLine(GameItem item)
+	{
+		String key = GameItem.clickKey(currentLevelInt, item.name) ; 
+		if(Index_Text.has(key))
+			sayItemMessage(key) ; 
+	}
+	
+	/**
 	 * What Ross has on his mind at each step of a carriage (r73): as it opens, and each time a
 	 * piece of the key comes, he thinks the hint of the first piece he still lacks - his state
 	 * of mind and, between the lines, what he needs to find. The same line the piece shows

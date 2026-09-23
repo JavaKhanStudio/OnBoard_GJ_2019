@@ -48,24 +48,57 @@ wa1.hint2	Carriage 1, thought bubble on key piece 2	Nom de non, qui à laissé t
 wa1.hint3	Carriage 1, thought bubble on key piece 3	Ce pauvre petit oiseau.\n Il a l'air affamé dans sa cage dorée. Si seulement je pouvais faire quelque chose pour lui.
 wa1.cage.message1	Carriage 1, cage used with sac (choice 1), bubble by Ross for a few seconds	Voila qui devrait remplir son estomac ! \nMais s’il était {WAVE}libre{ENDWAVE} tout ce serait plus simple... \nnon ?
 wa1.cage.message2	Carriage 1, cage used with clefCage (choice 2), bubble by Ross for a few seconds	Je pourrais le rendre libre comme l’air ! Mais je ne suis pas sûr qu’il trouvera de la {WAVE}nourriture{ENDWAVE} avant de tomber dans les pommes...
+# Ross says these when the item is clicked (r74) - edit them in the line lab:
+#   ./gradlew :desktop:runGame -Donboard.start=line_lab
+wa1.cubeM.click	Carriage 1, cubeM.png clicked, bubble by Ross for a few seconds	Il manque un cube ici. Le creux a juste la bonne forme.
+wa1.cage.click	Carriage 1, cage.png clicked, bubble by Ross for a few seconds	Un petit oiseau tout bleu. Il me regarde comme s'il avait faim.
+wa1.clefCage.click	Carriage 1, clefCage.png clicked, bubble by Ross for a few seconds	Une toute petite clé. Elle n'ouvre sûrement pas une porte...
+wa1.sac.click	Carriage 1, sac.png clicked, bubble by Ross for a few seconds	Des graines ! Pas pour moi, mais quelqu'un en voudra peut-être.
+wa1.cube.click	Carriage 1, cube.png clicked, bubble by Ross for a few seconds	Un cube avec un zéro dessus. Il doit bien aller quelque part.
+wa1.baluchon.click	Carriage 1, baluchon.png clicked, bubble by Ross for a few seconds	Mon baluchon ! Tout ce que j'ai tient là-dedans.
 
 # == Carriage 2 ============================================================
 # Ross thinks these in the bubble while the mouse is on a piece of the key.
 wa2.hint1	Carriage 2, thought bubble on key piece 1	Je me suis toujours demandé ce qu'ils avaient écrit dans ce foutu rapport
 wa2.hint2	Carriage 2, thought bubble on key piece 2	Cette mauvaise habitude ma toujours fait cracher mes poumons, je devrais peut être m'en débarrasser
 wa2.hint3	Carriage 2, thought bubble on key piece 3	Le paternel a presque l'air gentil sur ce tableau. \nLe beau mensonge... \nIl mériterait des retouches sur sa tronche !
+# Ross says these when the item is clicked (r74) - edit them in the line lab:
+#   ./gradlew :desktop:runGame -Donboard.start=line_lab
+wa2.tableau.click	Carriage 2, tableau.png clicked, bubble by Ross for a few seconds	Le paternel, en uniforme. Même en peinture, il me juge.
+wa2.clope.click	Carriage 2, clope.png clicked, bubble by Ross for a few seconds	Mes clopes. Une dernière, pour la route ?
+wa2.couteauSocle.click	Carriage 2, couteauSocle.png clicked, bubble by Ross for a few seconds	Le couteau de collection du vieux. « Pas touche », qu'il disait.
+wa2.crayon.click	Carriage 2, crayon.png clicked, bubble by Ross for a few seconds	Des crayons de couleur. De quoi égayer n'importe quelle tronche.
+wa2.poubelle.click	Carriage 2, poubelle.png clicked, bubble by Ross for a few seconds	Une poubelle. C'est là que finissent les mauvaises habitudes.
+wa2.dossierPolice.click	Carriage 2, dossierPolice.png clicked, bubble by Ross for a few seconds	Mon dossier de police. Ils ont écrit un roman sur moi, on dirait.
 
 # == Carriage 3 ============================================================
 # Ross thinks these in the bubble while the mouse is on a piece of the key.
 wa3.hint1	Carriage 3, thought bubble on key piece 1	Si les gens savait ce qui c'est passé ici. Je dois retranscrire tout ce que j'ai vu. \nJ'espère que le monde n'oublira jamais
 wa3.hint2	Carriage 3, thought bubble on key piece 2	Ma douce Diana me manques, je devrais vraiment lui envoyer un signe de vie
 wa3.hint3	Carriage 3, thought bubble on key piece 3	Le trou dans ce mur semble bien étrange. Je pourrais le fixer… ou le finir.
+# Ross says these when the item is clicked (r74) - edit them in the line lab:
+#   ./gradlew :desktop:runGame -Donboard.start=line_lab
+wa3.trou.click	Carriage 3, trou.png clicked, bubble by Ross for a few seconds	Un trou dans le mur. Quelque chose est passé par là.
+wa3.porteTrou.click	Carriage 3, porteTrou.png clicked, bubble by Ross for a few seconds	Un morceau de mur. Il a à peu près la forme du trou.
+wa3.grenade.click	Carriage 3, grenade.png clicked, bubble by Ross for a few seconds	Une grenade. Mieux vaut la tenir loin de moi.
+wa3.lettreAmour.click	Carriage 3, lettreAmour.png clicked, bubble by Ross for a few seconds	Une lettre pour Diana. Je ne l'ai jamais envoyée.
+wa3.appareil.click	Carriage 3, appareil.png clicked, bubble by Ross for a few seconds	Mon appareil photo. Il a vu plus de choses que moi.
+wa3.chapeau.click	Carriage 3, chapeau.png clicked, bubble by Ross for a few seconds	Mon vieux chapeau. Il a connu des jours meilleurs.
+wa3.boite.click	Carriage 3, boite.png clicked, bubble by Ross for a few seconds	Une boîte aux lettres. Il paraît que le courrier passe encore.
 
 # == Carriage 4 ============================================================
 # Ross thinks these in the bubble while the mouse is on a piece of the key.
 wa4.hint1	Carriage 4, thought bubble on key piece 1	Ca fait changement de prendre des photos de la vie plutôt que la mort
 wa4.hint2	Carriage 4, thought bubble on key piece 2	Il est tellement jolie le hochet. Il manque quelque chose par contre ...
 wa4.hint3	Carriage 4, thought bubble on key piece 3	J'ai la gorge sèche et le coeur qui s'agite. Je devrais boire quelque chose avant de partir... 
+# Ross says these when the item is clicked (r74) - edit them in the line lab:
+#   ./gradlew :desktop:runGame -Donboard.start=line_lab
+wa4.cadre.click	Carriage 4, cadre.png clicked, bubble by Ross for a few seconds	Ma femme, et le bébé qui arrive. Le plus beau portrait que j'ai fait.
+wa4.cruche.click	Carriage 4, cruche.png clicked, bubble by Ross for a few seconds	Une cruche d'eau fraîche. Rien de plus simple.
+wa4.hochet.click	Carriage 4, hochet.png clicked, bubble by Ross for a few seconds	Le hochet du petit. Il a l'air un peu nu.
+wa4.verre.click	Carriage 4, verre.png clicked, bubble by Ross for a few seconds	Un verre vide. Il attend que je décide quoi y verser.
+wa4.wisky.click	Carriage 4, wisky.png clicked, bubble by Ross for a few seconds	Une bouteille de whisky. Une vieille amie... de trop.
+wa4.papier.click	Carriage 4, papier.png clicked, bubble by Ross for a few seconds	Du papier cadeau et un ruban. De quoi emballer quelque chose de joli.
 
 # == Ending ================================================================
 # The card the story closes on (ClosureMessage), drawn in GeosansLight.

@@ -17,7 +17,7 @@ NEVER comment out an entry point to skip ahead — that is how a working intro s
 out of a build mid-story. Use the property:
   ./gradlew :desktop:runGame                        the whole thing
   ./gradlew :desktop:runGame -Donboard.start=game   straight to level 1
-  (logo | intro | start_screen | game | outro | sound_lab | item_lab | credits — the whole of
+  (logo | intro | start_screen | game | outro | sound_lab | item_lab | line_lab | credits — the whole of
    Main_Application.StartPoint; an unknown value warns and falls back to LOGO)
   ./gradlew :desktop:runGame -Donboard.start=game -Donboard.level=3   into carriage 3
   (1-4; anything else warns and starts in 1. The lab has one surface per carriage.
@@ -56,6 +56,9 @@ karma decides the ending (Vue_Scenematic_Outro). Clef.java is the three-piece ke
 hints are WagonLevel.hint1/2/3 and surface through GVars_Game.dialogBubble on hover.
 A .wa text field (hint1/2/3, message_Crucial_1/2) holds a KEY like "wa2.hint3", not words:
 the words are rows of desktop/assets/i18n/textes.tsv, fetched with Index_Text.get (r76).
+An item's CLICK LINE has no .wa field: its key is GameItem.clickKey(carriage, name), e.g.
+"wa2.clope.click" (r74). Renaming an item's png renames its key; TextTableTest catches it.
+Every item's lines are listed and edited in the line lab (-Donboard.start=line_lab).
 READ LEVELS THROUGH THE CLASSPATH, never FileHandle.file(): that resolves against the
 process working directory and cannot see inside the shipped jar. It is what blocked
 packaging for years.

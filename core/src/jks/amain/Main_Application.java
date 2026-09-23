@@ -22,6 +22,7 @@ import jks.vue.GVars_Fade;
 import jks.vue.models.Vue_Preloading;
 import jks.vue.models.Vue_Scenematic_Intro;
 import jks.vue.models.Vue_Scenematic_Outro;
+import jks.vue.models.Vue_LineLab;
 import jks.vue.models.Vue_SoundLab;
 import jks.vue.models.Vue_StartScreen;
 import jks.vue.models.game.GVars_Game;
@@ -46,7 +47,8 @@ public class Main_Application extends ApplicationAdapter
 	 * SOUND_LAB is not part of the game - nothing leads there. It is a development screen
 	 * listing every track and sound effect the game names; see Vue_SoundLab. ITEM_LAB is the
 	 * same kind of screen for how a hovered item lights: GAME, with ItemOutlineLab's sliders
-	 * over it (d10). -Donboard.level picks its carriage.
+	 * over it (d10). -Donboard.level picks its carriage. LINE_LAB lists every item with what
+	 * Ross says about it, and writes an edited line into the text table; see Vue_LineLab (r74).
 	 *
 	 * CREDITS is the start screen with the credits already open, exactly as its Credits
 	 * button leaves it, so Retour lands on the menu. It is there so the credits can be looked
@@ -54,7 +56,7 @@ public class Main_Application extends ApplicationAdapter
 	 */
 	public enum StartPoint
 	{
-		LOGO, INTRO, START_SCREEN, GAME, OUTRO, SOUND_LAB, ITEM_LAB, CREDITS
+		LOGO, INTRO, START_SCREEN, GAME, OUTRO, SOUND_LAB, ITEM_LAB, LINE_LAB, CREDITS
 	}
 	
 	public static StartPoint startPoint = fromSystemProperty() ; 
@@ -159,6 +161,7 @@ public class Main_Application extends ApplicationAdapter
 			case OUTRO:        startAtOutro() ;       break ;
 			case SOUND_LAB:    GVars_Heart.changeVue(new Vue_SoundLab(),true) ; break ;
 			case ITEM_LAB:     startAtGame() ; ItemOutlineLab.open() ; KarmaSlider.open() ; break ;
+			case LINE_LAB:     GVars_Heart.changeVue(new Vue_LineLab(),true) ; break ;
 			case CREDITS:      GVars_Heart.changeVue(new Vue_StartScreen(true),true) ; break ;
 		}
 	}
