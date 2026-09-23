@@ -129,6 +129,8 @@ public class GVars_Game
 	{
 		TextureRegionDrawable drawable = Utils_TexturesAcess.buildDrawingRegionTexture(gameItem.objectTexture) ; 
 		VisImageButton selectable = new VisImageButton(drawable) ; 
+		// VisUI's blue focus line stayed on the last button clicked, in hand or not (r84).
+		selectable.setFocusBorderEnabled(false) ; 
 		selectable.addListener(new InputListener()
 		{		
 			@Override
@@ -138,10 +140,9 @@ public class GVars_Game
 			@Override
 			public void touchUp(InputEvent event, float x, float y, int pointer, int button)
 			{
-				selectedItem = gameItem ;
-				selectable.setChecked(true);
-				selectable.toggle();
-//				selectable.setColor(Color.WHITE);
+				// Taken in hand, or put back if it already was. The bar marks it (r84): the
+				// button's own checked state is not used, the stock skin has no look for it.
+				selectedItem = selectedItem == gameItem ? null : gameItem ;
 			}
 		}) ; 	
 		

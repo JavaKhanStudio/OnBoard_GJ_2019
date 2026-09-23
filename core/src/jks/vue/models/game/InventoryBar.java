@@ -1,6 +1,10 @@
 package jks.vue.models.game;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.Pixmap;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Group;
 
@@ -22,6 +26,16 @@ public class InventoryBar extends Group
 	/** The space between two items, as a fraction of one item. */
 	private static final float GAP_OF_ITEM = 0.2f ;
 
+	/**
+	 * The item in hand sits on a pale square with a white edge (r84), a little larger than the
+	 * item, so the player sees what a click in the carriage will use. Nothing else is marked.
+	 */
+	private static final float MARK_OF_ITEM = 0.12f ;
+	private static final Color MARK_FILL = new Color(1f, 1f, 1f, 0.22f) ;
+	private static final Color MARK_EDGE = new Color(1f, 1f, 1f, 0.9f) ;
+	private static final float MARK_EDGE_PX = 2f ;
+	private static Texture white ;
+
 	/** Adds one item to the row and re-centres what is now in it. */
 	public void carry(Actor item)
 	{
@@ -39,6 +53,54 @@ public class InventoryBar extends Group
 				place() ;
 				return ;
 			}
+	}
+
+	/**
+	 * The carried item that is in hand, or null. Read from GVars_Game.selectedItem every time,
+	 * so whatever clears the selection - a second click, a use (r77), a new carriage - clears
+	 * the mark with it.
+	 */
+	public Actor held()
+	{
+		if(GVars_Game.selectedItem == null)
+			return null ;
+		for(Actor carried : getChildren())
+			if(carried.getUserObject() == GVars_Game.selectedItem)
+				return carried ;
+		return null ;
+	}
+
+	@Override
+	public void draw(Batch batch, float parentAlpha)
+	{
+		Actor held = held() ;
+		if(held != null)
+		{
+			if(white == null)
+			{
+				Pixmap pixel = new Pixmap(1, 1, Pixmap.Format.RGBA8888) ;
+				pixel.setColor(Color.WHITE) ;
+				pixel.fill() ;
+				white = new Texture(pixel) ;
+				pixel.dispose() ;
+			}
+
+			float out = held.getWidth() * MARK_OF_ITEM ;
+			float x = getX() + held.getX() - out, y = getY() + held.getY() - out ;
+			float w = held.getWidth() + 2 * out, h = held.getHeight() + 2 * out, e = MARK_EDGE_PX ;
+			Color was = batch.getColor().cpy() ;
+
+			batch.setColor(MARK_FILL.r, MARK_FILL.g, MARK_FILL.b, MARK_FILL.a * parentAlpha) ;
+			batch.draw(white, x, y, w, h) ;
+			batch.setColor(MARK_EDGE.r, MARK_EDGE.g, MARK_EDGE.b, MARK_EDGE.a * parentAlpha) ;
+			batch.draw(white, x, y, w, e) ;
+			batch.draw(white, x, y + h - e, w, e) ;
+			batch.draw(white, x, y, e, h) ;
+			batch.draw(white, x + w - e, y, e, h) ;
+			batch.setColor(was) ;
+		}
+
+		super.draw(batch, parentAlpha) ;
 	}
 
 	/** Drops the lot: nothing is carried from one carriage into the next. */
