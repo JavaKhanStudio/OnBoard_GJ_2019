@@ -78,6 +78,10 @@ public class StartScreen_SmoothSideSelect extends Table implements ReplayAction,
 				// The menu fades out and the first carriage fades in (r44).
 				GVars_Fade.through(() ->
 				{
+					// A new game from its first page, whatever the last one left: the carriage
+					// count, karma, and items taken from the cached carriages (r110). The ending
+					// resets too (r60); this covers any other way back to the menu.
+					GVars_Game.resetForNewRun() ; 
 					// Was building two Vue_Game instances and discarding the first.
 					Vue_Game myGame = new Vue_Game() ; 
 					GVars_Heart.changeVue(myGame,true) ; 
