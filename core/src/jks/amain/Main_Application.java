@@ -229,6 +229,7 @@ public class Main_Application extends ApplicationAdapter
     		
     		GVars_Fade.update(delta) ;
     		GVars_Fade.draw() ;
+    		GVars_AudioManager.update(delta) ;
     		GVars_Steam.update(delta) ;
     		GVars_Steam.draw() ;
     	}

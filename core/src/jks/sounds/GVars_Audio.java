@@ -11,8 +11,12 @@ public class GVars_Audio
 	public static float musiqueVolume = 1 ; 
 	/** The effects slider, on top of masterVolume. Until r39 there were no effects for it to reach. */
 	public static float effectVolume = 1 ; 
-	/** Which music plays under the carriages (r94): the sound lab and the Carriage labs switch it. Not saved. */
-	public static Enum_Music.CarriageVariant carriageVariant = Enum_Music.CarriageVariant.MAIN ; 
+	/**
+	 * Which music plays under the carriages: the main song aged for each one, as Simon chose from
+	 * the r94 comparison (r97). The sound lab and the Carriage labs switch it. Not saved.
+	 */
+	public static final Enum_Music.CarriageVariant SHIPPED_CARRIAGE_VARIANT = Enum_Music.CarriageVariant.MODULATED ; 
+	public static Enum_Music.CarriageVariant carriageVariant = SHIPPED_CARRIAGE_VARIANT ; 
 	
 	/** The candidate each moment plays, chosen in the sound lab. Every slot has one from the start. */
 	private static final EnumMap<Enum_Effect_Sound.Slot, Enum_Effect_Sound> choices = new EnumMap<>(Enum_Effect_Sound.Slot.class) ; 

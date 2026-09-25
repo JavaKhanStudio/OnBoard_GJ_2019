@@ -29,12 +29,12 @@ public enum Enum_Music
 	}
 
 	/**
-	 * What plays under the carriages - the choice the r94 lab compares. Not saved, and MAIN until
-	 * one of the labs changes it, so the game is what it always was.
+	 * What plays under the carriages - the choice the r94 lab compares. Not saved: the game plays
+	 * GVars_Audio.SHIPPED_CARRIAGE_VARIANT, MODULATED since r97, until a lab changes it.
 	 *
-	 *   MAIN       musics/intro.mp3 in every carriage, as shipped
+	 *   MAIN       musics/intro.mp3 in every carriage, as before r97
 	 *   MODULATED  the same song aged once per carriage, musics/wagons/wa<n>_modulated.ogg, made by
-	 *              tools/make_wagon_music.py
+	 *              tools/make_wagon_music.py. What ships.
 	 *   IDEAL      a track composed for the carriage, musics/wagons/wa<n>_ideal.(ogg|mp3|wav),
 	 *              generated outside from musics/PROMPTS.md. Until one is dropped there, the
 	 *              carriage falls back to MAIN.

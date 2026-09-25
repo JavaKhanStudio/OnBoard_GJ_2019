@@ -122,24 +122,91 @@ public class GVars_AudioManager
 		if(currentlyRunningMusic != null && currentlyRunningTempo > 0f && nextTempo > 0f)
 			songPosition = currentlyRunningMusic.getPosition() * currentlyRunningTempo ;
 		
-		StopAndDisposeMusic() ;
-		
 		if(requestedTrack == null || GVars_Audio.muted || musicVolume() <= 0f)
+		{
+			StopAndDisposeMusic() ;
 			return ;
+		}
 		
 		if(GVars_Debug.soundDebug)
 			Utils_Debug.log("Playing music : " + requestedTrack);
+		
+		// What was playing fades out under the new track rather than being cut (r97).
+		// A crossfade still running when the next one starts drops its outgoing track.
+		boolean crossfade = currentlyRunningMusic != null ;
+		float outgoingGain = crossfade ? incomingGain() : 0f ;
+		disposeOutgoing() ;
+		if(crossfade)
+		{
+			currentlyRunningMusicSecondary = currentlyRunningMusic ;
+			outgoingStartGain = outgoingGain ;
+		}
+		crossfadeProgress = crossfade ? 0f : 1f ;
 		
 		currentlyRunningFile = fileFor(requestedTrack) ;
 		currentlyRunningMusic = Gdx.audio.newMusic(currentlyRunningFile) ;
 		// Looping, because the game outlasts the recording. It used to play once and leave
 		// the rest of the session in silence.
 		currentlyRunningMusic.setLooping(true) ;
-		currentlyRunningMusic.setVolume(musicVolume()) ;
+		applyCrossfadeVolumes() ;
 		currentlyRunningMusic.play() ;
 		currentlyRunningTempo = nextTempo ;
 		if(songPosition > 0f)
 			currentlyRunningMusic.setPosition(songPosition / nextTempo) ;
+	}
+
+	// --- Crossfade (r97) ----------------------------------------------------------------------
+	//
+	// A carriage change used to stop one Music and start the next: a hard cut in the middle of
+	// the fade to black. Now the outgoing track is kept in currentlyRunningMusicSecondary and
+	// the two cross over CROSSFADE_SECONDS, equal power, so the level does not dip halfway.
+	// The change comes at black (GVars_Fade), so the crossing plays under the fade-in.
+
+	public static final float CROSSFADE_SECONDS = 1f ;
+
+	/** 0 when a crossfade begins, 1 once the new track is alone. */
+	private static float crossfadeProgress = 1f ;
+	/** How loud the outgoing track was, as a share of musicVolume(), when its fade began. */
+	private static float outgoingStartGain = 1f ;
+
+	/** Steps the crossfade. Main_Application calls it every frame, paused or not. */
+	public static void update(float delta)
+	{
+		if(currentlyRunningMusicSecondary == null)
+			return ;
+		crossfadeProgress = Math.min(1f, crossfadeProgress + delta / CROSSFADE_SECONDS) ;
+		if(crossfadeProgress >= 1f)
+			disposeOutgoing() ;
+		applyCrossfadeVolumes() ;
+	}
+
+	/** True while an outgoing track is still fading out under the new one. */
+	public static boolean isCrossfading()
+	{
+		return currentlyRunningMusicSecondary != null ;
+	}
+
+	private static float incomingGain()
+	{
+		return MathUtils.sin(crossfadeProgress * MathUtils.HALF_PI) ;
+	}
+
+	private static void applyCrossfadeVolumes()
+	{
+		if(currentlyRunningMusic != null)
+			currentlyRunningMusic.setVolume(musicVolume() * incomingGain()) ;
+		if(currentlyRunningMusicSecondary != null)
+			currentlyRunningMusicSecondary.setVolume(musicVolume() * outgoingStartGain * MathUtils.cos(crossfadeProgress * MathUtils.HALF_PI)) ;
+	}
+
+	private static void disposeOutgoing()
+	{
+		if(currentlyRunningMusicSecondary != null)
+		{
+			currentlyRunningMusicSecondary.stop() ;
+			currentlyRunningMusicSecondary.dispose() ;
+			currentlyRunningMusicSecondary = null ;
+		}
 	}
 
 	/** One carriage's music in one variant - the sound lab's per-carriage buttons. */
@@ -193,7 +260,7 @@ public class GVars_AudioManager
 		else if(currentlyRunningMusic == null)
 			startRequestedTrack() ;
 		else
-			currentlyRunningMusic.setVolume(musicVolume()) ;
+			applyCrossfadeVolumes() ;
 		
 		applyEffectsVolumeChange() ;
 	}
@@ -466,12 +533,8 @@ public class GVars_AudioManager
 			currentlyRunningMusic = null ;
 			currentlyRunningFile = null ;
 		}
-		if(currentlyRunningMusicSecondary != null)
-		{
-			currentlyRunningMusicSecondary.stop() ;
-			currentlyRunningMusicSecondary.dispose() ;
-			currentlyRunningMusicSecondary = null ;
-		}
+		disposeOutgoing() ;
+		crossfadeProgress = 1f ;
 		if(currentlyRunningAmbiance != null)
 		{
 			currentlyRunningAmbiance.stop() ;

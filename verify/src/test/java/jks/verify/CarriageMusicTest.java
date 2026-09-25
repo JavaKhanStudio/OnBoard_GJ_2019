@@ -28,16 +28,23 @@ import jks.sounds.Enum_Music;
 import jks.sounds.GVars_Audio;
 import jks.sounds.GVars_AudioManager;
 import jks.vinterface.GVars_UI;
+import jks.vue.models.game.CarriageMusicSwitch;
 import jks.vue.models.game.GVars_Game;
 
 /**
- * The music under the carriages (r94). A Carriage lab (-Donboard.lab=true) switches it between
- * the main song, the main song aged for the carriage, and a track written for it. The main and
- * modulated songs are one song, so a switch - or the next carriage - goes on from the same bar
- * instead of starting over; an ideal track nobody has made yet falls back to the main song.
+ * The music under the carriages (r94, r97). A plain run plays the main song aged for each
+ * carriage (GVars_Audio.SHIPPED_CARRIAGE_VARIANT, Simon's pick from the r94 comparison), and a
+ * carriage change crossfades the two under the fade to black instead of cutting. A Carriage lab
+ * switches it between the main song, the main song aged for the carriage, and a track written
+ * for it. The main and modulated songs are one song, so a switch - or the next carriage - goes
+ * on from the same bar instead of starting over; an ideal track nobody has made yet falls back
+ * to the main song.
  *
- * Reads back what came out of the audio device, like MusicTest: the switches must not leave
- * a hole in the music.
+ * The plain run comes first, with the lab off; the lab's panel is opened over carriage 2 after.
+ * One JVM holds one game (forkEvery = 1), so both are one run and one capture.
+ *
+ * Reads back what came out of the audio device, like MusicTest: neither the carriage change nor
+ * the switches may leave a hole in the music. The effects are at zero so the rails cannot hide one.
  */
 @Tag("gl")
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -52,8 +59,17 @@ class CarriageMusicTest
 	private static volatile boolean finished;
 	private static AudioCapture capture;
 	private static double firstStepSeconds = 1.5;
+	/** When nextLevel was called, and so when the fade to carriage 2 began. */
+	private static volatile double carriageChangeSeconds = -1;
 
 	private interface Step { void run() throws Exception; }
+
+	/** A step, and how long to wait after it before the next. */
+	private static final class Timed
+	{
+		final Step step; final double wait;
+		Timed(double wait, Step step) { this.step = step; this.wait = wait; }
+	}
 
 	@BeforeAll
 	void switchTheMusicInTheCarriages() throws Exception
@@ -64,62 +80,82 @@ class CarriageMusicTest
 		GVars_Audio.muted = false;
 		GVars_Audio.masterVolume = 1f;
 		GVars_Audio.musiqueVolume = 1f;
+		GVars_Audio.effectVolume = 0f;
+		GVars_Audio.carriageVariant = GVars_Audio.SHIPPED_CARRIAGE_VARIANT;
 		Main_Application.startPoint = Main_Application.StartPoint.GAME;
 		Main_Application.startLevel = 1;
-		Main_Application.lab = true;
+		Main_Application.lab = false;
 
 		Lwjgl3ApplicationConfiguration gl = new Lwjgl3ApplicationConfiguration();
 		gl.setWindowedMode(1280, 720);
 		gl.setTitle("On Board - carriage music verification");
 		gl.useVsync(false);
 
-		List<Step> steps = new ArrayList<>();
-		steps.add(() -> {
-			record("the music switch is over the carriage", panel() != null);
-			record("carriage 1 starts on the main song", playing().equals("intro.mp3"));
-			click("Modulated");
-		});
-		steps.add(() -> {
-			record("Modulated plays carriage 1's aged song", playing().equals("wa1_modulated.ogg"));
-			// About two seconds in: had it started over it would be under one.
-			record("and goes on from the same bar (" + position() + " s)", position() > 1f);
-			Frames.write(GameHarness.grab(), new File(OUTPUT, "carriage-music-switch.png"));
-			GVars_Game.currentLevelInt = 2;
-			GVars_Game.loadLevel(2);
-		});
-		steps.add(() -> {
+		float[] carried = {0};
+		List<Timed> steps = new ArrayList<>();
+		// The plain run: no lab, the shipped music.
+		steps.add(new Timed(1.5, () -> {
+			record("a plain run has no music switch", panel() == null);
+			record("carriage 1 plays its aged song", playing().equals("wa1_modulated.ogg"));
+			record("the entrance crossfade from the menu's song is over", !GVars_AudioManager.isCrossfading());
+			carried[0] = position();
+			carriageChangeSeconds = harness.gameSeconds;
+			GVars_Game.nextLevel();
+		}));
+		// Black comes at GVars_Fade.OUT_SECONDS; half a crossfade later:
+		steps.add(new Timed(1.0, () -> {
 			record("carriage 2 plays its own aged song", playing().equals("wa2_modulated.ogg"));
-			record("still from the same bar (" + position() + " s)", position() > 1.5f);
+			record("with carriage 1's still fading out under it", GVars_AudioManager.isCrossfading());
+			record("from the same bar (" + carried[0] + " s, then " + position() + " s)", position() > carried[0] + 1f);
+		}));
+		steps.add(new Timed(0.6, () -> {
+			record("the crossfade is over", !GVars_AudioManager.isCrossfading());
+			record("and carriage 2's song plays alone", playing().equals("wa2_modulated.ogg"));
+			CarriageMusicSwitch.open();
+		}));
+		// The lab, over carriage 2.
+		steps.add(new Timed(0.6, () -> {
+			record("the lab's switch is over the carriage", panel() != null);
+			Frames.write(GameHarness.grab(), new File(OUTPUT, "carriage-music-switch.png"));
+			carried[0] = position();
+			click("Main");
+		}));
+		steps.add(new Timed(0.6, () -> {
+			record("Main is intro.mp3", playing().equals("intro.mp3"));
+			record("going on from the same bar (" + position() + " s)", position() > carried[0]);
 			click("Ideal");
-		});
-		steps.add(() -> {
+		}));
+		steps.add(new Timed(0.6, () -> {
 			boolean made = GVars_AudioManager.idealFile(2) != null;
 			record("Ideal plays wa2's own track, or the main song until it is made",
 				playing().equals(made ? GVars_AudioManager.idealFile(2).name() : "intro.mp3"));
-			click("Main");
-		});
-		steps.add(() -> {
-			record("Main is intro.mp3 again", playing().equals("intro.mp3"));
+			click("Modulated");
+		}));
+		steps.add(new Timed(0.6, () -> {
+			record("Modulated is carriage 2's aged song again", playing().equals("wa2_modulated.ogg"));
 			record("the carriage track is what is asked for", GVars_AudioManager.currentMusic() == Enum_Music.CARRIAGE_2);
 			finished = true;
-		});
+		}));
 
 		int[] next = {0};
 		double[] due = {firstStepSeconds};
+		double total = firstStepSeconds;
+		for (Timed step : steps) total += step.wait;
 		harness = new GameHarness(new Main_Application(), Integer.MAX_VALUE, Integer.MAX_VALUE);
-		harness.exitAfterSeconds = firstStepSeconds + steps.size() * 0.6 + 0.4;
+		harness.exitAfterSeconds = total;
 		harness.frameHook = frame ->
 		{
 			if (error != null || next[0] >= steps.size() || harness.gameSeconds < due[0]) return;
+			Timed step = steps.get(next[0]++);
 			try
 			{
-				steps.get(next[0]++).run();
+				step.step.run();
 			}
 			catch (Throwable t)
 			{
 				error = t;
 			}
-			due[0] = harness.gameSeconds + 0.6;
+			due[0] = harness.gameSeconds + step.wait;
 		};
 
 		new Lwjgl3Application(harness, gl);
@@ -132,7 +168,8 @@ class CarriageMusicTest
 	void restore()
 	{
 		Main_Application.lab = false;
-		GVars_Audio.carriageVariant = Enum_Music.CarriageVariant.MAIN;
+		GVars_Audio.carriageVariant = GVars_Audio.SHIPPED_CARRIAGE_VARIANT;
+		GVars_Audio.effectVolume = 1f;
 	}
 
 	private static Group panel()
@@ -169,7 +206,7 @@ class CarriageMusicTest
 	}
 
 	@Test
-	@DisplayName("the lab switches each carriage between the main song, its aged version and its own track")
+	@DisplayName("a plain run plays each carriage's aged song, and the lab switches it between the main song, the aged one and its own track")
 	void theSwitchChangesTheMusic()
 	{
 		if (harness.error != null) harness.error.printStackTrace();
@@ -180,11 +217,11 @@ class CarriageMusicTest
 		assertTrue(finished, "not every step ran:\n" + report);
 		for (String line : seen)
 			assertTrue(line.startsWith("ok"), report);
-		assertEquals(9, seen.size(), report);
+		assertEquals(14, seen.size(), report);
 	}
 
 	@Test
-	@DisplayName("switching leaves no hole in the music that comes out")
+	@DisplayName("neither the carriage change nor a switch leaves a hole in the music that comes out")
 	void noHoleAtTheSwitches()
 	{
 		File file = AudioCapture.configuredFile();
@@ -202,5 +239,19 @@ class CarriageMusicTest
 			profile.append(quiet ? '.' : '#');
 		}
 		assertTrue(silent <= 2, "the music dropped out at a switch ('.' is 50 ms of silence): " + profile);
+
+		// Across the carriage change, from the fade's start to the crossfade's end: no dip.
+		// A cut, or a linear crossfade of two tracks, shows as a window far under the rest.
+		assertTrue(carriageChangeSeconds > 0, "the carriage change never happened");
+		int changeFrom = (int) (carriageChangeSeconds / 0.05), changeTo = (int) ((carriageChangeSeconds + 1.0 + 1.2) / 0.05);
+		double[] around = java.util.Arrays.copyOfRange(levels, changeFrom, Math.min(changeTo, levels.length));
+		double[] sorted = around.clone();
+		java.util.Arrays.sort(sorted);
+		double median = sorted[sorted.length / 2], lowest = sorted[0];
+		StringBuilder change = new StringBuilder();
+		for (double level : around) change.append(' ').append(AudioCapture.db(level));
+		System.out.println("carriage change, 50 ms windows:" + change);
+		assertTrue(lowest > median * 0.25, "the music dips at the carriage change: lowest " + AudioCapture.db(lowest)
+			+ " against a median of " + AudioCapture.db(median) + ":" + change);
 	}
 }

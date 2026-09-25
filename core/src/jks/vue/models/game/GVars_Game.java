@@ -188,8 +188,8 @@ public class GVars_Game
 		clef = new Clef(level) ; 
 		GVars_UI.mainUi.addActor(clef);
     	currentLevel = level ; 
-    	// The carriage's own music (r94). As shipped that is the main song everywhere, and
-    	// PlayMusic leaves a recording that is already playing alone, so nothing restarts.
+    	// The carriage's own music (r94): the main song aged for this carriage (r97). It goes on
+    	// from the same bar as the last carriage's, crossfading under the fade-in.
     	GVars_AudioManager.PlayMusic(Enum_Music.forCarriage(value)) ; 
     	
     	Enum_AGE age = Enum_AGE.getFromName(level.rossAge) ; 
