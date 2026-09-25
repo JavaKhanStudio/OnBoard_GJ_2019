@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.awt.image.BufferedImage;
 import java.io.File;
 
 import org.junit.jupiter.api.BeforeAll;
@@ -16,6 +17,7 @@ import org.junit.jupiter.api.TestInstance;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
+import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
 import com.badlogic.gdx.math.Vector3;
 
@@ -29,7 +31,8 @@ import jks.vue.models.game.GameItem;
  * What Ross says, and when, through a carriage (r73, r91). He thinks the first hint as the
  * carriage opens, and then nothing by himself: a pickup flashes the pieces of the key still
  * missing, and a piece under the mouse shows its hint - or, once held, what was said as it came.
- * The last piece brings the steam creeping in over the time its line needs; a click hurries it.
+ * The last piece brings the steam in, holding for the time its line needs, with the line's bubble
+ * in front of it (r118); a click cuts the wait short.
  *
  * Carriage 1 is played through the items themselves: the bundle (piece 1), the cube into its
  * mould (piece 2), the cage's key into the cage (piece 3, the good action), then a click. In
@@ -46,7 +49,7 @@ class StepThoughtRenderTest
 	private static final double PIECE_AT = 5.0;
 	private static final double AFTER_PIECE_AT = 8.5;
 	private static final double LAST_PIECE_AT = 9.0;
-	/** Into the creep, well before the line is read. */
+	/** Into the creep, well before the line is read: the steam covers in 0.83 s and holds. */
 	private static final double CREEPING_AT = LAST_PIECE_AT + 2.0;
 
 	private static GameHarness harness;
@@ -54,6 +57,8 @@ class StepThoughtRenderTest
 	private static volatile boolean flashing1, flashing2, flashing3;
 	private static volatile int carriageWhileCreeping, carriageAfterClick, carriageBeforeRead, carriageAfterRead;
 	private static volatile boolean creepingBeforeClick;
+	/** Mean brightness of the middle of the bubble, and of a patch of the screen away from it, under the steam. */
+	private static volatile double bubbleWhileCreeping = -1, steamWhileCreeping = -1;
 	private static volatile float lastLineSeconds;
 	private static volatile Throwable error;
 
@@ -120,7 +125,12 @@ class StepThoughtRenderTest
 					step[0] = 6;
 					carriageWhileCreeping = GVars_Game.currentLevelInt;
 					creepingBeforeClick = GVars_Steam.isCreeping();
-					Frames.write(GameHarness.grab(), new File(OUTPUT, "step-thought-creeping.png"));
+					BufferedImage creeping = GameHarness.grab();
+					Frames.write(creeping, new File(OUTPUT, "step-thought-creeping.png"));
+					Actor bubble = GVars_Game.dialogBubble;
+					bubbleWhileCreeping = brightness(creeping, bubble.getX() + bubble.getWidth() * 0.4f,
+						bubble.getY() + bubble.getHeight() * 0.45f, bubble.getWidth() * 0.2f, bubble.getHeight() * 0.1f);
+					steamWhileCreeping = brightness(creeping, 900, 250, 100, 100);
 					// A click anywhere, through whatever the game is listening with.
 					Gdx.input.getInputProcessor().touchDown(640, 360, 0, 0);
 					at[0] = t;
@@ -156,6 +166,21 @@ class StepThoughtRenderTest
 		};
 
 		new Lwjgl3Application(harness, gl);
+	}
+
+	/** Mean brightness of a box of the frame, in stage pixels (y up). */
+	private static double brightness(BufferedImage frame, float x, float y, float w, float h)
+	{
+		double sum = 0;
+		int n = 0;
+		for (int px = Math.round(x); px < Math.round(x + w); px++)
+			for (int py = Math.round(y); py < Math.round(y + h); py++)
+			{
+				int p = frame.getRGB(px, frame.getHeight() - 1 - py);
+				sum += (((p >> 16) & 0xFF) + ((p >> 8) & 0xFF) + (p & 0xFF)) / 3.0;
+				n++;
+			}
+		return n == 0 ? 0 : sum / n;
 	}
 
 	private static GameItem item(String name)
@@ -203,11 +228,14 @@ class StepThoughtRenderTest
 	}
 
 	@Test
-	@DisplayName("The last line is read under creeping steam, and a click hurries it")
+	@DisplayName("The last line is read in front of the steam, and a click cuts the wait short")
 	void theSteamWaitsForTheLastLine()
 	{
 		assertTrue(lastLineSeconds > 3, "the last piece came with nothing to read: " + lastLineSeconds);
 		assertTrue(creepingBeforeClick, "no steam creeping 2 s after the last piece");
+		// The steam has covered the carriage by then, and the bubble is still white on top (r118).
+		assertTrue(steamWhileCreeping < 150, "the steam had not covered the carriage: " + steamWhileCreeping);
+		assertTrue(bubbleWhileCreeping > 200, "the bubble is hidden under the steam: " + bubbleWhileCreeping);
 		assertEquals(1, carriageWhileCreeping, "the carriage went before its last line was read");
 		assertEquals(2, carriageAfterClick, "a click did not hurry the steam");
 		assertEquals(2, carriageBeforeRead, "without a click, the carriage went before its line was read");

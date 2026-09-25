@@ -333,18 +333,19 @@ public class GVars_Game
 			clef.applySucces(gameItem.keyNumb, choiceNumber == 2 ? gameItem.message_Crucial_2 : gameItem.message_Crucial_1);
 	}
 
-	/** The shortest the steam takes to creep in when nothing is left to read: its plain speed. */
+	/** The shortest the steam waits when nothing is left to read: its plain cover and hold. */
 	public static final float CREEP_MIN_SECONDS = 0f ; 
 	
 	/**
 	 * The key is whole (r91). What was said as the last piece came still has to be read, so the
-	 * steam creeps in over the time the bubble needs, the carriage swaps under it, and it lifts
-	 * off the next one - or the ending. A click anywhere hurries it. The level's sound is now.
+	 * steam covers the carriage and holds for the time the bubble needs, the bubble in front of
+	 * it (r118); the carriage swaps under it, and it lifts off the next one - or the ending. A
+	 * click anywhere cuts the wait short. The level's sound is now.
 	 */
 	public static void completeCarriage()
 	{
 		float reading = dialogBubble == null ? 0 : dialogBubble.secondsBusy() ; 
-		boolean started = GVars_Steam.creep(Math.max(reading, CREEP_MIN_SECONDS), GVars_Game::swapToNextCarriage) ; 
+		boolean started = GVars_Steam.creep(Math.max(reading, CREEP_MIN_SECONDS), GVars_Game::swapToNextCarriage, dialogBubble) ; 
 		if(started)
 			GVars_AudioManager.PlayEffect(Enum_Effect_Sound.Slot.LEVEL_COMPLETE) ; 
 	}
