@@ -40,8 +40,10 @@ class OpeningRenderTest
 	 * on a wall clock - three logos at three seconds each - and the test window renders
 	 * unthrottled, so a few hundred frames can pass in well under a second. Run until the
 	 * sequence has visibly moved on, with a hard ceiling so a stall still ends the test.
+	 * That ceiling is TIMEOUT_SEC, not a frame count: an idle machine draws 100 000 frames
+	 * in about 10s of game time, which cut the run off on the story pages (r116).
 	 */
-	private static final int    EXIT_FRAME  = 100_000;
+	private static final int    EXIT_FRAME  = Integer.MAX_VALUE;
 	/**
 	 * Generous, because game time can lag real time here: Main_Application clamps delta to
 	 * 1/30s, so if a frame takes longer than that the scene2d timers advance slower than
@@ -82,6 +84,7 @@ class OpeningRenderTest
 			if (GVars_Heart.vue != null) viewsSeen.add(GVars_Heart.vue.getClass().getSimpleName());
 
 			double elapsed = (System.nanoTime() - startedAt) / 1e9;
+			secondsRun = elapsed;
 
 			// The story pages wait for the player before turning. Stand in for them, so the
 			// test can follow the opening all the way to the menu rather than stopping at
@@ -98,7 +101,6 @@ class OpeningRenderTest
 			boolean reachedMenu = viewsSeen.contains("Vue_StartScreen");
 			if (reachedMenu || elapsed > TIMEOUT_SEC)
 			{
-				secondsRun = elapsed;
 				com.badlogic.gdx.Gdx.app.exit();
 			}
 		};
@@ -125,7 +127,8 @@ class OpeningRenderTest
 			"the logos never handed off to the story pages. Saw " + viewsSeen);
 		assertTrue(viewsSeen.contains("Vue_StartScreen"),
 			"the opening never reached the menu. Saw " + viewsSeen + " in "
-			+ String.format("%.1fs", secondsRun) + ". Note this sequence runs on a wall clock while"
+			+ String.format("%.1fs / %d frames / %.1fs of game time", secondsRun,
+				harness.framesRendered, harness.gameSeconds) + ". Note this sequence runs on a wall clock while"
 			+ " Main_Application clamps delta to 1/30s, so a machine under heavy GPU load can make"
 			+ " game time lag real time badly enough to trip the ceiling.");
 		System.out.println(String.format("opening passed through %s in %.1fs / %d frames",
