@@ -84,7 +84,10 @@ class HeldItemRenderTest
 						GVars_Game.pickItem(sac);
 						GVars_Game.pickItem(cube);
 					}
-					case 1 ->
+					// A newly carried item flashes for 0.9 s (r93): the frames below measure
+					// the mark, so they wait for it to end.
+					case 1 -> {}
+					case 2 ->
 					{
 						heldAtFirst = userObject(GVars_Game.inventory.held());
 						height = Gdx.graphics.getHeight();
@@ -94,19 +97,19 @@ class HeldItemRenderTest
 						Frames.write(nothingHeld, new File(OUTPUT, "held-item-none.png"));
 						click(sac);
 					}
-					case 2 ->
+					case 3 ->
 					{
 						heldAfterSac = userObject(GVars_Game.inventory.held());
 						sacHeld = GameHarness.grab();
 						Frames.write(sacHeld, new File(OUTPUT, "held-item-sac.png"));
 						click(cube);
 					}
-					case 3 ->
+					case 4 ->
 					{
 						heldAfterCube = userObject(GVars_Game.inventory.held());
 						click(cube);
 					}
-					case 4 ->
+					case 5 ->
 					{
 						heldAfterCubeAgain = userObject(GVars_Game.inventory.held());
 						selectedAfterCubeAgain = GVars_Game.selectedItem;
@@ -116,7 +119,7 @@ class HeldItemRenderTest
 							cage.posY + cage.objectTexture.getHeight() / 2f, 0);
 						cage.tryTouch(middle, GVars_Game.selectedItem, false);
 					}
-					case 5 ->
+					case 6 ->
 					{
 						heldAfterUse = userObject(GVars_Game.inventory.held());
 						Frames.write(GameHarness.grab(), new File(OUTPUT, "held-item-used.png"));
