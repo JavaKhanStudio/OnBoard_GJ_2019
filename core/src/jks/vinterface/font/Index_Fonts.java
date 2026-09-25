@@ -5,23 +5,23 @@ public class Index_Fonts
 {
 	private static final String PATH = "ui/fonts/";
     /**
-     * Ross's thoughts (r103): Permanent Marker, by Font Diner, Apache 2.0 (its licence sits
-     * beside it). Its lowercase is drawn as small capitals, the hand-lettered look of a BD
-     * bubble. Capitals are wider, so the sizes below are a tenth smaller than OpenSans's were:
-     * at the old ones the longest carriage line (wa1.cage.message2) ran onto the cloud's edge.
-     * It was chosen from the faces tools/fetch_bubble_fonts.sh fetches, drawn side by side by
-     * BubbleFontLabTest.
+     * Ross's thoughts (r103): Mansalva, by Carolina Short, SIL Open Font License (its licence
+     * sits beside it). A quick felt-pen hand, the lettering of a BD bubble. Simon's pick from
+     * the faces tools/fetch_bubble_fonts.sh fetches, drawn side by side by BubbleFontLabTest.
+     * Its lines run wider than OpenSans's: at OpenSans's capital height, carriage 3's
+     * wa3.trou.message2 ran past the round cloud's edges. So the sizes below are OpenSans's
+     * (pre-r103) a twelfth smaller, and DialogBubble wraps them narrower than it used to.
      */
-    private static final String regular = "PermanentMarker-Regular.ttf";  
+    private static final String regular = "Mansalva-Regular.ttf";  
     
     public enum Enum_Fonts
     {
-    	BUBBLE_SMALL_TEXT_LARGE(PATH + regular,111),
-    	BUBBLE_MEDIUM_TEXT_LARGE(PATH + regular,92),
-    	BUBBLE_LARGE_TEXT_LARGE(PATH + regular,72),
-    	BUBBLE_SMALL_TEXT_MEDIUM(PATH + regular,156),
-    	BUBBLE_MEDIUM_TEXT_MEDIUM(PATH + regular,133),
-    	BUBBLE_LARGE_TEXT_MEDIUM(PATH + regular,110),
+    	BUBBLE_SMALL_TEXT_LARGE(PATH + regular,109),
+    	BUBBLE_MEDIUM_TEXT_LARGE(PATH + regular,91),
+    	BUBBLE_LARGE_TEXT_LARGE(PATH + regular,70),
+    	BUBBLE_SMALL_TEXT_MEDIUM(PATH + regular,153),
+    	BUBBLE_MEDIUM_TEXT_MEDIUM(PATH + regular,131),
+    	BUBBLE_LARGE_TEXT_MEDIUM(PATH + regular,108),
     	
     	/**
     	 * The card the game ends on (r60, ClosureMessage), and the FIN under it.

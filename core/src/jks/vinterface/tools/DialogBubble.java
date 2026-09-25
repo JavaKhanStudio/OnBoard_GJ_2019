@@ -261,8 +261,10 @@ public class DialogBubble extends VisTable
 			}
 		}
 		
-		decalXLeft = size/10.0f ;
-		decalXRight = size/9.0f ;
+		// The cloud is round: a line as wide as its middle runs onto its edge higher up.
+		// Narrowed for Mansalva's wider lines (r103), from size/10 and size/9.
+		decalXLeft = size/7.0f ;
+		decalXRight = size/6.5f ;
 		decalY = size/8.5f ;
 		
 		this.setSize(size,size);

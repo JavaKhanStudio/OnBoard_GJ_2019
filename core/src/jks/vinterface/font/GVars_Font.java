@@ -30,7 +30,7 @@ public class GVars_Font
 	 * What every face is rasterised with (r82). FreeType draws only the characters it is asked
 	 * for and leaves a hole for the rest, and its default set stops at Latin-1 - so the curly
 	 * apostrophe of "s’il" and the "…" of the hints drew as nothing. This adds the punctuation
-	 * French writing uses. GeosansLight and PermanentMarker have all of it (TextGlyphTest checks each
+	 * French writing uses. GeosansLight and Mansalva have all of it (TextGlyphTest checks each
 	 * against the text table); OptimusPrinceps has none of it and simply skips it (d8).
 	 * Not the narrow no-break space (U+202F): neither face has one.
 	 */
