@@ -6,6 +6,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Animation.PlayMode;
 import com.badlogic.gdx.graphics.g2d.Batch;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas.AtlasRegion;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 
@@ -52,9 +53,23 @@ public class SpriteModel extends AnimationModel
 	
 				WIDTH = getFrameWidth(currentFrame);
 				HEIGHT = getFrameHeight(currentFrame);
-	
-				batch.draw(currentFrame, position.x + (reverse ? 0 : WIDTH), position.y, WIDTH * (reverse ? 1 : -1),
-						HEIGHT);
+
+				float shiftX = 0, shiftY = 0 ;
+				if(currentFrame instanceof AtlasRegion && refFrame instanceof AtlasRegion)
+				{
+					// The packer trimmed each frame to its own box: put it back where the artist
+					// drew it on the frame's canvas (r111), measured from the state's first frame so
+					// that one stays where position puts it. Mirrored inside the canvas when flipped.
+					AtlasRegion frame = (AtlasRegion) currentFrame, ref = (AtlasRegion) refFrame ;
+					shiftX = reverse
+							? frame.offsetX - ref.offsetX
+							: (ref.offsetX + ref.packedWidth) - (frame.offsetX + frame.packedWidth) ;
+					shiftX *= index.scale ;
+					shiftY = (frame.offsetY - ref.offsetY) * index.scale ;
+				}
+
+				batch.draw(currentFrame, position.x + shiftX + (reverse ? 0 : WIDTH), position.y + shiftY,
+						WIDTH * (reverse ? 1 : -1), HEIGHT);
 			} 
 			else 
 			{Utils_Debug.warn("impossible de trouver state pour");}
