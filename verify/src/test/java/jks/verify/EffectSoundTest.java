@@ -236,6 +236,32 @@ class EffectSoundTest
 		assertEquals(Enum_Effect_Sound.RAILS_SYNTH, chosenAndPlayed, "the rails started were not the ones chosen");
 	}
 
+	/**
+	 * Rails; silence at zero effects; rails; silence muted; rails; silence stopped; departure,
+	 * which fades in over its first 300 ms; silence; the first piece; silence, through the
+	 * repeated piece; the second piece; silence; the level. Any sound may start or end on a '-':
+	 * a stop that lands inside a 50 ms window leaves it between SILENT and LOUD. The rails were
+	 * once a bare #{4,}, so a StopTrain that landed mid-window failed the run (r100).
+	 */
+	private static final String SOUND = "-?#{4,}[-#]*";
+	private static final String QUIET = "\\.{4,}";
+	private static final Pattern EXPECTED = Pattern.compile(SOUND + QUIET + SOUND + QUIET + SOUND + QUIET
+		+ SOUND + QUIET + SOUND + QUIET + SOUND + "\\.+" + SOUND);
+
+	@Test
+	@DisplayName("a stop that lands inside a 50 ms window still reads as the expected sequence")
+	void aStopMidWindowIsNotAHole()
+	{
+		// The capture r100 went red on: the third rails burst ends '-' where StopTrain cut it.
+		String red = "............................########################..........##########.........###########-"
+			+ ".........################.........##########################-...............##########################-"
+			+ "............#############################################--.........................";
+		assertTrue(EXPECTED.matcher(red).find(), red);
+		// And a missing burst is still caught: the muted gap run into the stopped one.
+		String missing = "....########..........########..........................########......########......########......########....";
+		assertTrue(!EXPECTED.matcher(missing).find(), missing);
+	}
+
 	@Test
 	@DisplayName("the effects come out of the audio device, and go quiet where they should")
 	void theOutputIsHeard() throws Exception
@@ -248,14 +274,8 @@ class EffectSoundTest
 
 		if (harness.capture != null) Frames.write(harness.capture, new File(OUTPUT, "soundlab-effects.png"));
 
-		// Rails; silence at zero effects; rails; silence muted; rails; silence stopped; departure,
-		// which fades in over its first 300 ms; silence; the first piece; silence, through the
-		// repeated piece; the second piece; silence; the level.
 		String profile = profile(capture);
-		String sound = "-?#{4,}[-#]*";
-		String quiet = "\\.{4,}";
-		assertTrue(Pattern.compile("#{4,}" + quiet + "#{4,}" + quiet + "#{4,}" + quiet
-			+ sound + quiet + sound + quiet + sound + "\\.+" + sound).matcher(profile).find(),
+		assertTrue(EXPECTED.matcher(profile).find(),
 			"expected rails, silence, rails, silence, rails, silence, departure, silence, key piece, "
 			+ "silence, key piece, silence, level complete.\n"
 			+ "Each character is 50 ms, '#' sound, '.' silence: " + profile);
