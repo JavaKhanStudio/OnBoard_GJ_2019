@@ -18,7 +18,8 @@ public class GVars_Inputs
 	public static boolean blockActionForClick ; // Considere s'il faut annuler toute autre action de click
 
 	private static float speedX = 300 ;
-	private static float camMulti = 30 ; 
+	/** The view pans at half his walking speed, as it did when his speed was per frame at 60 fps. */
+	private static float camMulti = 0.5f ; 
 	
 	public static void updateInput_Game(float delta) 
 	{

@@ -17,6 +17,7 @@ import com.kotcrab.vis.ui.widget.VisSlider;
 import com.kotcrab.vis.ui.widget.VisTable;
 import com.kotcrab.vis.ui.widget.VisTextButton;
 
+import jks.personnage.model.SIW_Data;
 import jks.amain.Utils_Config;
 import jks.index.Index_Interface;
 import jks.sounds.Enum_Music;
@@ -61,7 +62,7 @@ public class Vue_SoundLab extends AVue_Model
 
 	/** A footstep candidate walking, the steps it has left, and the time to the next one. */
 	private static final int WALK_STEPS = 8 ;
-	private static final float STEP_SECONDS = 4 * 0.106f ;
+	private static final float STEP_SECONDS = SIW_Data.FRAMES_PER_STEP * SIW_Data.WALK_FRAME_SECONDS ;
 	private Enum_Effect_Sound walking ;
 	private int stepsLeft ;
 	private float nextStep ;

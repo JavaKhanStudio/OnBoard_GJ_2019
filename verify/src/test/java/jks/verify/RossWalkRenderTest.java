@@ -90,7 +90,7 @@ class RossWalkRenderTest
 							{
 								ross.reverse(facing);
 								ross.changeAnimationState(frame < FRAMES ? Enum_AnimState.WALK : Enum_AnimState.IDLE, true);
-								setClock(ross, frame < FRAMES ? frame * 0.106f + 0.05f : 0f);
+								setClock(ross, frame < FRAMES ? (frame + 0.5f) * SIW_Data.WALK_FRAME_SECONDS : 0f);
 								Gdx.gl.glClearColor(1, 0, 1, 1);
 								Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 								batch.begin();

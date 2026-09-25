@@ -1,5 +1,6 @@
 package jks.verify;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -31,7 +32,6 @@ import jks.personnage.model.Enum_AGE;
 import jks.personnage.model.SIW_Data;
 import jks.personnage.model.SpriteModel;
 import jks.vars.GVars_Heart;
-import jks.vue.models.game.GVars_Personnage;
 
 /**
  * Do Ross's feet stay on the floor as he walks (r114)? Walks him right at full speed through
@@ -39,15 +39,22 @@ import jks.vue.models.game.GVars_Personnage;
  * camera the size of the carriage's world, and finds his boot on the floor in each frame.
  *
  * A boot that is down should stay where it landed. What it does instead is the slide: printed
- * per age, and drawn to build/frames/ross-stride-*.png with a ruler every 50 world px.
+ * per age, and drawn to build/frames/ross-stride-*.png with a ruler every 50 world px. Until
+ * r114 it was 200-300 px/s, his speed twice what his legs walked; Enum_AGE.stepLength is what
+ * this measures, and his speed is derived from it.
  */
 @Tag("gl")
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class RossStrideTest
 {
 	private static final File OUTPUT = new File(new File(System.getProperty("onboard.verify")), "build/frames");
-	/** Two walk cycles of 'move' (8 x 0.106 s), in 60 fps game frames. */
-	private static final int GAME_FRAMES = (int) Math.ceil(2 * 8 * 0.106 * 60);
+	/** Two walk cycles of 'move', in 60 fps game frames. */
+	private static final int GAME_FRAMES = (int) Math.ceil(2 * 8 * SIW_Data.WALK_FRAME_SECONDS * 60);
+	/**
+	 * World px a second a planted boot may slide. Reading a heel off the screen is good to a few
+	 * px, which is some 20 px/s over one step; skating was 200-300 px/s until r114.
+	 */
+	private static final double MAX_SLIDE = 40;
 	private static final float START_X = 150;
 	/** Rows of the screen kept, counted up from the bottom: his boots and shins. */
 	private static final int FEET_ROWS = 200;
@@ -96,8 +103,9 @@ class RossStrideTest
 						states.add(new ArrayList<>());
 						frame = 0;
 					}
-					// Full speed from the first frame: what the input path reaches after ~10 frames.
-					ross.velocity.x = GVars_Personnage.maxVelocityX;
+					// Full speed from the first frame, clamped by update: what the input path reaches
+					// after a tenth of a second.
+					ross.velocity.x = Float.MAX_VALUE;
 					ross.update(1 / 60f);
 					setClock(ross, frame / 60f);
 					Gdx.gl.glClearColor(1, 0, 1, 1);
@@ -143,12 +151,13 @@ class RossStrideTest
 	}
 
 	@Test
-	@DisplayName("measures how far a planted boot slides over the floor")
+	@DisplayName("a boot on the floor stays where it landed as he walks")
 	void measureTheSlide() throws Exception
 	{
 		if (error != null) error.printStackTrace();
 		assertNull(error, "walking Ross threw: " + error);
 		StringBuilder report = new StringBuilder();
+		List<String> slides = new ArrayList<>();
 		for (int a = 0; a < shots.size(); a++)
 		{
 			Enum_AGE age = Enum_AGE.values()[a];
@@ -179,15 +188,18 @@ class RossStrideTest
 			// The window may be given less than the world's 1600 px (cage's display is 1280): back to world px.
 			double toWorld = GVars_Camera.WORLD_WIDTH / width;
 			double step = toWorld * steps / Math.max(1, strikes);
-			double feet = step / (4 * 0.106);
-			double body = GVars_Personnage.maxVelocityX * 60;
+			double feet = step / (SIW_Data.FRAMES_PER_STEP * SIW_Data.WALK_FRAME_SECONDS);
+			double body = age.walkSpeed();
 			report.append(String.format("  => a step is %.0f world px; four key frames a step, the feet carry him %.0f px/s;"
 				+ " he moves %.0f px/s at 60 fps: a planted boot slides %.0f px/s (%.1f px a frame)%n",
 				step, feet, body, body - feet, (body - feet) / 60));
+			if (strikes == 0) slides.add(age.path + " has no heel strike with both boots down");
+			else if (Math.abs(body - feet) > MAX_SLIDE) slides.add(age.path + String.format(" slides %.0f px/s", body - feet));
 			Frames.write(strip(walk, ground), new File(OUTPUT, "ross-stride-" + age.path + ".png"));
 		}
 		System.out.print(report);
-		assertTrue(shots.size() == Enum_AGE.values().length, report.toString());
+		assertEquals(Enum_AGE.values().length, shots.size(), report.toString());
+		assertTrue(slides.isEmpty(), "Ross skates: " + slides + "\n" + report + "See " + OUTPUT + "/ross-stride-*.png");
 	}
 
 	/** The floor: the row his soles reach in most frames. */

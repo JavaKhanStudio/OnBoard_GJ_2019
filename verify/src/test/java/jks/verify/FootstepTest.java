@@ -24,6 +24,7 @@ import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
 
 import jks.amain.Main_Application;
+import jks.personnage.model.SIW_Data;
 import jks.input.GVars_Inputs;
 import jks.sounds.Enum_Effect_Sound;
 import jks.sounds.Enum_Effect_Sound.Slot;
@@ -51,8 +52,8 @@ class FootstepTest
 	private static final double EXIT_AFTER_SECONDS = 10.4;
 
 	private static final File OUTPUT = new File(new File(System.getProperty("onboard.verify")), "build/frames");
-	/** Two heel strikes in each 8-frame cycle of 'move', at 0.106 s a frame. */
-	private static final double STEP_SECONDS = 4 * 0.106;
+	/** Two heel strikes in each 8-frame cycle of 'move'. */
+	private static final double STEP_SECONDS = SIW_Data.FRAMES_PER_STEP * SIW_Data.WALK_FRAME_SECONDS;
 
 	private static GameHarness harness;
 	private static boolean audioAvailable;
@@ -81,9 +82,6 @@ class FootstepTest
 		gl.setTitle("On Board - footstep verification");
 		gl.setOpenGLEmulation(Lwjgl3ApplicationConfiguration.GLEmulation.GL30, 3, 2);
 		gl.useVsync(false);
-		// Ross's speed is per frame, as in the game at its 60 fps cap. Uncapped, he crosses the
-		// carriage before a heel comes down.
-		gl.setForegroundFPS(60);
 
 		harness = new GameHarness(new Main_Application(), Integer.MAX_VALUE, Integer.MAX_VALUE);
 		harness.captureAfterSeconds = CAPTURE_AFTER_SECONDS;
@@ -180,9 +178,9 @@ class FootstepTest
 		Assumptions.assumeTrue(audioAvailable, "no audio device on this machine");
 		assertTrue(stepsAt.containsKey("stopped under the rails"), "the walk never finished: " + log);
 
-		// 2.5 s of walking is five or six heel strikes, whatever frame the cycle was on.
+		// 2.5 s of walking, give or take a heel strike for the frame the cycle was on.
 		int walked = stepsBetween("rails stopped", "standing");
-		assertTrue(walked >= 5 && walked <= 7, "expected about 2.5 / " + STEP_SECONDS + " steps walking right, got " + walked);
+		assertTrue(Math.abs(walked - 2.5 / STEP_SECONDS) <= 1.5, "expected about 2.5 / " + STEP_SECONDS + " steps walking right, got " + walked);
 		assertEquals(0, stepsBetween("standing", "still standing"), "footsteps went on after Ross stopped");
 	}
 

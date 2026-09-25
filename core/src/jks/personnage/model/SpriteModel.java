@@ -112,10 +112,11 @@ public class SpriteModel extends AnimationModel
 			reverse = false ; 
 		}
 		
-		if(velocity.x > 0 && velocity.x > GVars_Personnage.maxVelocityX)
-			velocity.x = GVars_Personnage.maxVelocityX ; 
-		if(velocity.x < 0 && velocity.x < -GVars_Personnage.maxVelocityX)
-			velocity.x = -GVars_Personnage.maxVelocityX ; 
+		// World px a second, not a frame (r114): until then he walked at half speed at 30 fps.
+		if(velocity.x > index.walkSpeed)
+			velocity.x = index.walkSpeed ; 
+		if(velocity.x < -index.walkSpeed)
+			velocity.x = -index.walkSpeed ; 
 		
 		if(position.x >= GVars_Personnage.maxPositionX)
 		{
@@ -131,7 +132,7 @@ public class SpriteModel extends AnimationModel
 		}
 			
 		
-		position.add(velocity);
+		position.mulAdd(velocity, delta);
 		checkForAnim() ; 
 		//velocity.scl(1 / delta); // Change velocity back.
 

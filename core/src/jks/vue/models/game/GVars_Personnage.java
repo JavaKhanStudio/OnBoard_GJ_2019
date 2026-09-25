@@ -4,7 +4,8 @@ public class GVars_Personnage
 {
 
 	public static float maxVelocityY = 17f ;
-	public static float velocityAccelerationX = 50f ;
+	/** World px a second, each second a key is held: full walk in about a tenth of a second (r114). */
+	public static float velocityAccelerationX = 3000f ;
 	public static float jumpVelocity =  16f ;
 	public static float velocityXRun = 3f ;
 	
@@ -15,7 +16,7 @@ public class GVars_Personnage
 	public static final float maxPositionX = 2276 ;
 	public static final float minPositionX = 189 ;	
 	
-	public static float maxVelocityX = 8f ;
+	// His top speed is per age now, Enum_AGE.walkSpeed (r114): it was 8 px a frame for all four.
 	public static final float minVelocityX =  0.001f ;
 	
 }
