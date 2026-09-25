@@ -263,6 +263,9 @@ CAPTURE ON THE GAME'S OWN CLOCK (GameHarness.captureAfterSeconds), never a frame
 Anything driven by a timer — a fade, the typing effect, the parallax scroll — sits
 somewhere different at frame N depending on how fast the machine drew those N frames. That
 made the ending golden swing 40% between an idle run and a busy one.
+The exitFrame in new GameHarness(app, capture, exitFrame) is a frame cap too: on a cheap
+screen an idle machine draws 100 000 frames in about 10 s of game time. A test that stops
+itself (frameHook / exitAfterSeconds / a wall-clock timeout) passes Integer.MAX_VALUE (r95).
 Frames.java compares 64x36 thumbnails on purpose: the game animates, so no two runs are
 pixel-identical. distinctColourRatio catches a blank or half-drawn frame, which is what an
 engine upgrade actually breaks.

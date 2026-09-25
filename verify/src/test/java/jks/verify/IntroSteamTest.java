@@ -57,7 +57,9 @@ class IntroSteamTest
 		config.setResizable(false);
 		config.useVsync(false);
 
-		harness = new GameHarness(new Main_Application(), -1, 100_000);
+		// No frame cap: the intro draws one texture, so an idle machine turns 100 000 frames in
+		// about 10 s of game time, before the steam at ~14 s. TIMEOUT_SEC is the only stop (r95).
+		harness = new GameHarness(new Main_Application(), -1, Integer.MAX_VALUE);
 		long startedAt = System.nanoTime();
 		harness.frameHook = frame ->
 		{
