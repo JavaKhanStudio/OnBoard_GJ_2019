@@ -185,8 +185,15 @@ public class GVars_Game
 		if(dialogBubble != null)
 			dialogBubble.makeDisappear() ; 
 		
+		// The last carriage's key goes: they used to pile up on the stage, one per carriage.
+		if(clef != null)
+			clef.remove() ; 
 		clef = new Clef(level) ; 
 		GVars_UI.mainUi.addActor(clef);
+		// Ross's thought rises into the key's corner once he is grown (carriage 2 on): what he
+		// says goes in front of it (r106).
+		if(dialogBubble != null)
+			dialogBubble.toFront() ; 
     	currentLevel = level ; 
     	// The carriage's own music (r94): the main song aged for this carriage (r97). It goes on
     	// from the same bar as the last carriage's, crossfading under the fade-in.
