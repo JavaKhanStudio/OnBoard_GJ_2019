@@ -36,6 +36,9 @@ import jks.vue.AVue_Model;
  * A development screen, not part of the game. Nothing leads here; open it with
  *   ./gradlew :desktop:runGame -Donboard.start=sound_lab
  *
+ * Under the tracks, one row per carriage (r94) plays its music as the main song, as the main song
+ * aged for that carriage, or as the ideal track written for it once one is in musics/wagons.
+ *
  * The volume sliders act live and are NOT saved - the options screen is where those settings
  * live. The effect rows are the exception: "Use" is how the game's sound effects are chosen
  * (r39, r45), so it is saved to the config, and the game plays whichever is marked. One tab per
@@ -82,7 +85,10 @@ public class Vue_SoundLab extends AVue_Model
 
 		page.add(label("Music", GVars_Font.labelStyle_OptionsTitle)).colspan(COLUMNS).left().padBottom(6f).row() ;
 		for(Enum_Music track : Enum_Music.values())
-			addMusicRow(page, track) ;
+			if(track.carriage == 0)
+				addMusicRow(page, track) ;
+		for(int carriage = 1 ; carriage <= CARRIAGES.length ; carriage++)
+			addCarriageRow(page, carriage) ;
 
 		nowPlaying = label("", GVars_Font.labelStyle_Second) ;
 		addVolumeRow(page, nowPlaying) ;
@@ -155,6 +161,44 @@ public class Vue_SoundLab extends AVue_Model
 		page.add(stop) ;
 		page.add() ;
 		page.add().expandX().row() ;
+	}
+
+	/** Each carriage's age and season (musics/PROMPTS.md), what the r94 music is meant to carry. */
+	private static final String[] CARRIAGES = {
+		"wa1  Printemps, childhood", "wa2  Summer, youth", "wa3  Autumn, adulthood", "wa4  Winter, old age"} ;
+
+	/**
+	 * One carriage's music three ways (r94): the main song, the main song aged for it, and the
+	 * track written for it once one is dropped in musics/wagons. Moving between carriages or
+	 * between main and modulated keeps the bar, so the difference is heard, not the restart.
+	 */
+	private void addCarriageRow(VisTable page, final int carriage)
+	{
+		VisTable buttons = new VisTable() ;
+		for(final Enum_Music.CarriageVariant variant : Enum_Music.CarriageVariant.values())
+		{
+			VisTextButton play = new VisTextButton(variant == Enum_Music.CarriageVariant.MAIN ? "Main"
+				: variant == Enum_Music.CarriageVariant.MODULATED ? "Modulated" : "Ideal") ;
+			play.setDisabled(variant == Enum_Music.CarriageVariant.IDEAL && GVars_AudioManager.idealFile(carriage) == null) ;
+			play.addListener(new ChangeListener()
+			{
+				@Override
+				public void changed(ChangeEvent event, Actor actor)
+				{
+					if(!((VisTextButton) actor).isDisabled())
+						GVars_AudioManager.PlayCarriage(carriage, variant) ;
+				}
+			}) ;
+			buttons.add(play).padRight(8f) ;
+		}
+
+		FileHandle ideal = GVars_AudioManager.idealFile(carriage) ;
+		String detail = "modulated" + describeSize(GVars_AudioManager.carriageFile(carriage, Enum_Music.CarriageVariant.MODULATED))
+			+ "   ideal" + (ideal == null ? "  not made yet" : describeSize(ideal)) ;
+
+		page.add(label(CARRIAGES[carriage - 1], GVars_Font.labelStyle_Second)).left().width(NAME_WIDTH) ;
+		page.add(label(detail, GVars_Font.labelStyle_Second)).left().width(DETAIL_WIDTH) ;
+		page.add(buttons).colspan(COLUMNS - 2).left().row() ;
 	}
 
 	/** Fills the candidates table with one slot's sounds, and checks only that slot's tab. */
@@ -360,8 +404,10 @@ public class Vue_SoundLab extends AVue_Model
 		else
 		{
 			int seconds = (int) GVars_AudioManager.musicPosition() ;
+			String name = playing.carriage == 0 ? shown(playing.name())
+				: shown(GVars_AudioManager.fileFor(playing).name()) ;
 			nowPlaying.setText(String.format(Locale.ROOT, "Playing %s  %d:%02d  (loops)",
-				shown(playing.name()), seconds / 60, seconds % 60)) ;
+				name, seconds / 60, seconds % 60)) ;
 		}
 	}
 

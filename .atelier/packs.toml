@@ -177,8 +177,16 @@ color = "#b48cff"
 sort = 50
 context = """
 core/src/jks/sounds/GVars_AudioManager.java is the only thing that plays anything;
-GVars_Audio.java holds mute and the volumes. Audio has one track: musics/intro.mp3,
-2:44, looping.
+GVars_Audio.java holds mute and the volumes. The game ships one piece of music:
+musics/intro.mp3, 2:44, looping, under the menu, the intro, every carriage and the outro.
+Each carriage asks for its own track (Enum_Music.CARRIAGE_1..4, from GVars_Game.loadLevel),
+which resolves through GVars_Audio.carriageVariant (r94): MAIN is intro.mp3, so nothing
+restarts; MODULATED is musics/wagons/wa<n>_modulated.ogg, intro.mp3 aged per carriage by
+tools/make_wagon_music.py; IDEAL is wa<n>_ideal.(ogg|mp3|wav), generated outside from
+musics/PROMPTS.md, falling back to MAIN until dropped in. Only the labs switch it (sound lab
+rows, CarriageMusicSwitch with -Donboard.lab=true); it is not saved. Main and modulated are
+one song: a switch carries the position across, scaled by the tempo ratios in
+Enum_Music.CarriageVariant, which must match the script's RECIPES. CarriageMusicTest gates it.
 Music volume is masterVolume * musiqueVolume, clamped, applied on playback. masterVolume
 once reached sound effects only — which do not exist — so Music.setVolume was never called
 and the setting in the config file changed nothing you could hear.

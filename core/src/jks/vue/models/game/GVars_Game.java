@@ -17,6 +17,7 @@ import jks.camera.GVars_Camera;
 import jks.index.Index_Interface;
 import jks.index.Index_Text;
 import jks.sounds.Enum_Effect_Sound;
+import jks.sounds.Enum_Music;
 import jks.sounds.GVars_AudioManager;
 import jks.personnage.model.Enum_AGE;
 import jks.personnage.model.SIW_Data;
@@ -183,6 +184,9 @@ public class GVars_Game
 		clef = new Clef(level) ; 
 		GVars_UI.mainUi.addActor(clef);
     	currentLevel = level ; 
+    	// The carriage's own music (r94). As shipped that is the main song everywhere, and
+    	// PlayMusic leaves a recording that is already playing alone, so nothing restarts.
+    	GVars_AudioManager.PlayMusic(Enum_Music.forCarriage(value)) ; 
     	
     	Enum_AGE age = Enum_AGE.getFromName(level.rossAge) ; 
     	

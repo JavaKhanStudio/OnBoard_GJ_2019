@@ -35,20 +35,60 @@ public class GVars_AudioManager
 	private static FileHandle currentlyRunningFile ;
 
 	/**
-	 * Which recording each track maps to. Both entries are the same file today - it is the
-	 * only music that was ever made for this - but this is the one place to change when
-	 * there is more of it.
+	 * Which recording each track maps to. The menu, the intro and - unless a lab has chosen
+	 * otherwise - every carriage are the same file, the only music made for the game. The
+	 * carriages follow GVars_Audio.carriageVariant (r94).
 	 */
 	public static FileHandle fileFor(Enum_Music whichOne)
 	{
-		switch(whichOne)
+		return whichOne.carriage == 0 ? musicFile : carriageFile(whichOne.carriage, GVars_Audio.carriageVariant) ;
+	}
+
+	/** A carriage's recording in one variant. An ideal track nobody has dropped in yet falls back to the main song. */
+	public static FileHandle carriageFile(int carriage, Enum_Music.CarriageVariant variant)
+	{
+		switch(variant)
 		{
-			case STARTING_SCREEN :
-			case GAME_INTRO :
+			case MODULATED :
+				return Gdx.files.internal("musics/wagons/wa" + carriage + "_modulated.ogg") ;
+			case IDEAL :
+				FileHandle ideal = idealFile(carriage) ;
+				return ideal != null ? ideal : musicFile ;
+			case MAIN :
 			default :
 				return musicFile ;
 		}
 	}
+
+	/** The formats libGDX's Music reads, in the order they are looked for. */
+	private static final String[] IDEAL_FORMATS = {"ogg", "mp3", "wav"} ;
+
+	/** musics/wagons/wa<n>_ideal.(ogg|mp3|wav), or null while it has not been made. */
+	public static FileHandle idealFile(int carriage)
+	{
+		for(String format : IDEAL_FORMATS)
+		{
+			FileHandle file = Gdx.files.internal("musics/wagons/wa" + carriage + "_ideal." + format) ;
+			if(file.exists())
+				return file ;
+		}
+		return null ;
+	}
+
+	/**
+	 * How fast a track's recording runs against intro.mp3, or 0 when it is another piece of music.
+	 * Two recordings of the same song hand the position over (r94): moving to the next carriage,
+	 * or flipping a lab from the main song to the modulated one, goes on from the same bar.
+	 */
+	static float songTempo(Enum_Music track)
+	{
+		FileHandle file = fileFor(track) ;
+		if(sameFile(file, musicFile))
+			return 1f ;
+		return GVars_Audio.carriageVariant.tempo(track.carriage) ;
+	}
+
+	private static float currentlyRunningTempo ;
 
 	public static void PlayMusic(Enum_Music whichOne) 
 	{
@@ -76,6 +116,12 @@ public class GVars_AudioManager
 
 	private static void startRequestedTrack()
 	{
+		// Where the song had got to, in intro.mp3's seconds, if what plays next is the same song.
+		float songPosition = -1f ;
+		float nextTempo = requestedTrack == null ? 0f : songTempo(requestedTrack) ;
+		if(currentlyRunningMusic != null && currentlyRunningTempo > 0f && nextTempo > 0f)
+			songPosition = currentlyRunningMusic.getPosition() * currentlyRunningTempo ;
+		
 		StopAndDisposeMusic() ;
 		
 		if(requestedTrack == null || GVars_Audio.muted || musicVolume() <= 0f)
@@ -91,6 +137,29 @@ public class GVars_AudioManager
 		currentlyRunningMusic.setLooping(true) ;
 		currentlyRunningMusic.setVolume(musicVolume()) ;
 		currentlyRunningMusic.play() ;
+		currentlyRunningTempo = nextTempo ;
+		if(songPosition > 0f)
+			currentlyRunningMusic.setPosition(songPosition / nextTempo) ;
+	}
+
+	/** One carriage's music in one variant - the sound lab's per-carriage buttons. */
+	public static void PlayCarriage(int carriage, Enum_Music.CarriageVariant variant)
+	{
+		GVars_Audio.carriageVariant = variant ;
+		PlayMusic(Enum_Music.forCarriage(carriage)) ;
+	}
+
+	/**
+	 * Switches what plays under the carriages (r94). If a carriage's track is playing it changes
+	 * at once and goes on from the same bar when both are the same song.
+	 */
+	public static void setCarriageVariant(Enum_Music.CarriageVariant variant)
+	{
+		if(variant == null || variant == GVars_Audio.carriageVariant)
+			return ;
+		GVars_Audio.carriageVariant = variant ;
+		if(requestedTrack != null && requestedTrack.carriage > 0 && !sameFile(fileFor(requestedTrack), currentlyRunningFile))
+			startRequestedTrack() ;
 	}
 
 	/** Music was the one thing the volume setting never reached - it only ever fed sound effects. */

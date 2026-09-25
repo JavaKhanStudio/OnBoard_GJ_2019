@@ -28,6 +28,7 @@ import jks.vue.models.Vue_SoundLab;
 import jks.vue.models.Vue_StartScreen;
 import jks.vue.models.game.GVars_Game;
 import jks.vue.models.game.ItemOutlineLab;
+import jks.vue.models.game.CarriageMusicSwitch;
 import jks.vue.models.game.KarmaSlider;
 import jks.vue.models.game.Vue_Game;
 
@@ -93,8 +94,9 @@ public class Main_Application extends ApplicationAdapter
 	/**
 	 * -Donboard.lab=true puts the lab panels over a carriage started with GAME: for now the karma
 	 * slider (d11), since a later carriage starts with none of the karma the skipped ones could
-	 * have given. The board's Carriage surfaces pass it; item_lab always has it. Off by default,
-	 * so a plain dev start and every test look like the game.
+	 * have given, and the music switch (r94) that compares the main song, the modulated one and
+	 * the ideal track under the carriage. The board's Carriage surfaces pass it; item_lab always
+	 * has the karma slider. Off by default, so a plain dev start and every test look like the game.
 	 */
 	public static boolean lab = Boolean.getBoolean("onboard.lab") ; 
 	
@@ -158,7 +160,7 @@ public class Main_Application extends ApplicationAdapter
 			case LOGO:         startAtLogo() ;        break ; 
 			case INTRO:        startAtIntro() ;       break ; 
 			case START_SCREEN: startAtStartScreen() ; break ; 
-			case GAME:         startAtGame() ;        if(lab) KarmaSlider.open() ; break ; 
+			case GAME:         startAtGame() ;        if(lab) {KarmaSlider.open() ; CarriageMusicSwitch.open() ;} break ; 
 			case OUTRO:        startAtOutro() ;       break ;
 			case SOUND_LAB:    GVars_Heart.changeVue(new Vue_SoundLab(),true) ; break ;
 			case ITEM_LAB:     startAtGame() ; ItemOutlineLab.open() ; KarmaSlider.open() ; break ;

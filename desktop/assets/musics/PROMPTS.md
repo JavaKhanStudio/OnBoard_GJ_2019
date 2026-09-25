@@ -84,10 +84,54 @@ manquent — comme un souvenir qu'on n'arrive plus à jouer en entier.
 
 ---
 
-## Quand les pistes sont générées
+## Où les déposer, et comment comparer (r94)
 
-Elles ne se branchent pas toutes seules : GVars_AudioManager ne connaît aujourd'hui qu'une
-piste (musics/intro.mp3) et rien ne change de musique en changeant de wagon. Poser les
-fichiers ici ne suffit pas — il faudra une tâche pour les jouer, avec un enchaînement d'un
-wagon au suivant. Comme pour les bruitages, chaque candidat retenu se juge dans le labo de
-son avant d'être choisi.
+Chaque piste générée se dépose sous `desktop/assets/musics/wagons/`, au nom de son wagon :
+
+    wa1_ideal.ogg   wa2_ideal.ogg   wa3_ideal.ogg   wa4_ideal.ogg
+
+(`.mp3` ou `.wav` marchent aussi, rien d'autre à changer). À côté, `wa<n>_modulated.ogg` est
+l'autre option : la musique principale (`intro.mp3`) légèrement vieillie pour chaque wagon par
+`tools/make_wagon_music.py` — un ton plus haut et un peu plus vite pour l'enfance, telle
+quelle pour la jeunesse, un ton plus bas avec une salle autour pour l'âge adulte, une tierce
+plus bas, plus lente, lointaine comme une vieille radio pour la vieillesse.
+
+Deux endroits pour comparer :
+
+- **Le labo de son** (lab SoundLab) : une ligne par wagon, Main / Modulated / Ideal. Le bouton
+  Ideal s'allume dès que le fichier est là. Lance le lit de rails depuis l'onglet RAILS pour
+  entendre la musique comme en jeu.
+- **Les labos Carriage1 à Carriage4** : en haut au milieu, Music Main / Modulated / Ideal, dans
+  le wagon, avec les rails. Main et Modulated sont le même morceau : on passe de l'un à l'autre,
+  ou d'un wagon au suivant, sans revenir au début.
+
+Le jeu livré n'en joue aucune : sans labo, chaque wagon garde `intro.mp3`.
+
+## La musique idéale, selon moi (r94)
+
+Les quatre prompts ci-dessus restent ma réponse — une seule voix, un piano droit qui vieillit —
+mais pour que la comparaison avec la version modulée soit honnête, les pistes idéales doivent
+vivre dans le même monde que la musique principale, qu'on entend au menu, dans l'intro et
+dans la fin. Ce que j'ai mesuré de `intro.mp3` : environ **70 BPM**, tonalité de **do majeur /
+la mineur** (ré, sol, do, mi dominent), une ouverture douce de 40 s puis un tutti avec beaucoup
+de basse. Donc, ajoute ceci à chacun des quatre prompts :
+
+> **ajout** — Around 70 BPM. Key centre C major / A minor, so it sits next to the main theme
+> heard in the menu.
+
+et, par wagon, la couleur tonale que je leur donnerais — le même centre, vu sous quatre angles :
+
+| Wagon | Tonalité | Pourquoi |
+|---|---|---|
+| wa1 Printemps | do majeur | l'énoncé simple, la tonalité de la musique principale |
+| wa2 Été | la mineur | la relative : les mêmes notes, assombries — la faute sous la chaleur |
+| wa3 Automne | fa majeur | la sous-dominante : plus chaude et plus grave, ce qu'on a construit |
+| wa4 Hiver | do majeur, sans jamais conclure | le retour au départ, qui ne se pose plus |
+
+Si l'outil accepte des notes, le motif que je proposerais, en do majeur : **mi – sol – la – sol
+– mi – ré**, une noire par note, puis un silence d'une mesure. Transposé tel quel dans les
+trois autres tonalités, il reste reconnaissable d'un wagon à l'autre.
+
+Si le générateur accepte un audio de référence, donne-lui `intro.mp3` pour wa1 plutôt que
+rien : c'est la parenté avec la musique principale qui fera la différence avec les pistes
+modulées, pas la qualité seule.
