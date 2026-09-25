@@ -29,7 +29,8 @@ import jks.vue.models.game.GameItem;
  * each of its two choices; until r81 they sat in wa1.wa and nothing ever showed them.
  *
  * Uses the sac on the cage the way a click does - GameItem.tryTouch with the sac selected - and
- * checks the bubble types message 1, then gives way to the thought of the next step (r73).
+ * checks the bubble types message 1, then fades with nothing after it: since r91 Ross only
+ * thinks the next step as a carriage opens.
  */
 @Tag("gl")
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -82,7 +83,7 @@ class ItemMessageRenderTest
 						cage.posY + cage.objectTexture.getHeight() / 2f, 0);
 					cage.tryTouch(middle, sac, false);
 					// How long it should stay, from the moment it was said.
-					// The line has been read and faded, and the next thought has begun.
+					// The line has been read and faded.
 					goneAt = harness.gameSeconds + expected.length() / 30.0 + DialogBubble.READING_SECONDS + 1.0;
 				}
 				else if (done[0] && !done[1] && harness.gameSeconds >= SHOWN_AT)
@@ -133,14 +134,14 @@ class ItemMessageRenderTest
 	}
 
 	/**
-	 * The cage gives key piece 3, so once its line has been read Ross thinks of the next step:
-	 * the hint of piece 1, the first he still lacks (r73). It replaces the line, not joins it.
+	 * The cage gives key piece 3, and once its line has been read the bubble goes: Ross no
+	 * longer thinks the next hint by himself at each step (r91, which undid r73's). The hints
+	 * wait under the mouse on the key.
 	 */
 	@Test
-	@DisplayName("once the line has been read, Ross thinks of the next step instead")
-	void theLineMakesWayForTheNextStep()
+	@DisplayName("once the line has been read, the bubble goes and nothing follows it")
+	void theLineIsNotFollowed()
 	{
-		assertEquals(Index_Text.get("wa1.hint1"), afterText,
-			"after the cage's line the bubble should hold the thought of the first missing piece");
+		assertEquals("", afterText, "after the cage's line the bubble should be empty, not thinking the next step");
 	}
 }

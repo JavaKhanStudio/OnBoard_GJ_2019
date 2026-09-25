@@ -251,6 +251,9 @@ public class Index_Interface
 	public static void loadGame()
 	{
 //		manager.load(wagon_1, Texture.class);
+		// A carriage leaves under the steam (r91), and the game can start without the intro.
+		if(!manager.isLoaded(steamFrames))
+			manager.load(steamFrames, TextureAtlas.class);
 		manager.finishLoading();
 	}
 

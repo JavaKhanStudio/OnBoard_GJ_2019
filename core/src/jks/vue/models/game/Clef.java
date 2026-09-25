@@ -7,6 +7,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
@@ -46,9 +47,10 @@ public class Clef extends Table
 		part3 = new VisImage(Index_Interface.manager.get(Index_Interface.key3, Texture.class)) ;
 		
 		// The .wa files name a row of i18n/textes.tsv, not the words themselves (r76).
-		part1.addListener(buildListener(Index_Text.get(level.hint1))) ; 
-		part2.addListener(buildListener(Index_Text.get(level.hint2))) ; 
-		part3.addListener(buildListener(Index_Text.get(level.hint3))) ; 
+		hints = new String[] {null, Index_Text.get(level.hint1), Index_Text.get(level.hint2), Index_Text.get(level.hint3)} ; 
+		part1.addListener(buildListener(1)) ; 
+		part2.addListener(buildListener(2)) ; 
+		part3.addListener(buildListener(3)) ; 
 		
 		
 		resize() ; 
@@ -58,24 +60,73 @@ public class Clef extends Table
 		this.add(part3) ;
 	}
 	
-	private ClickListener buildListener(String text)
+	/** Each piece's hint, by piece number 1 to 3: what to go and find. */
+	final String[] hints ; 
+	/**
+	 * What was said as each piece came (r91): the line of the item that gave it, the good or
+	 * the bad action alike. Null for a piece not held, or given by something with nothing to say.
+	 */
+	final String[] results = new String[4] ; 
+	
+	/** Under the mouse, a piece says its hint until it is held, then how it was won (r91). */
+	public String lineOf(int piece)
+	{
+		return has(piece) && results[piece] != null ? results[piece] : hints[piece] ; 
+	}
+	
+	private ClickListener buildListener(int piece)
 	{
 		return new ClickListener()
 		{
+			/** What enter showed, so exit takes away that and not a line said since. */
+			String shown ; 
+			
 			@Override
 			public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor)
 			{
-//				Utils_Debug.log(text + " ENTER");
-				GVars_Game.dialogBubble.applyText(text); 
+				shown = lineOf(piece) ; 
+				GVars_Game.dialogBubble.applyText(shown); 
 			}
 			
 			@Override
 			public void exit (InputEvent event, float x, float y, int pointer, Actor toActor) 
 			{
-//				Utils_Debug.log(text + " EXIT");
-				GVars_Game.tryMakeDiseaper(text); 
+				if(shown != null)
+					GVars_Game.tryMakeDiseaper(shown); 
 			}
 		} ;
+	}
+	
+	/** One flash of a piece: down to this alpha and back, three times over (r91, as r93's pulse). */
+	static final float FLASH_ALPHA = 0.2f ; 
+	static final float FLASH_SECONDS = 0.15f ; 
+	static final int FLASH_COUNT = 3 ; 
+	
+	/**
+	 * Something was picked up (r91): the pieces still missing flash, so the eye goes to the key
+	 * and its hints. Ross no longer says the next hint by himself at each step.
+	 */
+	public void flashMissing()
+	{
+		VisImage[] parts = {null, part1, part2, part3} ; 
+		for(int piece = 1 ; piece <= 3 ; piece++)
+		{
+			if(has(piece))
+				continue ; 
+			VisImage part = parts[piece] ; 
+			part.clearActions() ; 
+			part.getColor().a = 1 ; 
+			part.addAction(Actions.repeat(FLASH_COUNT, Actions.sequence(
+					Actions.alpha(FLASH_ALPHA, FLASH_SECONDS), 
+					Actions.alpha(1, FLASH_SECONDS)))) ; 
+		}
+	}
+	
+	/** A piece is flashing now. For the render tests. */
+	public boolean isFlashing(int piece)
+	{
+		VisImage part = piece == 1 ? part1 : piece == 2 ? part2 : part3 ; 
+		return part.hasActions() ; 
 	}
 	
 	public void resize()
@@ -95,9 +146,21 @@ public class Clef extends Table
 		part3.setX((sizePart * 2) + decal);
 	}
 	
+	/** A piece comes, with nothing said for it. */
 	public void applySucces(int value)
+	{
+		applySucces(value, null) ; 
+	}
+	
+	/**
+	 * A piece comes. resultKey is the text-table key of what Ross said as it came: shown under
+	 * the mouse from then on in place of the hint (r91). Null when nothing was said.
+	 */
+	public void applySucces(int value, String resultKey)
 	{	
 		boolean hadIt = has(value) ; 
+		if(!hadIt && value >= 1 && value <= 3 && resultKey != null && Index_Text.has(resultKey))
+			results[value] = Index_Text.get(resultKey) ; 
 		
 		if(value == 1)
 		{
@@ -115,19 +178,15 @@ public class Clef extends Table
 			part3.setDrawable(Index_Interface.manager.get(Index_Interface.key3Full, Texture.class)) ;
 		}
 		
-		// The last piece plays the level's sound instead, from nextLevel: two chimes on one
-		// pickup would only blur each other. A piece already held makes no sound at all.
+		// The last piece plays the level's sound instead, from completeCarriage: two chimes on
+		// one pickup would only blur each other. A piece already held makes no sound at all.
+		// Ross says nothing more by himself: the hints wait under the mouse (r91).
 		boolean complete = hasPiece1 && hasPiece2 && hasPiece3 ; 
 		if(!hadIt && has(value) && !complete)
-		{
 			GVars_AudioManager.PlayEffect(Enum_Effect_Sound.Slot.KEY_PIECE) ; 
-			GVars_Game.thinkOfNextStep(0) ; 
-		}
 		
 		if(complete)
-		{
-			GVars_Game.nextLevel() ; 
-		}
+			GVars_Game.completeCarriage() ; 
 	}
 	
 	/** The lowest piece not yet held, 1 to 3, or 0 once the key is whole. */
@@ -139,7 +198,7 @@ public class Clef extends Table
 		return 0 ; 
 	}
 	
-	private boolean has(int value)
+	public boolean has(int value)
 	{
 		return value == 1 ? hasPiece1 : value == 2 ? hasPiece2 : value == 3 ? hasPiece3 : false ; 
 	}

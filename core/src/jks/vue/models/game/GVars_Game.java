@@ -29,6 +29,7 @@ import jks.vinterface.Utils_TexturesAcess;
 import jks.vinterface.tools.DialogBubble;
 import jks.vinterface.tools.DialogBubble.DialogSize;
 import jks.vue.GVars_Fade;
+import jks.vue.GVars_Steam;
 import jks.vue.models.Vue_Scenematic_Outro;
 
 public class GVars_Game 
@@ -103,10 +104,10 @@ public class GVars_Game
 	}
 	
 	/**
-	 * What Ross has on his mind at each step of a carriage (r73): as it opens, and each time a
-	 * piece of the key comes, he thinks the hint of the first piece he still lacks - his state
-	 * of mind and, between the lines, what he needs to find. The same line the piece shows
-	 * under the mouse. Nothing once the key is whole: the carriage is on its way out.
+	 * What Ross has on his mind as a carriage opens (r73): the hint of the first piece he lacks -
+	 * his state of mind and, between the lines, what he needs to find. The same line the piece
+	 * shows under the mouse. Only then since r91: the player explores, the key flashes at each
+	 * pickup, and the other hints wait under the mouse for whoever wants them.
 	 */
 	public static void thinkOfNextStep(float afterSeconds)
 	{
@@ -156,8 +157,11 @@ public class GVars_Game
 		inventory.carry(selectable);
 		
 		if(gameItem.giveKey_take)
-			GVars_Game.addKey(gameItem.keyNumb) ; 
+			clef.applySucces(gameItem.keyNumb, GameItem.clickKey(currentLevelInt, gameItem.name)) ; 
 		
+		// Towards the key, whose pieces keep the hints (r91). Not once it is whole.
+		if(clef != null && clef.firstMissing() != 0)
+			clef.flashMissing() ; 
 	}
 	
 	public static void loadLevel(int value)
@@ -317,26 +321,44 @@ public class GVars_Game
 		
 		useUp(selected) ; 
 		
+		// What the piece shows under the mouse from now on (r91): how it was won, good or bad.
 		if(gameItem.giveKey_interfact)
-		{
-			clef.applySucces(gameItem.keyNumb);
-		}
+			clef.applySucces(gameItem.keyNumb, choiceNumber == 2 ? gameItem.message_Crucial_2 : gameItem.message_Crucial_1);
 	}
 
+	/** The shortest the steam takes to creep in when nothing is left to read: its plain speed. */
+	public static final float CREEP_MIN_SECONDS = 0f ; 
+	
+	/**
+	 * The key is whole (r91). What was said as the last piece came still has to be read, so the
+	 * steam creeps in over the time the bubble needs, the carriage swaps under it, and it lifts
+	 * off the next one - or the ending. A click anywhere hurries it. The level's sound is now.
+	 */
+	public static void completeCarriage()
+	{
+		float reading = dialogBubble == null ? 0 : dialogBubble.secondsBusy() ; 
+		boolean started = GVars_Steam.creep(Math.max(reading, CREEP_MIN_SECONDS), GVars_Game::swapToNextCarriage) ; 
+		if(started)
+			GVars_AudioManager.PlayEffect(Enum_Effect_Sound.Slot.LEVEL_COMPLETE) ; 
+	}
+	
+	/** The next carriage, or the ending after the last. What nextLevel and completeCarriage do once the screen is hidden. */
+	static void swapToNextCarriage()
+	{
+		if(currentLevelInt == LEVEL_COUNT)
+		{
+			GVars_Heart.changeVue(new Vue_Scenematic_Outro(),true) ; 
+		}
+		
+		GVars_Camera.resetCamera();
+		loadLevel(++currentLevelInt) ; 
+	}
+	
 	public static void nextLevel() 
 	{
 		// The carriage fades out and the next one, or the ending, fades in (r44). The swap
 		// waits for the black; a second call while that fade runs changes nothing.
-		boolean started = GVars_Fade.through(() ->
-		{
-			if(currentLevelInt == LEVEL_COUNT)
-			{
-				GVars_Heart.changeVue(new Vue_Scenematic_Outro(),true) ; 
-			}
-			
-			GVars_Camera.resetCamera();
-			loadLevel(++currentLevelInt) ; 
-		}) ;
+		boolean started = GVars_Fade.through(GVars_Game::swapToNextCarriage) ;
 		
 		// Before the outro's changeVue, which stops the train but lets this finish over it.
 		if(started)
