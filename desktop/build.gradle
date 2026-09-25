@@ -129,6 +129,11 @@ tasks.register('fatJar', Jar) {
     from sourceSets.main.output
     from project(':core').sourceSets.main.output
 
+    // The closure below reads the runtime classpath's files, and a closure carries no task
+    // dependencies: on a fresh clone core-1.0.jar was not built yet and fatJar failed
+    // ("Cannot expand ZIP ... core-1.0.jar"). It only ever worked on a used checkout.
+    dependsOn configurations.runtimeClasspath
+
     from {
         configurations.runtimeClasspath.findAll { it.name.endsWith('.jar') }.collect { dependency ->
             def classifier = (dependency.name =~ /-(natives-[a-z0-9-]+)\.jar$/).with { it ? it[0][1] : null }
