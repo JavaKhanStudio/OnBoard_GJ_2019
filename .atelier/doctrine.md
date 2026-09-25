@@ -1,8 +1,5 @@
 # On Board: Doctrine
 
-> **PROPOSED** by the Doctrine upkeep (r108) on 2026-09-25. It binds nothing until Simon
-> approves it on the board's Doctrine page.
-
 **D1. On Board stays the 2019 team's game: we bring it up to date and fix what is broken, we do not rewrite what they made.**
 The team's hints, cage lines, art and puzzles stay theirs. Lines an agent writes are placeholders until Simon keeps them.
 
