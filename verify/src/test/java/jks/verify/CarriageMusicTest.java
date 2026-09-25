@@ -61,8 +61,14 @@ class CarriageMusicTest
 	private static volatile boolean finished;
 	private static AudioCapture capture;
 	private static double firstStepSeconds = 1.5;
-	/** When nextLevel was called, and so when the fade to carriage 2 began. */
+	/** When nextLevel was called, and so when the fade to carriage 2 began, in capture seconds. */
 	private static volatile double carriageChangeSeconds = -1;
+	/**
+	 * When the audio device opened, and so the capture's first sample. The capture runs on the
+	 * wall clock from there; harness.gameSeconds does not count the loading (its first delta is
+	 * clamped), so it runs ~1.5 s behind the capture and cannot place a window in it.
+	 */
+	private static long deviceOpenNanos;
 
 	/** Whether this run had wa2_ideal in lab-assets/: the report says which path it proved. */
 	static volatile boolean idealHere;
@@ -104,7 +110,7 @@ class CarriageMusicTest
 			record("carriage 1 plays its aged song", playing().equals("wa1_modulated.ogg"));
 			record("the entrance crossfade from the menu's song is over", !GVars_AudioManager.isCrossfading());
 			carried[0] = position();
-			carriageChangeSeconds = harness.gameSeconds;
+			carriageChangeSeconds = (System.nanoTime() - deviceOpenNanos) / 1e9;
 			GVars_Game.nextLevel();
 		}));
 		// Black comes at GVars_Fade.OUT_SECONDS; half a crossfade later:
@@ -164,6 +170,8 @@ class CarriageMusicTest
 			due[0] = harness.gameSeconds + step.wait;
 		};
 
+		// The application opens the audio device first, before the window and the game's loading.
+		deviceOpenNanos = System.nanoTime();
 		new Lwjgl3Application(harness, gl);
 
 		if (captured != null && captured.isFile())
@@ -229,6 +237,11 @@ class CarriageMusicTest
 		assertEquals(15, seen.size(), report);
 	}
 
+	/** Half a second of 50 ms windows either side of each one. */
+	private static final int NEAR = 10;
+	/** The song's own deepest trough is 20.6 dB (wa1_modulated; tools/music_troughs.py): a hole is deeper. */
+	private static final double HOLE_DB = 26;
+
 	@Test
 	@DisplayName("neither the carriage change nor a switch leaves a hole in the music that comes out")
 	void noHoleAtTheSwitches()
@@ -249,18 +262,30 @@ class CarriageMusicTest
 		}
 		assertTrue(silent <= 2, "the music dropped out at a switch ('.' is 50 ms of silence): " + profile);
 
-		// Across the carriage change, from the fade's start to the crossfade's end: no dip.
-		// A cut, or a linear crossfade of two tracks, shows as a window far under the rest.
+		// Across the carriage change, from the fade's start to the crossfade's end: no hole.
+		// The song's own level is not steady - its phrases decay 25 dB and start again, and
+		// a window can sit 20 dB under the loudest on both sides of it with nothing wrong (r113,
+		// measured over all four aged songs and intro.mp3). So no window may sit more than
+		// HOLE_DB under the loudest within half a second on BOTH sides: deeper than the song
+		// goes by itself, which is what one track gone before the other comes up looks like.
 		assertTrue(carriageChangeSeconds > 0, "the carriage change never happened");
 		int changeFrom = (int) (carriageChangeSeconds / 0.05), changeTo = (int) ((carriageChangeSeconds + 1.0 + 1.2) / 0.05);
-		double[] around = java.util.Arrays.copyOfRange(levels, changeFrom, Math.min(changeTo, levels.length));
-		double[] sorted = around.clone();
-		java.util.Arrays.sort(sorted);
-		double median = sorted[sorted.length / 2], lowest = sorted[0];
+		assertTrue(changeTo + NEAR < levels.length, "the capture ends before the carriage change's crossfade does");
 		StringBuilder change = new StringBuilder();
-		for (double level : around) change.append(' ').append(AudioCapture.db(level));
-		System.out.println("carriage change, 50 ms windows:" + change);
-		assertTrue(lowest > median * 0.25, "the music dips at the carriage change: lowest " + AudioCapture.db(lowest)
-			+ " against a median of " + AudioCapture.db(median) + ":" + change);
+		double deepest = 0;
+		for (int i = changeFrom; i < changeTo; i++)
+		{
+			double before = 0, after = 0;
+			for (int k = 1; k <= NEAR; k++)
+			{
+				before = Math.max(before, levels[i - k]);
+				after = Math.max(after, levels[i + k]);
+			}
+			deepest = Math.max(deepest, 20 * Math.log10(Math.min(before, after) / Math.max(levels[i], 1e-9)));
+			change.append(' ').append(AudioCapture.db(levels[i]));
+		}
+		System.out.println("carriage change at " + carriageChangeSeconds + " s of the capture, 50 ms windows:" + change);
+		assertTrue(deepest < HOLE_DB, "the music dips at the carriage change: a window " + Math.round(deepest)
+			+ " dB under both sides of it:" + change);
 	}
 }
