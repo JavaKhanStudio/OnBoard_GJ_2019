@@ -8,7 +8,7 @@ The carriages are Ross's four ages, one season each (see musics/PROMPTS.md): wa1
 child, wa2 Ete the young man, wa3 Automne the adult, wa4 Hiver the old man. The song gets a
 little older with him - brighter and quicker at first, then lower, slower, further away:
 
-    wa1  a tone up, 4 % quicker, the bass thinned and the top lifted: light, a child's size
+    wa1  a semitone up, 4 % quicker, the bass thinned and the top lifted: light, a child's size
     wa2  the song as written, a touch warmer and wider: the only carriage that sounds like it
     wa3  a tone down, 6 % slower, the top dulled, a hall around it: heavier, looking back
     wa4  a minor third down, 14 % slower, band-limited like an old wireless, a long room and a
@@ -23,11 +23,17 @@ The reverb is applied circularly - its tail wraps round to the start - because t
 a tail cut off at the end would click at every pass.
 
     tools/make_wagon_music.py        writes desktop/assets/musics/wagons/wa<n>_modulated.ogg
+    tools/make_wagon_music.py 1      only wa1: the others keep their files, and wa1's room is the
+                                     same random draw as a full run, so only the recipe changes
+
+wa1 was a whole tone up until r123, when Simon heard it as a bit too high: tools/measure_pitch_shift.py
+reads each file's shift back.
 
 Needs ffmpeg (with rubberband and libvorbis) and numpy.
 """
 import os
 import subprocess
+import sys
 
 import numpy as np
 
@@ -38,7 +44,7 @@ RATE = 44100
 
 # semitones, tempo ratio, ffmpeg EQ chain, reverb (seconds, wet), level in dB against the source
 RECIPES = {
-	1: dict(semitones=+2, tempo=1.04,
+	1: dict(semitones=+1, tempo=1.04,
 		eq="highpass=f=140,treble=g=3:f=5000,bass=g=-2:f=200",
 		reverb=(0.8, 0.10), gain=0.0),
 	2: dict(semitones=0, tempo=1.00,
@@ -101,7 +107,11 @@ def main():
 	os.makedirs(OUT, exist_ok=True)
 	source = render(dict(semitones=0, tempo=1.0, eq="anull"))
 	rng = np.random.default_rng(94)
+	only = {int(a) for a in sys.argv[1:]} or set(RECIPES)
 	for carriage, recipe in RECIPES.items():
+		if carriage not in only:
+			impulse(recipe["reverb"][0], rng)  # draw its room anyway, so the next carriage's is the same
+			continue
 		samples = render(recipe)
 		samples = circular_reverb(samples, *recipe["reverb"], rng)
 		# Loudness matched to the source, then the recipe's own offset: an older carriage sits
