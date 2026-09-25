@@ -106,7 +106,7 @@ class CarriageMusicTest
 
 		int[] next = {0};
 		double[] due = {firstStepSeconds};
-		harness = new GameHarness(new Main_Application(), Integer.MAX_VALUE, 100_000);
+		harness = new GameHarness(new Main_Application(), Integer.MAX_VALUE, Integer.MAX_VALUE);
 		harness.exitAfterSeconds = firstStepSeconds + steps.size() * 0.6 + 0.4;
 		harness.frameHook = frame ->
 		{

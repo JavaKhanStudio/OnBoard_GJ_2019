@@ -97,7 +97,7 @@ class EffectSoundTest
 		gl.setOpenGLEmulation(Lwjgl3ApplicationConfiguration.GLEmulation.GL30, 3, 2);
 		gl.useVsync(false);
 
-		harness = new GameHarness(new Main_Application(), Integer.MAX_VALUE, 100_000);
+		harness = new GameHarness(new Main_Application(), Integer.MAX_VALUE, Integer.MAX_VALUE);
 		harness.captureAfterSeconds = CAPTURE_AFTER_SECONDS;
 		harness.exitAfterSeconds = EXIT_AFTER_SECONDS;
 		harness.frameHook = frame ->

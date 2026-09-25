@@ -163,7 +163,7 @@ class MenuKeyboardTest
 
 		int[] next = {0};
 		double[] due = {1.8};
-		harness = new GameHarness(new Main_Application(), Integer.MAX_VALUE, 100_000);
+		harness = new GameHarness(new Main_Application(), Integer.MAX_VALUE, Integer.MAX_VALUE);
 		harness.exitAfterSeconds = 1.8 + steps.size() * 0.8 + 0.5;
 		harness.captureAfterSeconds = harness.exitAfterSeconds - 0.1;
 		harness.frameHook = frame ->

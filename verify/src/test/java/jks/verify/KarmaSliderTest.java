@@ -91,7 +91,7 @@ class KarmaSliderTest
 
 		int[] next = {0};
 		double[] due = {1.5};
-		harness = new GameHarness(new Main_Application(), Integer.MAX_VALUE, 100_000);
+		harness = new GameHarness(new Main_Application(), Integer.MAX_VALUE, Integer.MAX_VALUE);
 		harness.exitAfterSeconds = 1.5 + steps.size() * 0.6 + 0.4;
 		harness.frameHook = frame ->
 		{

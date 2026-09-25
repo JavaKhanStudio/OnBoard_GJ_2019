@@ -63,7 +63,7 @@ class ChoiceLineRenderTest
 
 		boolean[] done = {false, false};
 
-		harness = new GameHarness(new Main_Application(), Integer.MAX_VALUE, 100_000);
+		harness = new GameHarness(new Main_Application(), Integer.MAX_VALUE, Integer.MAX_VALUE);
 		harness.exitAfterSeconds = 60;
 		harness.frameHook = frame ->
 		{

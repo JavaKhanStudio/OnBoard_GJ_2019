@@ -64,7 +64,7 @@ class LevelFadeTest
 		double start = 2.0;
 		int[] grabbed = {0};
 		boolean[] triggered = {false}, probed = {false};
-		harness = new GameHarness(new Main_Application(), Integer.MAX_VALUE, 100_000);
+		harness = new GameHarness(new Main_Application(), Integer.MAX_VALUE, Integer.MAX_VALUE);
 		harness.exitAfterSeconds = start + GRABS[GRABS.length - 1] + 0.3;
 		harness.captureAfterSeconds = harness.exitAfterSeconds - 0.1;
 		harness.frameHook = frame ->

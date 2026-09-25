@@ -125,7 +125,7 @@ class PauseRenderTest
 
 		int[] next = {0};
 		double[] due = {2.0};
-		harness = new GameHarness(new Main_Application(), Integer.MAX_VALUE, 100_000);
+		harness = new GameHarness(new Main_Application(), Integer.MAX_VALUE, Integer.MAX_VALUE);
 		harness.exitAfterSeconds = 2.0 + steps.size() * 0.6 + 0.4;
 		harness.captureAfterSeconds = harness.exitAfterSeconds - 0.1;
 		harness.frameHook = frame ->

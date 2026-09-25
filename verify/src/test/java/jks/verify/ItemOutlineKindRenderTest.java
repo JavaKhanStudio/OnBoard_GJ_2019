@@ -63,7 +63,7 @@ class ItemOutlineKindRenderTest
 		int[] carriage = {0};
 		double[] due = {1.5};
 
-		harness = new GameHarness(new Main_Application(), Integer.MAX_VALUE, 1_000_000);
+		harness = new GameHarness(new Main_Application(), Integer.MAX_VALUE, Integer.MAX_VALUE);
 		harness.exitAfterSeconds = 120;
 		harness.frameHook = frame ->
 		{

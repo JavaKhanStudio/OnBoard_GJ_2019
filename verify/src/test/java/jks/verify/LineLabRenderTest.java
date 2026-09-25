@@ -50,7 +50,7 @@ class LineLabRenderTest
 		gl.useVsync(false);
 
 		int[] step = {0};
-		harness = new GameHarness(new Main_Application(), Integer.MAX_VALUE, 1_000_000);
+		harness = new GameHarness(new Main_Application(), Integer.MAX_VALUE, Integer.MAX_VALUE);
 		harness.exitAfterSeconds = 20;
 		harness.frameHook = frame ->
 		{

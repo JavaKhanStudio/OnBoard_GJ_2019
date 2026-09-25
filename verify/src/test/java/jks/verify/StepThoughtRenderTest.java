@@ -69,7 +69,7 @@ class StepThoughtRenderTest
 
 		int[] step = {0};
 		double[] at = {0};
-		harness = new GameHarness(new Main_Application(), Integer.MAX_VALUE, 1_000_000);
+		harness = new GameHarness(new Main_Application(), Integer.MAX_VALUE, Integer.MAX_VALUE);
 		harness.exitAfterSeconds = 60;
 		harness.frameHook = frame ->
 		{

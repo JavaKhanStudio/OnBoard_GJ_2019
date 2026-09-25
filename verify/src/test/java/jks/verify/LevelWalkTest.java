@@ -58,7 +58,7 @@ class LevelWalkTest
 		gl.useVsync(false);
 
 		double[] due = {SECONDS_PER_LEVEL};
-		harness = new GameHarness(new Main_Application(), Integer.MAX_VALUE, 100_000);
+		harness = new GameHarness(new Main_Application(), Integer.MAX_VALUE, Integer.MAX_VALUE);
 		harness.exitAfterSeconds = SECONDS_PER_LEVEL * LAST_LEVEL + 0.2;
 		harness.captureAfterSeconds = harness.exitAfterSeconds - 0.1;
 		harness.frameHook = frame ->

@@ -72,7 +72,7 @@ class ClosureRenderTest
 		int[] phase = {0};           // 0 set up, 1 pictures, 2 card, 3 card left alone, 4 waiting for the menu
 		double[] mark = {0};
 
-		harness = new GameHarness(new Main_Application(), Integer.MAX_VALUE, 1_000_000);
+		harness = new GameHarness(new Main_Application(), Integer.MAX_VALUE, Integer.MAX_VALUE);
 		harness.captureAfterSeconds = 0.1;
 		harness.exitAfterSeconds = 90;
 		harness.frameHook = frame ->

@@ -65,7 +65,7 @@ class KnifeMountRenderTest
 		gl.useVsync(false);
 
 		int[] step = {0};
-		harness = new GameHarness(new Main_Application(), Integer.MAX_VALUE, 1_000_000);
+		harness = new GameHarness(new Main_Application(), Integer.MAX_VALUE, Integer.MAX_VALUE);
 		harness.exitAfterSeconds = RESET_AT + 3;
 		harness.frameHook = frame ->
 		{

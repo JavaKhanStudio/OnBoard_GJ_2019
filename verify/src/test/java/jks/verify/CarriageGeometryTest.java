@@ -69,7 +69,7 @@ class CarriageGeometryTest
 		gl.useVsync(false);
 
 		int[] step = {0};
-		harness = new GameHarness(new Main_Application(), Integer.MAX_VALUE, 1_000_000);
+		harness = new GameHarness(new Main_Application(), Integer.MAX_VALUE, Integer.MAX_VALUE);
 		harness.exitAfterSeconds = GIVE_UP_AT + 1;
 		harness.captureAfterSeconds = GIVE_UP_AT;
 		harness.frameHook = frame ->

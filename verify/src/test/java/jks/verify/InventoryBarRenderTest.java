@@ -66,7 +66,7 @@ class InventoryBarRenderTest
 
 		boolean[] done = {false, false, false, false};
 
-		harness = new GameHarness(new Main_Application(), Integer.MAX_VALUE, 100_000);
+		harness = new GameHarness(new Main_Application(), Integer.MAX_VALUE, Integer.MAX_VALUE);
 		harness.exitAfterSeconds = CHECK_AT + 0.4;
 		harness.captureAfterSeconds = harness.exitAfterSeconds - 0.1;
 		harness.frameHook = frame ->

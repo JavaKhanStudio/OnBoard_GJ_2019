@@ -56,7 +56,7 @@ class CreditsRenderTest
 		config.setTitle("On Board - credits verification");
 		config.useVsync(false);
 
-		harness = new GameHarness(new Main_Application(), Integer.MAX_VALUE, 100_000);
+		harness = new GameHarness(new Main_Application(), Integer.MAX_VALUE, Integer.MAX_VALUE);
 		harness.captureAfterSeconds = CAPTURE_AFTER_SECONDS;
 		harness.exitAfterSeconds = EXIT_AFTER_SECONDS;
 		harness.frameHook = frame ->

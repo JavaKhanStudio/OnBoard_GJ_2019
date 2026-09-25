@@ -235,7 +235,7 @@ class SettingsTest
 		double[] due = {1.8};
 		double total = 1.8;
 		for (Timed t : steps) total += t.wait;
-		harness = new GameHarness(new Main_Application(), Integer.MAX_VALUE, 100_000);
+		harness = new GameHarness(new Main_Application(), Integer.MAX_VALUE, Integer.MAX_VALUE);
 		harness.exitAfterSeconds = total + 0.5;
 		harness.captureAfterSeconds = harness.exitAfterSeconds - 0.1;
 		harness.frameHook = frame ->

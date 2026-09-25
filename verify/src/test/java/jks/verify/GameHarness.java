@@ -87,8 +87,10 @@ public class GameHarness implements ApplicationListener
 			boolean done = exitAfterSeconds > 0
 				? gameSeconds >= exitAfterSeconds
 				: frame >= exitFrame;
-			if (done && capture != null) Gdx.app.exit();
-			else if (frame >= exitFrame) Gdx.app.exit();
+			// A run that asked for no capture ends on its clock too: until r96 it waited for a
+			// capture that never came, and the frame cap - which a cheap screen hits early - ended it.
+			boolean awaitingCapture = captureAfterSeconds > 0 && capture == null;
+			if ((done && !awaitingCapture) || frame >= exitFrame) Gdx.app.exit();
 		}
 		catch (Throwable t)
 		{

@@ -94,7 +94,7 @@ class KeyHintRenderTest
 		double[] hoveredAt = {-1};
 		int[] next = {0};
 
-		harness = new GameHarness(new Main_Application(), Integer.MAX_VALUE, 100_000);
+		harness = new GameHarness(new Main_Application(), Integer.MAX_VALUE, Integer.MAX_VALUE);
 		harness.exitAfterSeconds = HOVER_AT + AFTER[AFTER.length - 1] + 0.4;
 		harness.captureAfterSeconds = harness.exitAfterSeconds - 0.1;
 		harness.frameHook = frame ->

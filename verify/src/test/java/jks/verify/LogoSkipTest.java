@@ -65,7 +65,7 @@ class LogoSkipTest
 		config.setResizable(false);
 		config.useVsync(false);
 
-		harness = new GameHarness(new Main_Application(), Integer.MAX_VALUE, 100_000);
+		harness = new GameHarness(new Main_Application(), Integer.MAX_VALUE, Integer.MAX_VALUE);
 		long startedAt = System.nanoTime();
 		harness.frameHook = frame ->
 		{
