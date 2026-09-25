@@ -155,6 +155,13 @@ VisUI is loaded here with libGDX's STOCK skin, not VisUI's own, so a widget styl
 uiskin.json does not declare will not resolve.
 An ImageButton left alone draws its drawable at natural size — give it a size and its
 aspect ratio, or a full-size asset covers the screen.
+THE STAGE IS THE WINDOW, in screen pixels: GVars_UI.init() and reset() both build it on a
+ScreenViewport, and every resize() lays out from Gdx.graphics. A bare new Stage() is fixed at
+that moment's window and STRETCHES after a resolution change, which put every HUD piece in the
+wrong place (r117). Anything on the stage that is sized from the window must be resized again
+from its screen's resize(). The resolution change is the only resize a player can make
+(Options); cage cannot resize a window, so WagonResizeRenderTest and MenuResizeRenderTest skip
+there. Run them through tools/offscreen_resizable.sh.
 FreeType only rasterises the characters it is asked for, and a missing glyph does not
 throw — it leaves a hole. Check accented text ("Bédard", "Réalisé", "Fumée") renders.
 THE TITLE FACE CANNOT SPELL FRENCH. ui/fonts/OptimusPrinceps.ttf — behind

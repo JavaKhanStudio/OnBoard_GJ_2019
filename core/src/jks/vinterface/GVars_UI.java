@@ -118,7 +118,11 @@ public class GVars_UI implements Runnable
 		buttonMap = null ;
 		cursorPos = null ;
 		
-		mainUi = new Stage();
+		// A ScreenViewport, as in init(): the stage is in screen pixels, which every layout here
+		// assumes. new Stage() alone is a viewport fixed at this moment's window, stretched when
+		// the window changes, so after a resize the HUD placed from Gdx.graphics sizes landed
+		// in the wrong place (the pause plank a third down the edge) and the rest scaled (r117).
+		mainUi = new Stage(new ScreenViewport());
 		Gdx.input.setInputProcessor(mainUi);
 	}
 

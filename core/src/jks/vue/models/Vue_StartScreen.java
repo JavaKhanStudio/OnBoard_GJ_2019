@@ -119,5 +119,10 @@ public class Vue_StartScreen extends AVue_Model
 	public void resize(int x, int y) 
 	{
 		super.resize(x,y) ; 
+		// A label keeps the glyphs of the font it was given, so the menu fonts GVars_Font
+		// rasterised for the new width only reach it through setStyle (r117). The entries are
+		// placed again by enterScene, when the options hand the menu back.
+		GVars_Font.resize() ;
+		GVars_UI.massResize(null) ;
 	}
 }

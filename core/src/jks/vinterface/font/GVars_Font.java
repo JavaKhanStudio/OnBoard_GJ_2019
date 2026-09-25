@@ -152,6 +152,14 @@ public class GVars_Font
 	public static void dispose()
 	{
 		retireMenuFonts() ;
+		if(activeFont != null)
+		{
+			retiredFonts.addAll(activeFont.values()) ;
+			activeFont.clear() ;
+			activeLabelStyle.clear() ;
+			activeTextraFont.clear() ;
+		}
+		enumBuiltWidth = -1 ;
 		for(BitmapFont font : retiredFonts)
 			font.dispose() ;
 		retiredFonts.clear() ;
@@ -163,8 +171,25 @@ public class GVars_Font
 		if(generator_Seconds != null) { generator_Seconds.dispose() ; generator_Seconds = null ; }
 	}
 	
+	/** The window width the fonts in activeFont were rasterised for. */
+	private static int enumBuiltWidth = -1 ;
+	
+	/**
+	 * Rasterised at a size taken from the window, so a new window width starts a new set (r117):
+	 * a bubble scaled from old glyphs would blur. The old ones are retired, not disposed - a
+	 * label built before the resize may still hold them - and released in dispose().
+	 */
 	public static LabelStyle buildLabel(Enum_Fonts font)
 	{
+		if(enumBuiltWidth != Gdx.graphics.getWidth())
+		{
+			retiredFonts.addAll(activeFont.values()) ;
+			activeFont.clear() ;
+			activeLabelStyle.clear() ;
+			activeTextraFont.clear() ;
+			enumBuiltWidth = Gdx.graphics.getWidth() ;
+		}
+		
 		LabelStyle labelStyle = activeLabelStyle.get(font); 
 		if(labelStyle == null) 
 		{

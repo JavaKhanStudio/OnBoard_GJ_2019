@@ -173,6 +173,12 @@ public class Vue_Game extends AVue_Model
 		// The bar's height on screen follows the window; the carriage itself is in world units.
 		if(GVars_Game.currentLevel != null)
 			GVars_Game.currentLevel.resize();
+		// The stage is the window (r117), so what sits on it is placed again for the new size:
+		// the key in its corner, and the bubble, with its text rasterised afresh.
+		if(GVars_Game.clef != null)
+			GVars_Game.clef.resize();
+		if(GVars_Game.dialogBubble != null)
+			GVars_Game.dialogBubble.resize();
 		// The carried items are centred on the bar, so the middle moving moves them (r59).
 		if(GVars_Game.inventory != null)
 			GVars_Game.inventory.place();
