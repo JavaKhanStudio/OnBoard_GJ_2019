@@ -39,4 +39,8 @@ tasks.named('test') {
         exceptionFormat "full"
         showStandardStreams = false
     }
+
+    // Two sessions in one checkout ran this at once and wiped each other's results (r132).
+    // Last, so the wait comes before offscreen's doFirst. See gradle/testlock.gradle.
+    rootProject.exclusiveRun(it)
 }

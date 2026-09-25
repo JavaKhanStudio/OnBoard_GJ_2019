@@ -224,9 +224,9 @@ tests play into build/audio/<task>.wav instead of the speakers (ALSOFT_DRIVERS=w
 gradle/offscreen.gradle), and MusicTest reads that file back through AudioCapture.java: music,
 then >=200 ms of silence while muted, then music. The wave device exists on any machine, so
 there is nothing left to skip. EffectSoundTest and FootstepTest do the same for the effects.
-The capture is ONE file per checkout (verify/build/audio/test.wav): two sessions running GL
-tests in the same checkout at once overwrite each other's, so an effects test that goes red
-on a silent capture needs a rerun in a worktree of its own before it is believed.
+The capture is ONE file per checkout (verify/build/audio/test.wav). Since r132 a second
+:verify:test in the same checkout waits for the first (gradle/testlock.gradle), so two
+sessions no longer overwrite each other's capture.
 """
 
 [tags.input]
@@ -273,6 +273,10 @@ in tools/offscreen.sh: dist/OnBoard-*/onboard, a fat jar, a scratch program.
 Their sound goes to build/audio/<task>.wav instead of the speakers (b3f280f), path in
 ONBOARD_AUDIO_CAPTURE. AudioCapture.java reads it back, which is how MusicTest checks what
 was actually played rather than what the code asked for.
+ONE :verify:test AT A TIME PER CHECKOUT (r132): a second run waits on verify/build/test.lock
+and logs "exclusiveRun: ... waiting". Before, it wiped the first run's test-results and that
+run ended in NoSuchFileException/EOFException with every test green. A worktree has its own
+lock. tools/probe_concurrent_tests.sh starts two runs at once and prints both verdicts.
 forkEvery = 1 in verify/build.gradle — ONE JVM PER CLASS. libGDX, VisUI and the controller
 manager keep static state that cannot be torn down and set up again, and VisUI.load()
 throws outright on a second call in a process. Do not "optimise" this away.

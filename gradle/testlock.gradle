@@ -1,0 +1,63 @@
+// One test run at a time per checkout (r132).
+//
+// Board sessions share a checkout, and two of them running :verify:test at once broke each
+// other: the second run wipes build/test-results while the first still writes to it, and the
+// first ends in NoSuchFileException (or EOFException) on in-progress-results-generic.bin
+// even when every test passed. Frames under build/frames and the sound in build/audio went
+// the same way.
+//
+//   exclusiveRun(task)   the task waits for any other build in this checkout running it,
+//                        then holds build/<task>.lock until its own build ends
+//
+// The lock is an OS file lock, so two Gradle daemons see it, and the OS drops it if a daemon
+// dies holding it. A worktree has its own build/ and so its own lock: runs there never wait.
+
+import java.nio.channels.FileChannel
+import java.nio.channels.FileLock
+import java.nio.file.StandardOpenOption
+
+import org.gradle.api.services.BuildService
+import org.gradle.api.services.BuildServiceParameters
+
+abstract class ExclusiveRuns implements BuildService<BuildServiceParameters.None>, AutoCloseable
+{
+	private final Map<File, FileChannel> held = [:]
+
+	synchronized void acquire(Task task, File lockFile)
+	{
+		if (held.containsKey(lockFile)) return
+		lockFile.parentFile.mkdirs()
+		FileChannel channel = FileChannel.open(lockFile.toPath(),
+			StandardOpenOption.CREATE, StandardOpenOption.WRITE)
+		FileLock lock = channel.tryLock()
+		if (lock == null)
+		{
+			task.logger.lifecycle("exclusiveRun: another build is running ${task.path} in this checkout; " +
+				"waiting for it to finish (${lockFile})")
+			long start = System.nanoTime()
+			lock = channel.lock()   // blocks until the other build's daemon lets go
+			task.logger.lifecycle("exclusiveRun: waited ${(System.nanoTime() - start).intdiv(1_000_000_000L)} s " +
+				"for ${task.path}")
+		}
+		held[lockFile] = channel
+	}
+
+	// The build is over, failed or not: let the next one in.
+	@Override
+	synchronized void close()
+	{
+		held.values().each { try { it.close() } catch (IOException ignored) {} }
+		held.clear()
+	}
+}
+
+def exclusiveRuns = gradle.sharedServices.registerIfAbsent('onboardExclusiveRuns', ExclusiveRuns) {}
+
+// Call it last in the task's configuration: doFirst prepends, so the wait then comes before
+// every other doFirst (offscreen's writes build/audio) and before the test action wipes its
+// results.
+ext.exclusiveRun = { Task task ->
+	task.usesService(exclusiveRuns)
+	File lockFile = task.project.layout.buildDirectory.file("${task.name}.lock").get().asFile
+	task.doFirst { exclusiveRuns.get().acquire(task, lockFile) }
+}
