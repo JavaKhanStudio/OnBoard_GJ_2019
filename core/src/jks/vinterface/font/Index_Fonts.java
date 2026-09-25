@@ -8,9 +8,9 @@ public class Index_Fonts
      * Ross's thoughts (r103): Mansalva, by Carolina Short, SIL Open Font License (its licence
      * sits beside it). A quick felt-pen hand, the lettering of a BD bubble. Simon's pick from
      * the faces tools/fetch_bubble_fonts.sh fetches, drawn side by side by BubbleFontLabTest.
-     * Its lines run wider than OpenSans's: at OpenSans's capital height, carriage 3's
-     * wa3.trou.message2 ran past the round cloud's edges. So the sizes below are OpenSans's
-     * (pre-r103) a twelfth smaller, and DialogBubble wraps them narrower than it used to.
+     * Its lines run wider than the plainer sans the bubbles used before r103: at that face's
+     * capital height, carriage 3's wa3.trou.message2 ran past the round cloud's edges. So the
+     * sizes below are the pre-r103 ones a twelfth smaller, and DialogBubble wraps them narrower than it used to.
      */
     private static final String regular = "Mansalva-Regular.ttf";  
     

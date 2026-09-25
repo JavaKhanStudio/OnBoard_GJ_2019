@@ -18,7 +18,7 @@ import jks.vue.models.game.GVars_Game;
  * INVENTED on r60's instruction and meant to be replaced. The words themselves are rows of
  * i18n/textes.tsv, under "Ending" (r76); nothing outside this class decides anything but the order.
  *
- * French, with accents, so whatever draws it must use GeosansLight or OpenSans. Never
+ * French, with accents, so whatever draws it must use GeosansLight or Mansalva. Never
  * OptimusPrinceps: it carries no accented glyph and would leave holes (doubt d8).
  */
 public final class ClosureMessage
