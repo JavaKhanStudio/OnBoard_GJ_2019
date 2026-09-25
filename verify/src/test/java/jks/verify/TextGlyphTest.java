@@ -23,12 +23,12 @@ import jks.vinterface.font.GVars_Font;
  * was neither asked of the generator nor noticed. No GL: FreeType reads the .ttf directly.
  *
  * The rows marked [title face] are OptimusPrinceps and ASCII only (TextTableTest, d8). Every
- * other row is drawn in OpenSans (the bubbles) or GeosansLight (the menus and the ending), so
+ * other row is drawn in PermanentMarker (the bubbles) or GeosansLight (the menus and the ending), so
  * each of its characters must be in both faces and in the set the generator is asked for.
  */
 class TextGlyphTest
 {
-	private static final String[] FACES = {"ui/fonts/OpenSans-Regular.ttf", "ui/fonts/GeosansLight.ttf"} ;
+	private static final String[] FACES = {"ui/fonts/PermanentMarker-Regular.ttf", "ui/fonts/GeosansLight.ttf"} ;
 
 	@Test
 	@DisplayName("every character of the table is rasterised and exists in the faces that draw it")
