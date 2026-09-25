@@ -37,7 +37,7 @@ import jks.vue.AVue_Model;
  *   ./gradlew :desktop:runGame -Donboard.start=sound_lab
  *
  * Under the tracks, one row per carriage (r94) plays its music as the main song, as the main song
- * aged for that carriage, or as the ideal track written for it once one is in musics/wagons.
+ * aged for that carriage, or as the ideal track written for it once one is in lab-assets/musics/wagons.
  *
  * The volume sliders act live and are NOT saved - the options screen is where those settings
  * live. The effect rows are the exception: "Use" is how the game's sound effects are chosen
@@ -169,7 +169,7 @@ public class Vue_SoundLab extends AVue_Model
 
 	/**
 	 * One carriage's music three ways (r94): the main song, the main song aged for it, and the
-	 * track written for it once one is dropped in musics/wagons. Moving between carriages or
+	 * track written for it once one is dropped in lab-assets/musics/wagons. Moving between carriages or
 	 * between main and modulated keeps the bar, so the difference is heard, not the restart.
 	 */
 	private void addCarriageRow(VisTable page, final int carriage)

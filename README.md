@@ -202,6 +202,7 @@ evidence that 1.14.2 renders level 1 the same way it always did.
 | `editor/` | the level editor that produced the `.wa` files — its item palette, `JksTextureList`, lives in `core/` though the game never uses it |
 | `test/` | a scratch module for trying widgets out |
 | `verify/` | the test suite |
+| `lab-assets/` | lab-only files: not in git, not in the game (see "Lab-only files" below) |
 
 Levels are `desktop/assets/game/wagon/wa{1..4}.wa` — JSON written by the editor. The
 scrolling backdrops are `.plax` files, and `.plaxpj` are the editor's project files for them.
@@ -293,4 +294,17 @@ still in this repo's git history if you'd rather have it back. `Pause/pauseMenuO
 the same way: an earlier cut of the PAUSE panel on a 1920x1080 canvas, superseded by
 `ui/icon/pause/pauseMenu.png`. So did `tools/dialog/ThinkBubble.png` (the bubbles draw
 `bubble_think_2.png`) and `ui/frame/borderDarkBlue.png`, which no code named.
+
+### Lab-only files
+
+`lab-assets/`, at the root of the checkout, holds what the labs use and the game never ships.
+It is git-ignored and sits outside `desktop/assets/`, so the jar and the packaged builds never
+pick it up. The game finds it as `../lab-assets` from its working directory, `desktop/`; pass
+`-Donboard.labAssets=<dir>` to point it somewhere else (`-PlabAssets=<dir>` for the tests). Today
+it holds the ideal carriage tracks (r99), `musics/wagons/wa<n>_ideal.(ogg|mp3|wav)`, generated
+outside from `musics/PROMPTS.md`. A fresh clone has none: the sound lab's and Carriage lab's
+Ideal buttons stay dark and the carriage plays its shipped track. The modulated tracks,
+`wa<n>_modulated.ogg`, are not lab-only: they are the game's carriage music (r97) and live in
+`desktop/assets/musics/wagons/`. Unlike the art reserve, this folder is inside the checkout
+because the game loads it.
 # OnBoard_GJ_2019

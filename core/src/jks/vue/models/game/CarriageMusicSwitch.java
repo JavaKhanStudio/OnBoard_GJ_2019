@@ -41,7 +41,10 @@ public class CarriageMusicSwitch extends VisTable
 			{
 				@Override
 				public void changed(ChangeEvent event, Actor actor)
-				{GVars_AudioManager.setCarriageVariant(variant) ;}
+				{
+					if(!((VisTextButton) actor).isDisabled())
+						GVars_AudioManager.setCarriageVariant(variant) ;
+				}
 			}) ;
 			buttons.put(variant, button) ;
 			add(button).padRight(8f) ;
@@ -68,6 +71,8 @@ public class CarriageMusicSwitch extends VisTable
 		for(CarriageVariant variant : buttons.keySet())
 		{
 			VisTextButton button = buttons.get(variant) ;
+			// Ideal is dark while this carriage's track is not in lab-assets/: always, on a fresh clone (r99).
+			button.setDisabled(variant == CarriageVariant.IDEAL && GVars_AudioManager.idealFile(GVars_Game.currentLevelInt) == null) ;
 			button.setProgrammaticChangeEvents(false) ;
 			button.setChecked(variant == GVars_Audio.carriageVariant) ;
 			button.setProgrammaticChangeEvents(true) ;

@@ -38,7 +38,9 @@ import jks.vue.models.game.GVars_Game;
  * switches it between the main song, the main song aged for the carriage, and a track written
  * for it. The main and modulated songs are one song, so a switch - or the next carriage - goes
  * on from the same bar instead of starting over; an ideal track nobody has made yet falls back
- * to the main song.
+ * to the main song. The ideal tracks are lab-only files in lab-assets/ (r99), absent on a fresh
+ * clone: this passes both ways, and says which one it proved. `-PlabAssets=<dir>` points the run
+ * at a lab-assets/ elsewhere (a worktree has none of its own).
  *
  * The plain run comes first, with the lab off; the lab's panel is opened over carriage 2 after.
  * One JVM holds one game (forkEvery = 1), so both are one run and one capture.
@@ -61,6 +63,9 @@ class CarriageMusicTest
 	private static double firstStepSeconds = 1.5;
 	/** When nextLevel was called, and so when the fade to carriage 2 began. */
 	private static volatile double carriageChangeSeconds = -1;
+
+	/** Whether this run had wa2_ideal in lab-assets/: the report says which path it proved. */
+	static volatile boolean idealHere;
 
 	private interface Step { void run() throws Exception; }
 
@@ -116,6 +121,8 @@ class CarriageMusicTest
 		// The lab, over carriage 2.
 		steps.add(new Timed(0.6, () -> {
 			record("the lab's switch is over the carriage", panel() != null);
+			idealHere = GVars_AudioManager.idealFile(2) != null;
+			record("Ideal is dark exactly when wa2_ideal is not in lab-assets", button("Ideal").isDisabled() == !idealHere);
 			Frames.write(GameHarness.grab(), new File(OUTPUT, "carriage-music-switch.png"));
 			carried[0] = position();
 			click("Main");
@@ -126,9 +133,8 @@ class CarriageMusicTest
 			click("Ideal");
 		}));
 		steps.add(new Timed(0.6, () -> {
-			boolean made = GVars_AudioManager.idealFile(2) != null;
-			record("Ideal plays wa2's own track, or the main song until it is made",
-				playing().equals(made ? GVars_AudioManager.idealFile(2).name() : "intro.mp3"));
+			record("Ideal plays wa2's own track, or a dark Ideal leaves the main song on",
+				playing().equals(idealHere ? GVars_AudioManager.idealFile(2).name() : "intro.mp3"));
 			click("Modulated");
 		}));
 		steps.add(new Timed(0.6, () -> {
@@ -177,16 +183,18 @@ class CarriageMusicTest
 		return GVars_UI.mainUi.getRoot().findActor("carriageMusicSwitch");
 	}
 
-	private static void click(String text)
+	private static VisTextButton button(String text)
 	{
 		for (Actor child : panel().getChildren())
 			if (child instanceof VisTextButton && ((VisTextButton) child).getText().toString().equals(text))
-			{
-				// Through the button's own ChangeListener, as a click would.
-				((VisTextButton) child).toggle();
-				return;
-			}
+				return (VisTextButton) child;
 		throw new AssertionError("no " + text + " button in the music switch");
+	}
+
+	private static void click(String text)
+	{
+		// Through the button's own ChangeListener, as a click would.
+		button(text).toggle();
 	}
 
 	private static String playing()
@@ -211,13 +219,14 @@ class CarriageMusicTest
 	{
 		if (harness.error != null) harness.error.printStackTrace();
 		if (error != null) error.printStackTrace();
-		String report = String.join("\n", seen);
+		String report = "lab-assets: wa2 ideal " + (idealHere ? "here" : "absent") + "\n" + String.join("\n", seen);
+		System.out.println(report);
 		assertNull(harness.error, harness.error == null ? null : "the game threw: " + harness.error + "\n" + report);
 		assertNull(error, error == null ? null : "a step threw: " + error + "\n" + report);
 		assertTrue(finished, "not every step ran:\n" + report);
 		for (String line : seen)
 			assertTrue(line.startsWith("ok"), report);
-		assertEquals(14, seen.size(), report);
+		assertEquals(15, seen.size(), report);
 	}
 
 	@Test

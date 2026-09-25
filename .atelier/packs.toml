@@ -183,7 +183,9 @@ looping, under the menu, the intro and the outro. Each carriage asks for its own
 GVars_Audio.carriageVariant (r94). It ships as SHIPPED_CARRIAGE_VARIANT = MODULATED (Simon's
 pick, r97): musics/wagons/wa<n>_modulated.ogg, intro.mp3 aged per carriage by
 tools/make_wagon_music.py. MAIN is intro.mp3 everywhere; IDEAL is wa<n>_ideal.(ogg|mp3|wav),
-generated outside from musics/PROMPTS.md, falling back to MAIN until dropped in. Only the labs
+generated outside from musics/PROMPTS.md, a LAB-ONLY file (r99) in lab-assets/musics/wagons/ at the
+checkout root (git-ignored, not in the jar, -Donboard.labAssets moves it): absent on a fresh clone,
+it falls back to MAIN and the labs' Ideal button is dark. Anything else lab-only goes there too. Only the labs
 switch it (sound lab rows, CarriageMusicSwitch with -Donboard.lab=true); it is not saved.
 Main and modulated are one song: a change carries the position across, scaled by the tempo
 ratios in Enum_Music.CarriageVariant, which must match the script's RECIPES. Every change of

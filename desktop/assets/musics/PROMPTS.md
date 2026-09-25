@@ -86,12 +86,13 @@ manquent — comme un souvenir qu'on n'arrive plus à jouer en entier.
 
 ## Où les déposer, et comment comparer (r94)
 
-Chaque piste générée se dépose sous `desktop/assets/musics/wagons/`, au nom de son wagon :
+Chaque piste générée se dépose sous `lab-assets/musics/wagons/`, à la racine du dépôt, au nom
+de son wagon. Ce dossier n'est ni dans git ni dans le jeu livré (r99) : il sert aux labos.
 
     wa1_ideal.ogg   wa2_ideal.ogg   wa3_ideal.ogg   wa4_ideal.ogg
 
-(`.mp3` ou `.wav` marchent aussi, rien d'autre à changer). À côté, `wa<n>_modulated.ogg` est
-l'autre option : la musique principale (`intro.mp3`) légèrement vieillie pour chaque wagon par
+(`.mp3` ou `.wav` marchent aussi, rien d'autre à changer). Dans le jeu, sous
+`desktop/assets/musics/wagons/`, `wa<n>_modulated.ogg` est l'autre option, celle qui est livrée : la musique principale (`intro.mp3`) légèrement vieillie pour chaque wagon par
 `tools/make_wagon_music.py` — un ton plus haut et un peu plus vite pour l'enfance, telle
 quelle pour la jeunesse, un ton plus bas avec une salle autour pour l'âge adulte, une tierce
 plus bas, plus lente, lointaine comme une vieille radio pour la vieillesse.

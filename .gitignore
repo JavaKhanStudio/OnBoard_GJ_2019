@@ -129,6 +129,11 @@ Thumbs.db
 *.orig
 /desktop/build/
 
+## Lab-only files (r99)
+# What the labs use and the game never ships, like the ideal carriage tracks. Not in git,
+# not in the jar: README.md "Lab-only files".
+/lab-assets/
+
 ## Agent board
 # `atelier skills install` links the skills in here with ABSOLUTE paths, so the
 # links are broken for anyone else who clones this.

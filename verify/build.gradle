@@ -31,6 +31,9 @@ tasks.named('test') {
     systemProperty 'onboard.assets', file('../desktop/assets').absolutePath
     systemProperty 'onboard.root', rootDir.absolutePath
     systemProperty 'onboard.verify', projectDir.absolutePath
+    // Where the lab-only files are (r99). A worktree has no lab-assets/ of its own, so
+    // -PlabAssets=<checkout>/lab-assets runs the labs' tests with the files there.
+    if (project.hasProperty('labAssets')) systemProperty 'onboard.labAssets', project.property('labAssets')
     testLogging {
         events "passed", "failed", "skipped"
         exceptionFormat "full"

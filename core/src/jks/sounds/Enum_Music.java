@@ -35,9 +35,10 @@ public enum Enum_Music
 	 *   MAIN       musics/intro.mp3 in every carriage, as before r97
 	 *   MODULATED  the same song aged once per carriage, musics/wagons/wa<n>_modulated.ogg, made by
 	 *              tools/make_wagon_music.py. What ships.
-	 *   IDEAL      a track composed for the carriage, musics/wagons/wa<n>_ideal.(ogg|mp3|wav),
-	 *              generated outside from musics/PROMPTS.md. Until one is dropped there, the
-	 *              carriage falls back to MAIN.
+	 *   IDEAL      a track composed for the carriage, generated outside from musics/PROMPTS.md.
+	 *              A lab-only file, never shipped and not in git (r99):
+	 *              lab-assets/musics/wagons/wa<n>_ideal.(ogg|mp3|wav). Until one is dropped
+	 *              there, the carriage falls back to MAIN and the labs' Ideal button is dark.
 	 */
 	public enum CarriageVariant
 	{
