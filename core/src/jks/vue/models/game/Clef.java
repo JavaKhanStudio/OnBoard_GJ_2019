@@ -4,6 +4,7 @@ import jks.index.Index_Text;
 import jks.tools.Utils_Debug;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.math.Interpolation;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
@@ -97,29 +98,31 @@ public class Clef extends Table
 		} ;
 	}
 	
-	/** One flash of a piece: down to this alpha and back, three times over (r91, as r93's pulse). */
-	static final float FLASH_ALPHA = 0.2f ; 
-	static final float FLASH_SECONDS = 0.15f ; 
-	static final int FLASH_COUNT = 3 ; 
+	/**
+	 * One flash of a piece: down to this alpha and back, twice over (r91, as r93's pulse). Soft
+	 * since r104: at 0.2 alpha and three quick dips the piece all but vanished, a strobe.
+	 */
+	static final float FLASH_ALPHA = 0.6f ; 
+	static final float FLASH_SECONDS = 0.25f ; 
+	static final int FLASH_COUNT = 2 ; 
 	
 	/**
-	 * Something was picked up (r91): the pieces still missing flash, so the eye goes to the key
-	 * and its hints. Ross no longer says the next hint by himself at each step.
+	 * Something was picked up (r91): the next piece missing flashes, so the eye goes to the key
+	 * and its hint - the piece whose hint Ross said as the carriage opened. Only that one since
+	 * r104: every missing piece at once made the whole key flash. Ross no longer says the next
+	 * hint by himself at each step.
 	 */
 	public void flashMissing()
 	{
-		VisImage[] parts = {null, part1, part2, part3} ; 
-		for(int piece = 1 ; piece <= 3 ; piece++)
-		{
-			if(has(piece))
-				continue ; 
-			VisImage part = parts[piece] ; 
-			part.clearActions() ; 
-			part.getColor().a = 1 ; 
-			part.addAction(Actions.repeat(FLASH_COUNT, Actions.sequence(
-					Actions.alpha(FLASH_ALPHA, FLASH_SECONDS), 
-					Actions.alpha(1, FLASH_SECONDS)))) ; 
-		}
+		int piece = firstMissing() ; 
+		if(piece == 0)
+			return ; 
+		VisImage part = piece == 1 ? part1 : piece == 2 ? part2 : part3 ; 
+		part.clearActions() ; 
+		part.getColor().a = 1 ; 
+		part.addAction(Actions.repeat(FLASH_COUNT, Actions.sequence(
+				Actions.alpha(FLASH_ALPHA, FLASH_SECONDS, Interpolation.sine), 
+				Actions.alpha(1, FLASH_SECONDS, Interpolation.sine)))) ; 
 	}
 	
 	/** A piece is flashing now. For the render tests. */

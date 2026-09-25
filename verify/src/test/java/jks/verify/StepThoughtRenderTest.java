@@ -183,11 +183,13 @@ class StepThoughtRenderTest
 	}
 
 	@Test
-	@DisplayName("A pickup flashes the pieces still missing")
+	@DisplayName("A pickup flashes the next piece missing, and only it")
 	void aPickupFlashesTheKey()
 	{
 		assertFalse(flashing1, "piece 1 is held: it has nothing to guide towards");
-		assertTrue(flashing2 && flashing3, "the missing pieces did not flash on a pickup");
+		assertTrue(flashing2, "the next missing piece did not flash on a pickup");
+		// Every missing piece at once made the whole key flash (r104).
+		assertFalse(flashing3, "piece 3 flashed too: only the next piece should");
 	}
 
 	@Test

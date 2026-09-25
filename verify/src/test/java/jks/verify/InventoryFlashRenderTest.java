@@ -25,8 +25,9 @@ import jks.vue.models.game.GVars_Game;
 import jks.vue.models.game.GameItem;
 
 /**
- * An item reaching the inventory for the first time flashes (r93): a white glow behind it rises
- * and falls three times, with the key's pieces (r91), then the bar is black around it again.
+ * An item reaching the inventory for the first time flashes (r93): a faint white glow behind it
+ * rises and falls twice, with the key's next piece (r91, softened in r104), then the bar is black
+ * around it again.
  *
  * Read on the screen, frame by frame: the ring between the item's square and the glow's edge is
  * the black bar at rest, so its brightness is the flash and nothing else.
@@ -36,8 +37,8 @@ import jks.vue.models.game.GameItem;
 class InventoryFlashRenderTest
 {
 	private static final double PICK_AT = 2.0;
-	/** Three pulses of 0.3 s, and a margin. */
-	private static final double WATCH_FOR = 1.3;
+	/** Two pulses of 0.5 s, and a margin. */
+	private static final double WATCH_FOR = 1.4;
 
 	private static final File OUTPUT = new File(new File(System.getProperty("onboard.verify")), "build/frames");
 
@@ -133,8 +134,8 @@ class InventoryFlashRenderTest
 	}
 
 	@Test
-	@DisplayName("a newly carried item flashes three times behind it, then the bar is black again")
-	void threePulses() throws Exception
+	@DisplayName("a newly carried item flashes twice, faintly, behind it, then the bar is black again")
+	void twoFaintPulses() throws Exception
 	{
 		if (harness.error != null) harness.error.printStackTrace();
 		if (error != null) error.printStackTrace();
@@ -147,7 +148,9 @@ class InventoryFlashRenderTest
 		String see = "ring brightness by time: " + trace;
 
 		assertTrue(flashingAtPick, "the item did not start flashing as it reached the bar");
-		assertTrue(brightestLevel > 60, "the glow never showed round the item. " + see);
+		assertTrue(brightestLevel > 30, "the glow never showed round the item. " + see);
+		// A little flash, not a strobe (r104): at 0.6 white it read near 150 on the black bar.
+		assertTrue(brightestLevel < 90, "the glow is too bright. " + see);
 
 		// Count the pulses: rises through the middle brightness.
 		double middle = brightestLevel / 2;
@@ -158,7 +161,7 @@ class InventoryFlashRenderTest
 			if (!above && sample[1] > middle) pulses++;
 			above = sample[1] > middle;
 		}
-		assertEquals(3, pulses, "the glow should rise three times. " + see);
+		assertEquals(2, pulses, "the glow should rise twice. " + see);
 
 		assertFalse(flashingAfter, "still flashing after " + WATCH_FOR + " s");
 		assertTrue(ring.get(ring.size() - 1)[1] < 10, "the bar round the item is not black again. " + see);

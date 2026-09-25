@@ -45,10 +45,11 @@ public class InventoryBar extends Group
 
 	/**
 	 * An item arriving in the row for the first time flashes (r93): a white glow behind it, the
-	 * held mark's box, rises and falls FLASH_COUNT times. Same rhythm as the key's pieces, which
-	 * flash at the same pickup (r91, Clef.FLASH_*), so the two pulse together.
+	 * held mark's box, rises and falls FLASH_COUNT times. Same rhythm as the key's next piece,
+	 * which flashes at the same pickup (r91, Clef.FLASH_*), so the two pulse together. Faint
+	 * since r104: a 0.6 white box three times over was a strobe, not a little flash.
 	 */
-	static final float FLASH_PEAK = 0.6f ;
+	static final float FLASH_PEAK = 0.25f ;
 	static final float FLASH_PULSE_SECONDS = 2 * Clef.FLASH_SECONDS ;
 	static final int FLASH_COUNT = Clef.FLASH_COUNT ;
 
