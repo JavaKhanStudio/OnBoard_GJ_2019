@@ -348,6 +348,10 @@ of the project (construo's default is five directories inside a build folder).
   ./gradlew :desktop:packageWindows | packageLinux | packageMacAppleSilicon | packageMacIntel
 ONE AT A TIME. The fat jar carries a single platform's native libraries, so two targets in
 one invocation is REFUSED rather than silently shipping the wrong ones.
+A RELEASE (what goes on itch) is tools/package_all.sh [commit]: all four, one invocation
+each, built in a detached worktree of the commit (../onboard-release), never in the shared
+checkout — that holds other sessions' unfinished edits. Each zip unzips into one
+"On Board/" folder with VERSION.txt; dist/VERSION names the commit.
 taskToDistTarget is an EXPLICIT MAP and must stay one. The first version inferred the
 target from the task name, and "packageMacAppleSilicon" does not contain "macarm", so it
 fell through to Intel: an arm64 runtime wrapped around an x86 jar. checkDistNatives could
@@ -365,6 +369,9 @@ THE macOS BUILDS ARE UNSIGNED. Gatekeeper says "On Board is damaged and can't be
 which means unsigned, not broken: right-click -> Open once, or
   xattr -dr com.apple.quarantine "On Board.app"
 Signing properly needs a Mac and a paid Apple Developer account.
+tools/smoke_package.sh runs the Linux zip offscreen and saves shot_<s>.png (a nested
+non-rootless Xwayland in cage: cage's own XWayland grabs black). Unattended it reaches the
+intro and waits there for a click.
 Only the Linux package can be executed on this machine. Say in the report what you ran and
 what you inferred from an identical configuration — do not call an unrun .exe verified.
 """
