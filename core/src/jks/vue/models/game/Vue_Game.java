@@ -132,7 +132,7 @@ public class Vue_Game extends AVue_Model
 			camera.project(bubbleAnchor) ; 
 			posX = bubbleAnchor.x ; 
 			posY = bubbleAnchor.y ; 
-			dialogBubble.setPosition(posX, posY);
+			dialogBubble.setBubblePosition(posX, posY);
 		}
 		
 		if(ending)

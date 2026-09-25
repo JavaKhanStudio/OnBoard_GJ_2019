@@ -55,8 +55,8 @@ import jks.vue.models.game.WagonLevel;
  */
 public class Vue_LineLab extends AVue_Model
 {
-	/** Narrow enough to leave the right-hand column to the bubble. */
-	private static final float ICON = 44f, NAME_WIDTH = 210f, FIELD_WIDTH = 560f ;
+	/** Narrow enough to leave the right-hand column to the bubble, which is wider since r121. */
+	private static final float ICON = 44f, NAME_WIDTH = 210f, FIELD_WIDTH = 500f ;
 	private final GlyphLayout measure = new GlyphLayout() ;
 
 	private final File table = Index_Text.sourceTable() ;
@@ -285,7 +285,7 @@ public class Vue_LineLab extends AVue_Model
 	private void placeBubble()
 	{
 		// In the right-hand column, which the rows leave free, drawn leftwards from here.
-		bubble.setPosition(Gdx.graphics.getWidth() - 60f, Gdx.graphics.getHeight() * 0.35f) ;
+		bubble.setPosition(Gdx.graphics.getWidth() - 40f, Gdx.graphics.getHeight() * 0.35f) ;
 	}
 
 	private static VisLabel label(String text, LabelStyle style)

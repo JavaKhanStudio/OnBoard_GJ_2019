@@ -142,11 +142,14 @@ public class DialogBubble extends VisTable
 		resize() ; 
 	}
 	
+	boolean reversed ; 
+	
 	public void reverse(boolean reverse) 
 	{
-		bubbleBackground.setSize(size * (reverse ? -1 : 1),size);
+		reversed = reverse ; 
+		bubbleBackground.setSize(width * (reverse ? -1 : 1),height);
 		if(reverse)
-			typing.setPosition(decalXLeft - size, decalY * 1.5f);
+			typing.setPosition(decalXLeft - width, decalY * 1.5f);
 		else
 			typing.setPosition(decalXLeft, decalY * 1.5f);
 	}
@@ -207,16 +210,43 @@ public class DialogBubble extends VisTable
 	}
 	
 	
+	/** Where the cloud is drawn on the stage: x, y, width, height; reverse() draws it left of getX(). */
+	public float[] cloudBox()
+	{
+		return new float[] {reversed ? getX() - width : getX(), getY(), width, height * (1 - EMPTY_TOP)} ; 
+	}
+	
+	/** bubble_think_2.png is empty above its cloud for 73 of its 1200 rows: that may leave the screen. */
+	private static final float EMPTY_TOP = 73f / 1200f ; 
+	
+	/**
+	 * Places the tail's corner at posX, posY, but never lets the cloud leave the screen: above a
+	 * grown-up Ross it used to reach the top edge already, and it is bigger since r121. It slides
+	 * down or sideways instead, its tail still pointing at him.
+	 */
 	public void setBubblePosition(float posX, float posY)
 	{
-		this.setPosition(posX, posY);
+		float left = reversed ? posX - width : posX ; 
+		left = Math.max(0, Math.min(left, Gdx.graphics.getWidth() - width)) ; 
+		posY = Math.max(0, Math.min(posY, Gdx.graphics.getHeight() - height * (1 - EMPTY_TOP))) ; 
+		this.setPosition(reversed ? left + width : left, posY);
 	}
 	
 	private static final float devisingSmall = 10 ; 
 	private static final float devisingMedium = 7.2f ; 
 	private static final float devisingLarge = 6.5f ; 
 	
+	/**
+	 * The cloud is stretched wider than it is tall (r121). Its letters were made bigger, and a
+	 * cloud grown the same in both directions would run off the top of the screen above
+	 * Ross, so the longer lines go into the width instead.
+	 */
+	private static final float WIDE = 1.6f ; 
+	private static final float TALL = 1.2f ; 
+	
 	float size ; 
+	float width ; 
+	float height ; 
 	
 	public void resize()
 	{
@@ -263,14 +293,15 @@ public class DialogBubble extends VisTable
 		
 		// The cloud is round: a line as wide as its middle runs onto its edge higher up.
 		// Narrowed for Mansalva's wider lines (r103), from size/10 and size/9.
-		decalXLeft = size/7.0f ;
-		decalXRight = size/6.5f ;
-		decalY = size/8.5f ;
+		width = size * WIDE ; 
+		height = size * TALL ; 
+		decalXLeft = width/7.0f ;
+		decalXRight = width/6.5f ;
+		decalY = height/8.5f ;
 		
-		this.setSize(size,size);
-		typing.setSize(size - decalXLeft - decalXRight,size - (decalY * 2));
-		typing.setPosition(decalXLeft, decalY * 1.5f);
-		bubbleBackground.setSize(size, size);
+		this.setSize(width,height);
+		typing.setSize(width - decalXLeft - decalXRight,height - (decalY * 2));
+		reverse(reversed) ; 
 		
 	}
 	

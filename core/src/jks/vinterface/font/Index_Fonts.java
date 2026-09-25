@@ -11,17 +11,19 @@ public class Index_Fonts
      * Its lines run wider than the plainer sans the bubbles used before r103: at that face's
      * capital height, carriage 3's wa3.trou.message2 ran past the round cloud's edges. So the
      * sizes below are the pre-r103 ones a twelfth smaller, and DialogBubble wraps them narrower than it used to.
+     * Then they were too small to read (r121): all six are a third bigger again (divided by
+     * 1.35), and DialogBubble stretches its cloud wider to hold them.
      */
     private static final String regular = "Mansalva-Regular.ttf";  
     
     public enum Enum_Fonts
     {
-    	BUBBLE_SMALL_TEXT_LARGE(PATH + regular,109),
-    	BUBBLE_MEDIUM_TEXT_LARGE(PATH + regular,91),
-    	BUBBLE_LARGE_TEXT_LARGE(PATH + regular,70),
-    	BUBBLE_SMALL_TEXT_MEDIUM(PATH + regular,153),
-    	BUBBLE_MEDIUM_TEXT_MEDIUM(PATH + regular,131),
-    	BUBBLE_LARGE_TEXT_MEDIUM(PATH + regular,108),
+    	BUBBLE_SMALL_TEXT_LARGE(PATH + regular,81),
+    	BUBBLE_MEDIUM_TEXT_LARGE(PATH + regular,67),
+    	BUBBLE_LARGE_TEXT_LARGE(PATH + regular,52),
+    	BUBBLE_SMALL_TEXT_MEDIUM(PATH + regular,113),
+    	BUBBLE_MEDIUM_TEXT_MEDIUM(PATH + regular,97),
+    	BUBBLE_LARGE_TEXT_MEDIUM(PATH + regular,80),
     	
     	/**
     	 * The card the game ends on (r60, ClosureMessage), and the FIN under it.

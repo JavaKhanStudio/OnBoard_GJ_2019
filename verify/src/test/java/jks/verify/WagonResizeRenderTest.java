@@ -213,7 +213,8 @@ class WagonResizeRenderTest
 			assertTrue(Math.abs(s[7] - margin) <= 1 && Math.abs(s[8] - margin) <= 1,
 				at + "the plank is " + s[7] + " from the left and " + s[8] + " from the top, not in the " + margin + " px margin");
 			assertTrue(Math.abs(s[9] - s[0] / 6.5f) <= 1, at + "the plank is " + s[9] + " wide, not a 6.5th of the window");
-			assertTrue(Math.abs(s[10] - s[0] / 6.5f) <= 1, at + "the bubble is " + s[10] + " wide, not a 6.5th of the window");
+			// 1.6 times a 6.5th since r121: the cloud is stretched wider to hold bigger letters.
+			assertTrue(Math.abs(s[10] - s[0] / 6.5f * 1.6f) <= 1, at + "the bubble is " + s[10] + " wide, not 1.6 6.5ths of the window");
 			assertEquals(1, s[12], at + "the bubble still types in the font of another window size");
 			assertTrue(Math.abs(s[13]) <= 1 && Math.abs(s[14] - s[0] / 100) <= 1,
 				at + "the key is " + s[13] + " from the right edge and " + s[14] + " from the top, not in its corner");
