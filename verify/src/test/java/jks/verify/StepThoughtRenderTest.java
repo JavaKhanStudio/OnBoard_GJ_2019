@@ -59,6 +59,8 @@ class StepThoughtRenderTest
 	private static volatile boolean creepingBeforeClick;
 	/** Mean brightness of the middle of the bubble, and of a patch of the screen away from it, under the steam. */
 	private static volatile double bubbleWhileCreeping = -1, steamWhileCreeping = -1;
+	/** How far the screen's corners were from the steam's middle, under each change's steam (r120). */
+	private static volatile String cornersOut1 = "not measured", cornersOut2 = "not measured";
 	private static volatile float lastLineSeconds;
 	private static volatile Throwable error;
 
@@ -131,6 +133,7 @@ class StepThoughtRenderTest
 					bubbleWhileCreeping = brightness(creeping, bubble.getX() + bubble.getWidth() * 0.4f,
 						bubble.getY() + bubble.getHeight() * 0.45f, bubble.getWidth() * 0.2f, bubble.getHeight() * 0.1f);
 					steamWhileCreeping = brightness(creeping, 900, 250, 100, 100);
+					cornersOut1 = cornersOffSteam(creeping);
 					// A click anywhere, through whatever the game is listening with.
 					Gdx.input.getInputProcessor().touchDown(640, 360, 0, 0);
 					at[0] = t;
@@ -151,6 +154,9 @@ class StepThoughtRenderTest
 				{
 					step[0] = 8;
 					carriageBeforeRead = GVars_Game.currentLevelInt;
+					BufferedImage holding = GameHarness.grab();
+					Frames.write(holding, new File(OUTPUT, "step-thought-steam-carriage2.png"));
+					cornersOut2 = cornersOffSteam(holding);
 				}
 				else if (step[0] == 8 && t >= at[0] + 1.5)
 				{
@@ -181,6 +187,26 @@ class StepThoughtRenderTest
 				n++;
 			}
 		return n == 0 ? 0 : sum / n;
+	}
+
+	/**
+	 * The corners of the screen that are not the steam's colour, or "" when all four are. In a
+	 * carriage the steam used to take the world camera and cover only 0.8 of a 1280 screen,
+	 * leaving the top and the right showing (r120).
+	 */
+	private static String cornersOffSteam(BufferedImage frame)
+	{
+		double steam = brightness(frame, 900, 250, 100, 100);
+		int w = frame.getWidth(), h = frame.getHeight(), c = 40;
+		float[][] corners = {{0, 0}, {w - c, 0}, {0, h - c}, {w - c, h - c}};
+		String[] names = {"bottom left", "bottom right", "top left", "top right"};
+		StringBuilder off = new StringBuilder();
+		for (int i = 0; i < 4; i++)
+		{
+			double corner = brightness(frame, corners[i][0], corners[i][1], c, c);
+			if (Math.abs(corner - steam) > 30) off.append(String.format("%s %.0f against %.0f; ", names[i], corner, steam));
+		}
+		return off.toString();
 	}
 
 	private static GameItem item(String name)
@@ -236,6 +262,9 @@ class StepThoughtRenderTest
 		// The steam has covered the carriage by then, and the bubble is still white on top (r118).
 		assertTrue(steamWhileCreeping < 150, "the steam had not covered the carriage: " + steamWhileCreeping);
 		assertTrue(bubbleWhileCreeping > 200, "the bubble is hidden under the steam: " + bubbleWhileCreeping);
+		// Every change covers the whole screen, not only the first (r120).
+		assertEquals("", cornersOut1, "leaving carriage 1, the steam left corners showing");
+		assertEquals("", cornersOut2, "leaving carriage 2, the steam left corners showing");
 		assertEquals(1, carriageWhileCreeping, "the carriage went before its last line was read");
 		assertEquals(2, carriageAfterClick, "a click did not hurry the steam");
 		assertEquals(2, carriageBeforeRead, "without a click, the carriage went before its line was read");

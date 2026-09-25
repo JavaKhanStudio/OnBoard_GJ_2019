@@ -6,6 +6,7 @@ import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas.AtlasRegion;
+import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.utils.Array;
 
@@ -194,6 +195,8 @@ public class GVars_Steam
 		return frames.size - 1 - step ;
 	}
 
+	private static final Matrix4 screen = new Matrix4() ;
+
 	/** Over everything the view drew, the interface included. */
 	public static void draw()
 	{
@@ -201,6 +204,10 @@ public class GVars_Steam
 		if(index < 0)
 			return ;
 
+		// In screen pixels, whatever the view left on the batch: a carriage leaves its world
+		// camera there, and the steam then covered only part of the screen (r120).
+		screen.setToOrtho2D(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight()) ;
+		GVars_Camera.staticBatch.setProjectionMatrix(screen) ;
 		GVars_Camera.staticBatch.begin() ;
 		GVars_Camera.staticBatch.setColor(1, 1, 1, 1) ;
 		GVars_Camera.staticBatch.draw(frames.get(index), 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight()) ;
