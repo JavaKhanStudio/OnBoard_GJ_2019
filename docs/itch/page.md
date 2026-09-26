@@ -120,4 +120,6 @@ Clic droit sur `On Board.app` → Ouvrir, ou la commande ci-dessus dans le Termi
 Police des pensées de Ross / Font of Ross's thoughts: **Mansalva** by Carolina Short,
 SIL Open Font License 1.1 — https://github.com/carolinashort/mansalva
 
+Polices des menus / Menu fonts: **Optimus Princeps** and **Geo Sans Light** by Manfred Klein.
+
 Réalisé avec / Made with libGDX.

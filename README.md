@@ -278,6 +278,13 @@ Left as the team left it, in case anyone wants to pick it up:
 Edit `core/src/jks/index/Index_Credits.java` — that file is the whole of the credits
 content, and the screen follows it. Roles are plain strings so they can be reworded.
 
+The three fonts in `desktop/assets/ui/fonts/` are not the team's, and each has its terms
+beside it. **Optimus Princeps** (titles) and **Geo Sans Light** (everything smaller) are by
+Manfred Klein: free for private, charity and commercial use, but not to be included in
+"compilation CDs, disks or products" without his permission (`*-README.txt`, quoting his
+site; r130). **Mansalva** (Ross's thoughts) is by Carolina Short, SIL Open Font License 1.1
+(`Mansalva-OFL.txt`). The credits screen names none of them.
+
 The intro's old smoke image (`ui/story/intro/smoke.jpg`, not shown since r85, when the painted
 fumee steam took its place) started as a stock image: its metadata
 names **iStock (Getty Images) asset 511936068**, "white smoke cloud" by AnnaFomina
