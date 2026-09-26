@@ -18,7 +18,11 @@
 # folder a player extracts into), with VERSION.txt beside the launcher. Unix modes, the
 # launcher's exec bit among them, are carried over.
 #
-# Out: dist/onboard-{winX64,linuxX64,macArm64,macX64}.zip, dist/VERSION, and the unpacked
+# THE BROWSER BUILD (r138) is built in the same worktree: ./gradlew :html:war, and
+# html/build/war zipped as it is, index.html at the ROOT of the zip (itch's HTML5 uploads
+# want it there, not in a folder), with VERSION.txt beside it.
+#
+# Out: dist/onboard-{winX64,linuxX64,macArm64,macX64,html}.zip, dist/VERSION, and the unpacked
 # dist/OnBoard-*/ folders, all replaced. The zip names do not change between versions;
 # dist/VERSION says which commit they are.
 set -euo pipefail
@@ -70,12 +74,23 @@ for line in "${TARGETS[@]}"; do
 	mv "$STAGE/$zip" "$TREE/dist/$zip"
 done
 
+echo "  html:war"
+rm -f "$TREE/dist/onboard-html.zip"
+if ! (cd "$TREE" && ./gradlew --console=plain :html:war) >"$STAGE/gradle.log" 2>&1; then
+	tail -30 "$STAGE/gradle.log" >&2
+	echo "package_all: html:war FAILED" >&2
+	exit 1
+fi
+echo "On Board $VERSION" >"$TREE/html/build/war/VERSION.txt"
+(cd "$TREE/html/build/war" && zip -qrX "$TREE/dist/onboard-html.zip" .)
+
 mkdir -p "$ROOT/dist"
 for line in "${TARGETS[@]}"; do
 	read -r task zip folder <<<"$line"
 	cp "$TREE/dist/$zip" "$ROOT/dist/$zip"
 	rsync -a --delete "$TREE/dist/$folder/" "$ROOT/dist/$folder/"
 done
+cp "$TREE/dist/onboard-html.zip" "$ROOT/dist/onboard-html.zip"
 echo "$VERSION" >"$ROOT/dist/VERSION"
 
 echo "package_all: $VERSION"
@@ -83,3 +98,4 @@ for line in "${TARGETS[@]}"; do
 	read -r task zip folder <<<"$line"
 	printf '  %-24s %s\n' "$zip" "$(du -h "$ROOT/dist/$zip" | cut -f1)"
 done
+printf '  %-24s %s\n' onboard-html.zip "$(du -h "$ROOT/dist/onboard-html.zip" | cut -f1)"

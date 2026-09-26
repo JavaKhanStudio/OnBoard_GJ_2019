@@ -387,7 +387,11 @@ one invocation is REFUSED rather than silently shipping the wrong ones.
 A RELEASE (what goes on itch) is tools/package_all.sh [commit]: all four, one invocation
 each, built in a detached worktree of the commit (../onboard-release), never in the shared
 checkout — that holds other sessions' unfinished edits. Each zip unzips into one
-"On Board/" folder with VERSION.txt; dist/VERSION names the commit.
+"On Board/" folder with VERSION.txt; dist/VERSION names the commit. It also builds
+:html:war there and zips it FLAT as dist/onboard-html.zip (index.html and VERSION.txt at
+the root: itch wants them there). tools/itch_push.sh --dry-run <user>/<game> shows the five
+channels and refuses an html zip over itch's HTML5 limits (1000 files, 200 MB a file,
+500 MB total).
 taskToDistTarget is an EXPLICIT MAP and must stay one. The first version inferred the
 target from the task name, and "packageMacAppleSilicon" does not contain "macarm", so it
 fell through to Intel: an arm64 runtime wrapped around an x86 jar. checkDistNatives could

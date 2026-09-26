@@ -20,7 +20,7 @@ Un voyage en train à travers la vie de Ross. / A train ride through Ross's life
 
 ## Classification
 
-- Kind of project: Downloadable
+- Kind of project: HTML (the downloads stay attached as well)
 - Release status: Released
 - Pricing: No payments (On Board will never be sold)
 - Genre: Adventure
@@ -28,7 +28,7 @@ Un voyage en train à travers la vie de Ross. / A train ride through Ross's life
   emotional, atmospheric, singleplayer
 - Languages: French
 - Inputs: Keyboard, Mouse
-- Platforms: Windows, macOS, Linux (set per upload)
+- Platforms: Windows, macOS, Linux, and played in the browser (set per upload)
 
 ## Uploads
 
@@ -38,6 +38,15 @@ Un voyage en train à travers la vie de Ross. / A train ride through Ross's life
 | onboard-macArm64.zip | macOS (name it "macOS — Apple Silicon (M1 and later)") |
 | onboard-macX64.zip | macOS (name it "macOS — Intel") |
 | onboard-linuxX64.zip | Linux |
+| onboard-html.zip | "This file will be played in the browser" (and no platform box) |
+
+## Embed options (Kind of project = HTML)
+
+- Viewport dimensions: 1280 × 720 (html/src/jks/html/HtmlLauncher.java, getConfig)
+- Mobile friendly: off (never tested on a phone or a tablet)
+- Automatically start on page load: off (browsers hold sound back until a click anyway)
+- Fullscreen button: on
+- Enable scrollbars: off
 
 ## Description
 
