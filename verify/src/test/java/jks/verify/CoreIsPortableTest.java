@@ -23,9 +23,14 @@ import org.junit.jupiter.api.Test;
  */
 class CoreIsPortableTest
 {
-	/** java.io.File and its streams, java.nio.file, and anything of the lwjgl3 backend. */
+	/**
+	 * java.io.File and its streams, java.nio.file, and anything of the lwjgl3 backend. Then the
+	 * classloader and the readers GWT 2.11 does not emulate (r140): a resource is read through
+	 * Gdx.files.internal, a text is cut with Index_Text.lines.
+	 */
 	static final Pattern DESKTOP_ONLY = Pattern.compile(
-		"\\b(com\\.badlogic\\.gdx\\.backends\\.|org\\.lwjgl\\.|java\\.io\\.File\\w*\\b|java\\.nio\\.file\\.)") ;
+		"\\b(com\\.badlogic\\.gdx\\.backends\\.|org\\.lwjgl\\.|java\\.io\\.File\\w*\\b|java\\.nio\\.file\\."
+		+ "|getClassLoader\\b|getResource(AsStream)?\\b|java\\.io\\.BufferedReader\\b|java\\.io\\.InputStreamReader\\b)") ;
 
 	static final Path CORE = Paths.get(System.getProperty("onboard.root", ".."), "core", "src") ;
 
@@ -49,7 +54,7 @@ class CoreIsPortableTest
 	}
 
 	@Test
-	@DisplayName("the scan catches an import, a qualified name and a stream, and passes a comment")
+	@DisplayName("the scan catches an import, a qualified name, a stream and the classloader, and passes a comment")
 	void scanCatchesWhatItShould()
 	{
 		List<String> found = offences("Planted.java", List.of(
@@ -58,10 +63,13 @@ class CoreIsPortableTest
 			"    java.nio.file.Files.write(p, b) ;",
 			"import java.io.FileInputStream;",
 			"import org.lwjgl.glfw.GLFW;",
+			"InputStream in = Index_Text.class.getClassLoader().getResourceAsStream(TABLE) ;",
+			"import java.io.BufferedReader;",
+			"import java.io.InputStreamReader;",
 			"// java.io.File was here once",
 			" * java.nio.file.Files in a javadoc",
 			"import java.io.InputStream;")) ;
-		assertEquals(5, found.size(), "the scan did not find exactly the five planted uses: " + found) ;
+		assertEquals(8, found.size(), "the scan did not find exactly the eight planted uses: " + found) ;
 	}
 
 	/** Every line of code, comments aside, that names a desktop-only API, as file:line: text. */

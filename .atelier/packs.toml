@@ -174,6 +174,9 @@ EVERY WORD THE PLAYER READS is a row of desktop/assets/i18n/textes.tsv (key | wh
 a column per language), fetched with jks.index.Index_Text.get("menu.play") — never a string
 literal in the code (r76). A missing key shows on screen as the key. Rows drawn in the title
 face say [title face] and TextTableTest fails if one gains an accent. Dev labs stay English.
+The table is read through Gdx.files.internal (r140, for the browser build), so an
+Index_Text.get before the Lwjgl3Application exists throws; a test without GL gets a headless
+Gdx.files from verify's DesktopSession.
 Gates: `./gradlew build`, then the render tests:
   ./gradlew :verify:test -PwithGl
 """

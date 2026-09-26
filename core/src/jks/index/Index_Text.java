@@ -1,10 +1,5 @@
 package jks.index;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -12,6 +7,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 
@@ -22,8 +18,10 @@ import jks.tools.Utils_Debug;
  * Every word the player reads (r76), from the one table i18n/textes.tsv: a row per text, a
  * column per language. The code and the .wa files name a key; this hands back the words.
  *
- * Read from the classpath, not Gdx.files, so it works inside the shipped jar and in the tests
- * that run without GL. Loaded once, on the first get().
+ * Read through Gdx.files.internal, which finds it in desktop/assets, inside the shipped jar and
+ * in the browser build alike (r140: the classloader it was read with does not exist in GWT).
+ * The tests that run without GL get a headless Gdx.files from verify's DesktopSession. Loaded
+ * once, on the first get().
  *
  * A text missing in the chosen language falls back to French, the language the game was
  * written in. A key missing from the table comes back as the key itself - visible on screen,
@@ -107,50 +105,44 @@ public final class Index_Text
 
 	private static void load()
 	{
-		InputStream in = Index_Text.class.getClassLoader().getResourceAsStream(TABLE) ;
-		if(in == null)
-			throw new GdxRuntimeException("The text table " + TABLE + " is not on the classpath") ;
-		load(in) ;
+		if(Gdx.files == null)
+			throw new GdxRuntimeException("The text table " + TABLE + " was asked for before there was a Gdx.files to read it with") ;
+		FileHandle table = Gdx.files.internal(TABLE) ;
+		if(!table.exists())
+			throw new GdxRuntimeException("The text table " + TABLE + " is not among the assets") ;
+		load(table) ;
 	}
 
-	private static void load(InputStream in)
+	private static void load(FileHandle table)
 	{
 		Map<String, Map<String, String>> read = new LinkedHashMap<String, Map<String, String>>() ;
 		List<String> header = null ;
 
-		try(BufferedReader reader = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8)))
+		List<String> lines = lines(table.readString("UTF-8")) ;
+		for(int number = 1 ; number <= lines.size() ; number++)
 		{
-			String line ;
-			int number = 0 ;
-			while((line = reader.readLine()) != null)
+			String line = lines.get(number - 1) ;
+			if(line.isEmpty() || line.startsWith("#"))
+				continue ;
+
+			String[] cells = line.split("\t", -1) ;
+			if(header == null)
 			{
-				number++ ;
-				if(line.isEmpty() || line.startsWith("#"))
-					continue ;
-
-				String[] cells = line.split("\t", -1) ;
-				if(header == null)
-				{
-					header = new ArrayList<String>() ;
-					Collections.addAll(header, cells) ;
-					if(!"key".equals(cells[0]) || !header.contains(FALLBACK))
-						throw new GdxRuntimeException(TABLE + ":" + number + ": the header must start with 'key' and name an '" + FALLBACK + "' column") ;
-					continue ;
-				}
-
-				if(read.containsKey(cells[0]))
-					throw new GdxRuntimeException(TABLE + ":" + number + ": key '" + cells[0] + "' is there twice") ;
-
-				Map<String, String> row = new LinkedHashMap<String, String>() ;
-				// Column 1 is "where", for the translator; the languages follow it.
-				for(int c = 2 ; c < header.size() && c < cells.length ; c++)
-					row.put(header.get(c), unescape(cells[c])) ;
-				read.put(cells[0], row) ;
+				header = new ArrayList<String>() ;
+				Collections.addAll(header, cells) ;
+				if(!"key".equals(cells[0]) || !header.contains(FALLBACK))
+					throw new GdxRuntimeException(TABLE + ":" + number + ": the header must start with 'key' and name an '" + FALLBACK + "' column") ;
+				continue ;
 			}
-		}
-		catch(IOException e)
-		{
-			throw new GdxRuntimeException("Could not read " + TABLE, e) ;
+
+			if(read.containsKey(cells[0]))
+				throw new GdxRuntimeException(TABLE + ":" + number + ": key '" + cells[0] + "' is there twice") ;
+
+			Map<String, String> row = new LinkedHashMap<String, String>() ;
+			// Column 1 is "where", for the translator; the languages follow it.
+			for(int c = 2 ; c < header.size() && c < cells.length ; c++)
+				row.put(header.get(c), unescape(cells[c])) ;
+			read.put(cells[0], row) ;
 		}
 
 		if(header == null)
@@ -162,7 +154,7 @@ public final class Index_Text
 
 	/**
 	 * The table as it sits in the source tree, for the line lab (r74) to write into. The game
-	 * reads the copy on the classpath, which a build refreshes; this is the one to edit. Where it
+	 * reads the copy among the assets, which a build refreshes; this is the one to edit. Where it
 	 * is, is the platform's (r135); null where there is no source tree.
 	 */
 	public static FileHandle sourceTable()
@@ -173,7 +165,7 @@ public final class Index_Text
 	/** Reads the table again from the file, so an edit made by hand shows without a rebuild. */
 	public static void reloadFrom(FileHandle table)
 	{
-		load(table.read()) ;
+		load(table) ;
 	}
 
 	/**
