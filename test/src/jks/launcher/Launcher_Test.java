@@ -11,6 +11,7 @@ public class Launcher_Test
 	public static void main (String[] arg) 
 	{
 			
+		DesktopPlatform.install() ;
 		Lwjgl3ApplicationConfiguration config = new Lwjgl3ApplicationConfiguration();
 
 		config.setWindowedMode(1600, 900);

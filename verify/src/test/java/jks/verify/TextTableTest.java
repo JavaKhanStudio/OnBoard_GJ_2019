@@ -17,6 +17,7 @@ import java.util.stream.Stream;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import com.badlogic.gdx.files.FileHandle;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import jks.index.Index_Text;
@@ -177,7 +178,7 @@ class TextTableTest
 			String original = Index_Text.get("wa2.clope.click") ;
 
 			String edited = "Deux lignes,\nune barre \\ et « des guillemets »" ;
-			Index_Text.write(copy.toFile(), "wa2.clope.click", "fr", edited) ;
+			Index_Text.write(new FileHandle(copy.toFile()), "wa2.clope.click", "fr", edited) ;
 			assertEquals(edited, Index_Text.get("wa2.clope.click"), "the game does not hand back the new text") ;
 
 			List<String> after = Files.readAllLines(copy, StandardCharsets.UTF_8) ;
@@ -192,16 +193,16 @@ class TextTableTest
 				"the cell is not escaped as the table writes it: " + changed.get(0)) ;
 
 			// What a fresh read of that file gives back is what was written.
-			Index_Text.reloadFrom(copy.toFile()) ;
+			Index_Text.reloadFrom(new FileHandle(copy.toFile())) ;
 			assertEquals(edited, Index_Text.get("wa2.clope.click"), "the escaped cell does not read back") ;
 
-			Index_Text.write(copy.toFile(), "wa2.clope.click", "fr", original) ;
+			Index_Text.write(new FileHandle(copy.toFile()), "wa2.clope.click", "fr", original) ;
 			assertEquals(before, Files.readAllLines(copy, StandardCharsets.UTF_8), "writing the original back did not restore the file") ;
 		}
 		finally
 		{
 			Files.deleteIfExists(copy) ;
-			Index_Text.reloadFrom(TABLE) ;
+			Index_Text.reloadFrom(new FileHandle(TABLE)) ;
 		}
 	}
 }

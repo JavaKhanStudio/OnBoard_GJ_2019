@@ -33,7 +33,8 @@ changeVue DELIBERATELY does not stop the music — GVars_AudioManager.PlayMusic 
 Putting a stop back restarts the same track at every screen change.
 Settings are one choke point: core/src/jks/amain/Utils_Config.java + GameConfigs.java.
 GameConfigs MUST keep its field defaults — a first run with none wrote all zeroes, i.e. a
-0x0 window and volume 0. The path honours -Donboard.config, which is how the tests avoid
+0x0 window and volume 0. The file is DesktopPlatform.configFile() (r135); its path honours
+-Donboard.config, which is how the tests avoid
 the real file; keep that.
 Gate: OpeningRenderTest follows the opening all the way to the start screen and fails if
 the sequence stalls. `./gradlew build`.
@@ -325,10 +326,12 @@ which libGDX deleted in 1.14.0. TextraTypist is the maintained successor.
 Java 21 everywhere: a toolchain in build.gradle, the foojay resolver in settings.gradle so
 Gradle fetches a JDK on a machine that has none, and gradle/gradle-daemon-jvm.properties
 pinning the daemon. Those three must agree — jlink refuses to link across versions.
-:core is desktop-bound ON PURPOSE: Block_Resolution re-centres the window and libGDX has no
-cross-platform window-position API. It was already true and arrived by accident through
-gdx-controllers-lwjgl3; it is declared openly now. Moving Block_Resolution into :desktop
-would let it go.
+:core must stay translatable for the browser build (r135): no gdx-backend-lwjgl3, no
+java.io.File*, no java.nio.file in core/src. What core needs of the desktop (config file,
+window centring, lab-assets/, the source text table) goes through jks.amain.Platform, which
+jks.launcher.DesktopPlatform implements; every launcher calls DesktopPlatform.install() first,
+and verify's DesktopSession (META-INF/services) does it for the tests. CoreIsPortableTest
+fails the build on anything that slips back in.
 vis-ui 1.5.9 was built against libGDX 1.14.1 and printed a version warning on every startup.
 No vis-ui release targets 1.14.2 yet (1.5.9 was still the latest on Maven Central on
 2026-09-11), so GVars_UI.init calls VisUI.setSkipGdxVersionCheck(true) before VisUI.load to

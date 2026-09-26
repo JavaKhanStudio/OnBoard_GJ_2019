@@ -129,11 +129,9 @@ project(":core") {
         api "com.badlogicgames.gdx:gdx-freetype:$gdxVersion"
         api "com.badlogicgames.gdx-controllers:gdx-controllers-core:$controllersVersion"
 
-        // Block_Resolution re-centres the window after a resolution change, and libGDX has no
-        // cross-platform window-position API, so :core is desktop-bound. That was already true
-        // before - it just arrived by accident through gdx-controllers-lwjgl3. Declared openly
-        // now; moving Block_Resolution into :desktop would let this go.
-        api "com.badlogicgames.gdx:gdx-backend-lwjgl3:$gdxVersion"
+        // No backend here: the browser build translates core (r135). What core needs of the
+        // desktop - the window's position, files on disk - goes through jks.amain.Platform, and
+        // CoreIsPortableTest fails the build on anything that slips back in.
         api "com.kotcrab.vis:vis-ui:$visuiVersion"
         // Replaces com.rafaskoberg.gdx:typing-label, whose last release (1.4.0) calls
         // com.badlogic.gdx.utils.StringBuilder - a class libGDX deleted in 1.14.0. This is

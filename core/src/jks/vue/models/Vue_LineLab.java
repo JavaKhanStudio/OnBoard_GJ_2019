@@ -1,12 +1,12 @@
 package jks.vue.models;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
@@ -59,7 +59,8 @@ public class Vue_LineLab extends AVue_Model
 	private static final float ICON = 44f, NAME_WIDTH = 210f, FIELD_WIDTH = 500f ;
 	private final GlyphLayout measure = new GlyphLayout() ;
 
-	private final File table = Index_Text.sourceTable() ;
+	/** Null on a platform with no source tree (r135): the lab then only reads. */
+	private final FileHandle table = Index_Text.sourceTable() ;
 	private final Map<String, Texture> icons = new HashMap<>() ;
 	private final List<VisTable> carriages = new ArrayList<>() ;
 	private final List<VisTextButton> tabs = new ArrayList<>() ;
@@ -208,6 +209,11 @@ public class Vue_LineLab extends AVue_Model
 	private void save(String key, TextArea field)
 	{
 		String text = field.getText() ;
+		if(table == null)
+		{
+			status.setText("No text table to write into here") ;
+			return ;
+		}
 		try
 		{
 			Index_Text.write(table, key, Index_Text.getLanguage(), text) ;
@@ -222,6 +228,11 @@ public class Vue_LineLab extends AVue_Model
 
 	private void reload()
 	{
+		if(table == null)
+		{
+			status.setText("No text table to read from here") ;
+			return ;
+		}
 		try
 		{
 			Index_Text.reloadFrom(table) ;
@@ -238,7 +249,7 @@ public class Vue_LineLab extends AVue_Model
 		for(int n = 1 ; n <= carriages.size() ; n++)
 			carriages.set(n - 1, buildCarriage(n)) ;
 		showCarriage(showing) ;
-		status.setText("Read " + table.getPath() + " again") ;
+		status.setText("Read " + table.path() + " again") ;
 	}
 
 	/** Fills the list with one carriage's rows, and checks only that carriage's tab. */

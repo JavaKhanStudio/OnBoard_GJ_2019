@@ -12,6 +12,7 @@ public class Launcher_Editor
 
 	public static void main (String[] arg) 
 	{		
+		DesktopPlatform.install() ;
 		Lwjgl3ApplicationConfiguration config = new Lwjgl3ApplicationConfiguration();
 		config.setWindowedMode(1600, 900);
 		config.setOpenGLEmulation(Lwjgl3ApplicationConfiguration.GLEmulation.GL30, 3, 2);

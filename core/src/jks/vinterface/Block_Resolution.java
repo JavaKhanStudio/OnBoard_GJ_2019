@@ -9,8 +9,6 @@ import java.util.TreeSet;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Graphics.DisplayMode;
 import com.badlogic.gdx.Graphics.Monitor;
-import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Graphics;
-import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Window;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.ui.Cell;
 import com.badlogic.gdx.scenes.scene2d.ui.Label.LabelStyle;
@@ -24,6 +22,7 @@ import com.kotcrab.vis.ui.widget.VisTable;
 
 import jks.index.Index_Text;
 import jks.vars.GVars_Heart;
+import jks.amain.GVars_Platform;
 import jks.amain.Utils_Config;
 import jks.index.Index_Interface;
 import jks.vinterface.font.GVars_Font;
@@ -283,10 +282,7 @@ public class Block_Resolution extends VisTable
 		else
 		{
 			Gdx.graphics.setWindowedMode(width, height);
-			Lwjgl3Graphics g = (Lwjgl3Graphics) Gdx.graphics;
-			DisplayMode mode = g.getDisplayMode();
-			Lwjgl3Window window = g.getWindow();
-	        window.setPosition(mode.width / 2 - g.getWidth() / 2, mode.height / 2 - g.getHeight() / 2);
+			GVars_Platform.current.centreWindow() ;
 			GVars_Font.resize();
 			GVars_Heart.vue.resize(width, height);
 

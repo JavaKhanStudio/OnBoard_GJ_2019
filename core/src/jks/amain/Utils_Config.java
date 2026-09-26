@@ -1,7 +1,5 @@
 package jks.amain;
 
-import java.io.File;
-
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -14,19 +12,11 @@ import jks.tools.Utils_Debug;
  * core - had no way to save anything. You could change the resolution and it would apply,
  * and then be gone the next time you started.
  *
- * The file is resolved against the working directory rather than through Gdx.files, because
- * the launcher reads it before there is a libGDX application to ask.
+ * Where the text is kept is the platform's (GVars_Platform, r135): the desktop reads a file
+ * next to the game before there is a libGDX application to ask, which Gdx.files cannot do.
  */
 public class Utils_Config 
 {
-	private static final String DEFAULT_PATH = "config" ;
-	
-	/** Overridable with -Donboard.config=..., which is how the tests avoid the real file. */
-	private static String configPath()
-	{
-		return System.getProperty("onboard.config", DEFAULT_PATH) ;
-	}
-	
 	/** The settings in force. Loaded once at startup; the options screen edits this. */
 	public static GameConfigs current = new GameConfigs() ;
 	
@@ -37,11 +27,6 @@ public class Utils_Config
 		return mapper ;
 	}
 	
-	public static File configFile()
-	{
-		return new File(configPath()) ;
-	}
-	
 	/**
 	 * Loads the config, writing one with the defaults if there is none. Never throws: a
 	 * settings file that cannot be read is a reason to fall back to defaults, not a reason
@@ -49,11 +34,12 @@ public class Utils_Config
 	 */
 	public static GameConfigs load()
 	{
-		File file = configFile() ;
+		Platform platform = GVars_Platform.current ;
 		try
 		{
-			if(file.isFile())
-				current = mapper().readValue(file, GameConfigs.class) ;
+			String text = platform.readConfig() ;
+			if(text != null)
+				current = mapper().readValue(text, GameConfigs.class) ;
 			else
 			{
 				current = new GameConfigs() ;
@@ -62,7 +48,7 @@ public class Utils_Config
 		}
 		catch(Exception e)
 		{
-			Utils_Debug.warn("Could not read " + file.getAbsolutePath() + ", using defaults: " + e) ;
+			Utils_Debug.warn("Could not read " + platform.configLocation() + ", using defaults: " + e) ;
 			current = new GameConfigs() ;
 		}
 		
@@ -74,11 +60,11 @@ public class Utils_Config
 	{
 		try
 		{
-			mapper().writerWithDefaultPrettyPrinter().writeValue(configFile(), current) ;
+			GVars_Platform.current.writeConfig(mapper().writerWithDefaultPrettyPrinter().writeValueAsString(current)) ;
 		}
 		catch(Exception e)
 		{
-			Utils_Debug.warn("Could not save settings to " + configFile().getAbsolutePath() + ": " + e) ;
+			Utils_Debug.warn("Could not save settings to " + GVars_Platform.current.configLocation() + ": " + e) ;
 		}
 	}
 	

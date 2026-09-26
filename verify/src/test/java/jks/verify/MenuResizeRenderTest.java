@@ -21,11 +21,15 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
+import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Graphics;
+import com.badlogic.gdx.Graphics.DisplayMode;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.ui.SelectBox;
 import com.badlogic.gdx.utils.Array;
 
+import jks.amain.GVars_Platform;
 import jks.amain.Main_Application;
+import jks.launcher.DesktopPlatform;
 import jks.vars.GVars_Heart;
 import jks.vinterface.Block_Resolution;
 import jks.vinterface.GVars_UI;
@@ -36,6 +40,10 @@ import jks.vinterface.overlay.OverlayOptions;
  * options' own resolution block, then Escape back to the menu. The stage must be the new window,
  * not the old one stretched - every screen lays itself out from Gdx.graphics - and the options
  * board and the menu must be laid out for it. Frames: menu-resize-*.png, for a person to look at.
+ *
+ * The window must also come back to the middle of the screen, which core asks of the desktop
+ * platform (r135). Only the count of asks tells a lost call apart: under offscreen_resizable.sh
+ * libGDX's setWindowedMode centres the window by itself, so the position check passes without it.
  *
  * Like WagonResizeRenderTest it is SKIPPED under cage, which will not resize a window; run it
  * through tools/offscreen_resizable.sh.
@@ -52,6 +60,8 @@ class MenuResizeRenderTest
 	private static String previousConfig;
 	private static volatile String stuck, stage;
 	private static volatile float boardRight, boardTop, menuX;
+	private static volatile int centreCalls;
+	private static volatile String window, centre;
 	private static volatile boolean optionsOpened, finished;
 	private static volatile Throwable error;
 
@@ -64,6 +74,15 @@ class MenuResizeRenderTest
 		System.setProperty("onboard.config", config.toString());
 
 		Main_Application.startPoint = Main_Application.StartPoint.START_SCREEN;
+		GVars_Platform.current = new DesktopPlatform()
+		{
+			@Override
+			public void centreWindow()
+			{
+				centreCalls++;
+				super.centreWindow();
+			}
+		};
 
 		Lwjgl3ApplicationConfiguration gl = new Lwjgl3ApplicationConfiguration();
 		gl.setWindowedMode(1280, 720);
@@ -118,6 +137,10 @@ class MenuResizeRenderTest
 						return;
 					case 3:
 						Frames.write(GameHarness.grab(), new File(OUTPUT, "menu-resize-3-options-960x540.png"));
+						Lwjgl3Graphics g = (Lwjgl3Graphics) Gdx.graphics;
+						DisplayMode mode = g.getDisplayMode();
+						window = g.getWindow().getPositionX() + "," + g.getWindow().getPositionY();
+						centre = (mode.width / 2 - g.getWidth() / 2) + "," + (mode.height / 2 - g.getHeight() / 2);
 						Actor board = (Actor) field(GVars_Heart.vue.overlay, "graphicBloc");
 						boardRight = board.getX() + board.getWidth();
 						boardTop = board.getY() + board.getHeight();
@@ -180,10 +203,12 @@ class MenuResizeRenderTest
 		assertNull(harness.error, harness.error == null ? null : "the game threw: " + harness.error);
 		assertNull(error, error == null ? null : "a step threw: " + error);
 		assertTrue(optionsOpened, "Options did not open");
+		assertTrue(centreCalls > 0, "applying the resolution never asked the platform to centre the window");
 		assumeTrue(stuck == null, "the display would not resize the window (" + stuck + "): cage "
 			+ "does that. Run this test through tools/offscreen_resizable.sh.");
 		System.out.println("stage " + stage + ", options board to " + boardRight + "," + boardTop);
 		assertEquals(TO, stage, "the stage is the old window stretched, not the new one");
+		assertEquals(centre, window, "the window was not put back in the middle of the screen");
 		assertTrue(boardRight <= 960 && boardTop <= 540, "the options board runs off the 960x540 window: "
 			+ boardRight + "," + boardTop);
 	}

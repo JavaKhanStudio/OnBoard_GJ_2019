@@ -14,6 +14,7 @@ public class Launcher_Game
 	public static void main (String[] arg) 
 	{
 			
+		DesktopPlatform.install() ;
 		Lwjgl3ApplicationConfiguration config = new Lwjgl3ApplicationConfiguration();
 		
 		// Reads the "config" file next to the game: window size, fullscreen, vsync, volume.
@@ -43,6 +44,7 @@ public class Launcher_Game
 	
 	public static void finalModelGame(Lwjgl3ApplicationConfiguration config)
 	{
+		DesktopPlatform.install() ;
 		GVars_Audio.muted = false ;
 		GVars_Debug.debugMode = false;
 		new Lwjgl3Application(new Main_Application(), config);

@@ -2,7 +2,6 @@ package jks.sounds;
 
 import jks.tools.Utils_Debug;
 
-import java.io.File;
 import java.util.EnumMap;
 
 import com.badlogic.gdx.Gdx;
@@ -11,6 +10,7 @@ import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.math.MathUtils;
 
+import jks.amain.GVars_Platform;
 import jks.debug.GVars_Debug;
 
 public class GVars_AudioManager 
@@ -61,19 +61,14 @@ public class GVars_AudioManager
 		}
 	}
 
-	/**
-	 * Where the labs keep what the game never ships (r99): lab-assets/ at the root of the
-	 * checkout, git-ignored and outside desktop/assets, so neither git nor the jar carries it.
-	 * Found from the working directory, desktop/, the way runGame and the tests start the game.
-	 */
-	public static final String LAB_ASSETS = System.getProperty("onboard.labAssets", "../lab-assets") ;
 
 	/** The formats libGDX's Music reads, in the order they are looked for. */
 	private static final String[] IDEAL_FORMATS = {"ogg", "mp3", "wav"} ;
 
 	/**
 	 * lab-assets/musics/wagons/wa<n>_ideal.(ogg|mp3|wav), or null while it has not been made -
-	 * always, on a fresh clone. The ideal tracks are lab-only (r99); the modulated ones ship.
+	 * always, on a fresh clone and on a platform with no lab-assets/ (r135). The ideal tracks are
+	 * lab-only (r99); the modulated ones ship.
 	 */
 	public static FileHandle idealFile(int carriage)
 	{
@@ -81,11 +76,8 @@ public class GVars_AudioManager
 			return null ;
 		for(String format : IDEAL_FORMATS)
 		{
-			// java.io.File, not Gdx.files.local: local() would glue an absolute -Donboard.labAssets
-			// onto the working directory.
-			File path = new File(LAB_ASSETS, "musics/wagons/wa" + carriage + "_ideal." + format) ;
-			FileHandle file = Gdx.files.absolute(path.getAbsolutePath()) ;
-			if(file.exists())
+			FileHandle file = GVars_Platform.current.labAsset("musics/wagons/wa" + carriage + "_ideal." + format) ;
+			if(file != null && file.exists())
 				return file ;
 		}
 		return null ;

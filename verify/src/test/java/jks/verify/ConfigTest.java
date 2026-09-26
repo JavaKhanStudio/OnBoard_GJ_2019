@@ -17,6 +17,7 @@ import org.junit.jupiter.api.io.TempDir;
 
 import jks.amain.GameConfigs;
 import jks.amain.Utils_Config;
+import jks.launcher.DesktopPlatform;
 
 /**
  * Settings persistence. The options screen could always change things and never save them,
@@ -47,7 +48,7 @@ class ConfigTest
 	{
 		GameConfigs loaded = Utils_Config.load();
 
-		assertTrue(Utils_Config.configFile().isFile(), "no config file was written");
+		assertTrue(DesktopPlatform.configFile().isFile(), "no config file was written");
 		assertNotNull(loaded);
 		// All-zero defaults meant a 0x0 window with the sound off, which is what an
 		// uninitialised GameConfigs used to produce on a first run.
@@ -85,7 +86,7 @@ class ConfigTest
 	@DisplayName("an unreadable config falls back to defaults instead of refusing to start")
 	void brokenConfigFallsBack() throws Exception
 	{
-		File file = Utils_Config.configFile();
+		File file = DesktopPlatform.configFile();
 		file.getParentFile().mkdirs();
 		Files.write(file.toPath(), "this is not json".getBytes(StandardCharsets.UTF_8));
 
@@ -99,7 +100,7 @@ class ConfigTest
 	@DisplayName("fields the game does not know about are ignored, not fatal")
 	void unknownFieldsAreIgnored() throws Exception
 	{
-		File file = Utils_Config.configFile();
+		File file = DesktopPlatform.configFile();
 		file.getParentFile().mkdirs();
 		Files.write(file.toPath(),
 			"{\"width\":800,\"height\":600,\"someFutureSetting\":true}".getBytes(StandardCharsets.UTF_8));

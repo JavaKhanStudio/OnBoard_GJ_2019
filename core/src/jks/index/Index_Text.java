@@ -1,13 +1,10 @@
 package jks.index;
 
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -15,8 +12,10 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 
+import jks.amain.GVars_Platform;
 import jks.tools.Utils_Debug;
 
 /**
@@ -163,25 +162,18 @@ public final class Index_Text
 
 	/**
 	 * The table as it sits in the source tree, for the line lab (r74) to write into. The game
-	 * reads the copy on the classpath, which a build refreshes; this is the one to edit. Found
-	 * under -Donboard.assets, or assets/ from desktop/, where runGame starts.
+	 * reads the copy on the classpath, which a build refreshes; this is the one to edit. Where it
+	 * is, is the platform's (r135); null where there is no source tree.
 	 */
-	public static File sourceTable()
+	public static FileHandle sourceTable()
 	{
-		return new File(System.getProperty("onboard.assets", "assets"), TABLE) ;
+		return GVars_Platform.current.sourceTextTable() ;
 	}
 
 	/** Reads the table again from the file, so an edit made by hand shows without a rebuild. */
-	public static void reloadFrom(File table)
+	public static void reloadFrom(FileHandle table)
 	{
-		try(InputStream in = new FileInputStream(table))
-		{
-			load(in) ;
-		}
-		catch(IOException e)
-		{
-			throw new GdxRuntimeException("Could not read " + table, e) ;
-		}
+		load(table.read()) ;
 	}
 
 	/**
@@ -190,48 +182,50 @@ public final class Index_Text
 	 * back as it was. The key must already be a row: adding one is a job for the file itself,
 	 * where its "where" column gets written.
 	 */
-	public static void write(File table, String key, String code, String text)
+	public static void write(FileHandle table, String key, String code, String text)
 	{
-		try
+		List<String> lines = lines(table.readString("UTF-8")) ;
+		int column = -1 ;
+		boolean found = false ;
+		for(int i = 0 ; i < lines.size() && !found ; i++)
 		{
-			List<String> lines = Files.readAllLines(table.toPath(), StandardCharsets.UTF_8) ;
-			int column = -1 ;
-			boolean found = false ;
-			for(int i = 0 ; i < lines.size() && !found ; i++)
+			String line = lines.get(i) ;
+			if(line.isEmpty() || line.startsWith("#"))
+				continue ;
+			String[] cells = line.split("\t", -1) ;
+			if(column < 0)
 			{
-				String line = lines.get(i) ;
-				if(line.isEmpty() || line.startsWith("#"))
-					continue ;
-				String[] cells = line.split("\t", -1) ;
-				if(column < 0)
-				{
-					column = Arrays.asList(cells).indexOf(code) ;
-					if(column < 2)
-						throw new GdxRuntimeException("No '" + code + "' column in " + table) ;
-					continue ;
-				}
-				if(!cells[0].equals(key))
-					continue ;
-				if(cells.length <= column)
-					cells = Arrays.copyOf(cells, column + 1) ;
-				for(int c = 0 ; c < cells.length ; c++)
-					if(cells[c] == null)
-						cells[c] = "" ;
-				cells[column] = escape(text) ;
-				lines.set(i, String.join("\t", cells)) ;
-				found = true ;
+				column = Arrays.asList(cells).indexOf(code) ;
+				if(column < 2)
+					throw new GdxRuntimeException("No '" + code + "' column in " + table) ;
+				continue ;
 			}
-			if(!found)
-				throw new GdxRuntimeException("No row '" + key + "' in " + table + " - add it there first") ;
+			if(!cells[0].equals(key))
+				continue ;
+			if(cells.length <= column)
+				cells = Arrays.copyOf(cells, column + 1) ;
+			for(int c = 0 ; c < cells.length ; c++)
+				if(cells[c] == null)
+					cells[c] = "" ;
+			cells[column] = escape(text) ;
+			lines.set(i, String.join("\t", cells)) ;
+			found = true ;
+		}
+		if(!found)
+			throw new GdxRuntimeException("No row '" + key + "' in " + table + " - add it there first") ;
 
-			Files.write(table.toPath(), (String.join("\n", lines) + "\n").getBytes(StandardCharsets.UTF_8)) ;
-		}
-		catch(IOException e)
-		{
-			throw new GdxRuntimeException("Could not write " + table, e) ;
-		}
+		table.writeString(String.join("\n", lines) + "\n", false, "UTF-8") ;
 
 		table().get(key).put(code, text) ;
+	}
+
+	/** The lines of a text the way Files.readAllLines cut them: \n or \r\n, no empty one after the last. */
+	static List<String> lines(String text)
+	{
+		List<String> lines = new ArrayList<String>(Arrays.asList(text.split("\r?\n", -1))) ;
+		if(lines.get(lines.size() - 1).isEmpty())
+			lines.remove(lines.size() - 1) ;
+		return lines ;
 	}
 
 	/** The reverse of {@link #unescape}: what a cell holds for a text. */
