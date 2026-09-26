@@ -375,6 +375,9 @@ Signing properly needs a Mac and a paid Apple Developer account.
 tools/smoke_package.sh runs the Linux zip offscreen and saves shot_<s>.png (a nested
 non-rootless Xwayland in cage: cage's own XWayland grabs black). Unattended it reaches the
 intro and waits there for a click.
+Those shots are 1280x720: cage's headless output cannot be resized. tools/itch_shots.sh takes
+1920x1080 ones instead, in gamescope --backend headless with gamescopectl screenshot, one launch
+per -Donboard.start scene (ONLY="wa1 wa3" for a few). tools/itch_cover.sh makes the 630x500 cover.
 Only the Linux package can be executed on this machine. Say in the report what you ran and
 what you inferred from an identical configuration — do not call an unrun .exe verified.
 """

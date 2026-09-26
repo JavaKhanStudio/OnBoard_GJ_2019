@@ -139,3 +139,7 @@ Thumbs.db
 # links are broken for anyone else who clones this.
 /.claude/
 /tools/.butler/
+
+## itch.io screenshots: 1.2-1.8 MB each, over push_check's 1 MB limit. tools/itch_shots.sh
+## remakes them and they are uploaded to itch by hand (r143).
+/docs/itch/shot*.png
