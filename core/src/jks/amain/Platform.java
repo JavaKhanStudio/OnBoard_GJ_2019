@@ -2,6 +2,8 @@ package jks.amain;
 
 import com.badlogic.gdx.files.FileHandle;
 
+import jks.tools2d.parallax.heart.Parallax_Heart;
+
 /**
  * What the game needs from the machine it runs on and that libGDX does not give every backend
  * (r135). core/ must stay translatable for the browser build, so java.io.File, java.nio.file and
@@ -29,6 +31,16 @@ public interface Platform
 		return "(nowhere)" ;
 	}
 
+	/**
+	 * Whether Options offers the window's size, frame rate, vsync and full screen (r137). A browser
+	 * tab says no: its canvas is the page's, a bigger one runs past the frame it is embedded in, and
+	 * the frame rate and full screen are the browser's.
+	 */
+	default boolean choosesWindowSize()
+	{
+		return false ;
+	}
+
 	/** Puts the window back in the middle of the screen after it changed size. */
 	default void centreWindow()
 	{
@@ -44,5 +56,16 @@ public interface Platform
 	default FileHandle sourceTextTable()
 	{
 		return null ;
+	}
+
+	/**
+	 * A carriage's backdrop from its .plax path under the assets. The default reads the editor
+	 * project saved beside it (Printemps.plax -> Printemps.plaxpj) as JSON, which is how a browser
+	 * loads a page (r137): the .plax is Kryo, which GWT cannot translate. The desktop reads the
+	 * .plax itself. parallax r46's JsonPageTest shows both give the same page for all four.
+	 */
+	default Parallax_Heart loadBackdrop(String plaxPath)
+	{
+		return Parallax_Heart.fromJson(plaxPath.substring(0, plaxPath.lastIndexOf('.')) + ".plaxpj") ;
 	}
 }

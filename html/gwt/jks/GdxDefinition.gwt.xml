@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- The browser build of On Board (html/build.gradle, r137). Its classpath is core/src, html/src and
+     this directory, all rooted at the jks package, so source path="" takes the game and the launcher
+     at once. The parallax library brings its own module, which leaves out its Kryo and Jackson files:
+     the backdrops are read from their .plaxpj (jks.amain.Platform.loadBackdrop). -->
+<module rename-to="html">
+	<inherits name="com.badlogic.gdx.backends.gdx_backends_gwt" />
+	<inherits name="com.badlogic.gdx.controllers.controllers-gwt" />
+	<inherits name="com.badlogic.gdx.graphics.g2d.freetype.freetype-gwt-gdx1142" />
+	<inherits name="com.kotcrab.vis.vis-ui" />
+	<inherits name="com.github.tommyettinger.textratypist" />
+	<inherits name="jks.tools2d.parallax.Parallax" />
+
+	<!-- tools2d/ is the parallax library, whose sources jar is on the classpath too: its own module
+	     above takes it, without the Kryo files. -->
+	<source path="">
+		<exclude name="tools2d/**" />
+	</source>
+
+	<!-- libGDX Json reads the .wa levels and the config by reflection (jks.vars.GVars_Serialization),
+	     and GWT only reflects what is named here. -->
+	<extend-configuration-property name="gdx.reflect.include" value="jks.vue.models.game" />
+	<extend-configuration-property name="gdx.reflect.include" value="jks.amain.GameConfigs" />
+	<!-- and the skin names this style (ui/skins/basic/uiskin.json) -->
+	<extend-configuration-property name="gdx.reflect.include" value="jks.vinterface.tools.JksTextureList" />
+
+	<!-- Main_Application reads -Donboard.start, .level, .lab and .karma with System.getProperty, which GWT
+	     resolves at compile time: a property it does not know fails the compile, one declared with no
+	     value crashes it. Empty, they read as unset (Main_Application treats a blank value as none), as
+	     on a desktop started without them: a page takes ?start= and ?level= instead (HtmlLauncher). -->
+	<define-configuration-property name="onboard.start" is-multi-valued="false" />
+	<set-configuration-property name="onboard.start" value="" />
+	<define-configuration-property name="onboard.level" is-multi-valued="false" />
+	<set-configuration-property name="onboard.level" value="" />
+	<define-configuration-property name="onboard.lab" is-multi-valued="false" />
+	<set-configuration-property name="onboard.lab" value="" />
+	<define-configuration-property name="onboard.karma" is-multi-valued="false" />
+	<set-configuration-property name="onboard.karma" value="" />
+
+	<entry-point class="jks.html.HtmlLauncher" />
+	<!-- Both relative to the directory the compiler runs in, which html/build.gradle sets to html/ :
+	     the asset generator resolves them against the working directory, not against -war. -->
+	<set-configuration-property name="gdx.assetpath" value="../desktop/assets" />
+	<set-configuration-property name="gdx.assetoutputpath" value="build/gwt/war/" />
+	<set-configuration-property name="xsiframe.failIfScriptTag" value="FALSE" />
+	<!-- Chrome, Edge and Safari are "safari" to GWT, Firefox is "gecko1_8": a page compiled for one
+	     alone shows a blank page to the other. Both, collapsed into ONE permutation, so the compile
+	     is not twice as long; the few lines that differ are chosen when the page loads. -->
+	<set-property name="user.agent" value="safari,gecko1_8" />
+	<collapse-property name="user.agent" values="*" />
+</module>

@@ -136,8 +136,8 @@ public class Vue_LineLab extends AVue_Model
 	/** -Donboard.level opens that carriage's tab, as it opens that carriage in the game. */
 	private static int startCarriage()
 	{
-		int level = Integer.getInteger("onboard.level", 1) ;
-		return level >= 1 && level <= GVars_Game.LEVEL_COUNT ? level : 1 ;
+		// Main_Application has read and bounded it; Integer.getInteger is not in GWT (r137)
+		return jks.amain.Main_Application.startLevel ;
 	}
 
 	private VisTable buildCarriage(int n)

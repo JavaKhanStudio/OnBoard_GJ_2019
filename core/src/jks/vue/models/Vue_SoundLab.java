@@ -2,7 +2,7 @@ package jks.vue.models;
 
 import java.util.ArrayList;
 import java.util.EnumMap;
-import java.util.Locale;
+import jks.tools.Utils_Format;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
@@ -361,14 +361,14 @@ public class Vue_SoundLab extends AVue_Model
 			return (file == null ? "no file" : file.path()) + "  MISSING" ;
 
 		float megabytes = file.readBytes().length / (1024f * 1024f) ;
-		return file.path() + String.format(Locale.ROOT, "  %.1f MB", megabytes) ;
+		return file.path() + "  " + Utils_Format.fixed(megabytes, 1) + " MB" ;
 	}
 
 	private static String describeSize(FileHandle file)
 	{
 		if(!file.exists())
 			return "  MISSING" ;
-		return String.format(Locale.ROOT, "  %d KB", file.readBytes().length / 1024) ;
+		return "  " + file.readBytes().length / 1024 + " KB" ;
 	}
 
 	/** The menu fonts have no underscore - FreeType leaves a hole where it would be. */
@@ -407,8 +407,7 @@ public class Vue_SoundLab extends AVue_Model
 			int seconds = (int) GVars_AudioManager.musicPosition() ;
 			String name = playing.carriage == 0 ? shown(playing.name())
 				: shown(GVars_AudioManager.fileFor(playing).name()) ;
-			nowPlaying.setText(String.format(Locale.ROOT, "Playing %s  %d:%02d  (loops)",
-				name, seconds / 60, seconds % 60)) ;
+			nowPlaying.setText("Playing " + name + "  " + seconds / 60 + ":" + Utils_Format.twoDigits(seconds % 60) + "  (loops)") ;
 		}
 	}
 

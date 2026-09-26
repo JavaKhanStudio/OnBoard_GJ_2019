@@ -66,7 +66,7 @@ public class Main_Application extends ApplicationAdapter
 	private static StartPoint fromSystemProperty()
 	{
 		String requested = System.getProperty("onboard.start") ; 
-		if(requested == null)
+		if(requested == null || requested.trim().isEmpty())
 			return StartPoint.LOGO ; 
 		
 		try
@@ -98,7 +98,7 @@ public class Main_Application extends ApplicationAdapter
 	 * the ideal track under the carriage. The board's Carriage surfaces pass it; item_lab always
 	 * has the karma slider. Off by default, so a plain dev start and every test look like the game.
 	 */
-	public static boolean lab = Boolean.getBoolean("onboard.lab") ; 
+	public static boolean lab = Boolean.parseBoolean(System.getProperty("onboard.lab")) ; 
 	
 	/**
 	 * The karma OUTRO starts with, 0 to LEVEL_COUNT: -Donboard.karma=1 with -Donboard.start=outro.
@@ -111,7 +111,7 @@ public class Main_Application extends ApplicationAdapter
 	
 	public static int karmaFrom(String requested)
 	{
-		if(requested == null)
+		if(requested == null || requested.trim().isEmpty())
 			return GVars_Game.LEVEL_COUNT ; 
 		
 		try
@@ -129,7 +129,7 @@ public class Main_Application extends ApplicationAdapter
 	
 	public static int levelFrom(String requested)
 	{
-		if(requested == null)
+		if(requested == null || requested.trim().isEmpty())
 			return 1 ; 
 		
 		try

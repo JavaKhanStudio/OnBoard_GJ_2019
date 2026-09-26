@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- FreeType in the browser for libGDX 1.14.2 (r137): gdx-freetype-gwt 1.9.10.1's module (its
+     sources jar is on the compiler's classpath, and GWT merges this package across both), with its
+     FreeTypeFontGenerator swapped for emu1142/'s, which is libGDX 1.14.2's plus the port's changes. -->
+<module>
+	<inherits name="java.nio" />
+	<public path="public" />
+	<source path="gwt">
+		<exclude name="**/emu/**" />
+	</source>
+	<super-source path="gwt/emu">
+		<exclude name="**/FreeTypeFontGenerator.java" />
+	</super-source>
+	<super-source path="emu1142" />
+</module>

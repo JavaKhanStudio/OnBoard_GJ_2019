@@ -143,3 +143,6 @@ Thumbs.db
 ## itch.io screenshots: 1.2-1.8 MB each, over push_check's 1 MB limit. tools/itch_shots.sh
 ## remakes them and they are uploaded to itch by hand (r143).
 /docs/itch/shot*.png
+
+## tools/browser-gate's puppeteer-core, installed by gate.sh on its first run
+node_modules/

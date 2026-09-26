@@ -5,7 +5,8 @@ import com.badlogic.gdx.utils.JsonWriter.OutputType;
 
 /**
  * The game's own JSON: the .wa levels and the config. The .plax backdrops are not read here:
- * the parallax library reads them through its own jks.tools2d.parallax.heart.GVars_Serialization.
+ * the parallax library reads them (jks.amain.Platform.loadBackdrop), and prepares its own Kryo on
+ * the first one. This used to prepare it at startup, which named Kryo in core (r137).
  *
  * libGDX Json, not Jackson (r136): Jackson is reflection-driven in a way GWT cannot translate,
  * and the browser build compiles core. libGDX Json reads and writes every field that is not
@@ -19,7 +20,6 @@ public class GVars_Serialization
 
 	public static void init()
 	{
-		jks.tools2d.parallax.heart.GVars_Serialization.init() ;
 		prepareJson() ;
 	}
 

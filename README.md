@@ -149,6 +149,24 @@ xattr -dr com.apple.quarantine "On Board.app"
 
 After that it opens normally. Signing properly needs a Mac and a developer account.
 
+### In a browser
+
+`html/` compiles the game to JavaScript with libGDX's GWT backend: a static site that plays in
+Chrome, Edge, Firefox and (untested here) Safari.
+
+```bash
+./gradlew :html:war              # html/build/war: 217 files, 37 MB (~1 min; -Pdraft for a fast unoptimized one)
+./gradlew :html:serve            # serves it on http://localhost:8099/index.html
+tools/browser-gate/gate.sh       # builds it and plays it in headless Chrome, sound muted
+BROWSER=firefox tools/browser-gate/gate.sh --no-build   # the same in Firefox, offscreen
+```
+
+The gate fails unless the logos reach the intro, clicks reach the start screen, music plays,
+every French letter has a glyph, the settings survive a reload and carriage 1 opens. Its
+screenshots land in `html/build/gate/`. In a tab the settings live in the browser's
+localStorage, and Options offers no window size, frame rate or full screen. The page takes
+`?mute` and `?start=game&level=3`.
+
 ## Tests
 
 ```bash
@@ -202,10 +220,12 @@ evidence that 1.14.2 renders level 1 the same way it always did.
 | `editor/` | the level editor that produced the `.wa` files — its item palette, `JksTextureList`, lives in `core/` though the game never uses it |
 | `test/` | a scratch module for trying widgets out |
 | `verify/` | the test suite |
+| `html/` | the browser build: its launcher, the GWT module, and FreeType for GWT on libGDX 1.14.2 |
 | `lab-assets/` | lab-only files: not in git, not in the game (see "Lab-only files" below) |
 
 Levels are `desktop/assets/game/wagon/wa{1..4}.wa` — JSON written by the editor. The
 scrolling backdrops are `.plax` files, and `.plaxpj` are the editor's project files for them.
+The browser build draws the backdrops from the `.plaxpj`, so the two must change together.
 
 ---
 

@@ -1,0 +1,105 @@
+// The browser build (r137): On Board compiled to JavaScript by libGDX's own GWT backend, on the
+// route La chasse-galerie proved (its docs/browser-target.md sections 10-11). `build` only javac's
+// the launcher; the GWT compile takes a minute and 2 GB, so it runs only when asked:
+//   ./gradlew :html:war          html/build/war, a static site (-Pdraft: a fast unoptimized compile)
+//   ./gradlew :html:serve        serves it on http://localhost:8099/index.html (-Pport=)
+//   tools/browser-gate/gate.sh   plays it in headless Chrome and fails unless it reaches the start screen
+//
+// GWT eats Java SOURCE, not classes: the compiler's classpath is core/src, html/src and html/gwt
+// (the module descriptor), plus the sources jars of every library. It is a JavaExec of
+// com.google.gwt.dev.Compiler and not the org.docstr.gwt plugin, which hands every GWT source
+// directory to javac as well (La chasse-galerie's docs/browser-target.md section 11).
+
+apply plugin: 'java-library'
+
+sourceSets.main.java.srcDirs = ['src']
+
+configurations {
+    gwt
+}
+
+dependencies {
+    // The launcher is javac'd by `build` too, so a change that breaks it is seen without a GWT compile
+    compileOnly project(':core')
+    compileOnly "com.badlogicgames.gdx:gdx-backend-gwt:$gdxVersion"
+    compileOnly "org.gwtproject:gwt-user:$gwtVersion"
+    compileOnly("com.github.intrigus.gdx-freetype-gwt:gdx-freetype-gwt:$freetypeGwtVersion") { transitive = false }
+
+    gwt "org.gwtproject:gwt-user:$gwtVersion"
+    gwt "org.gwtproject:gwt-dev:$gwtVersion"
+    // The reflection cache libGDX generates for Json names jsinterop annotations, whose source
+    // gwt-user does not carry
+    gwt "com.google.jsinterop:jsinterop-annotations:2.0.2:sources"
+    // Every library core uses, as its jar and its sources: the jar carries the .gwt.xml
+    for (lib in ["com.badlogicgames.gdx:gdx:$gdxVersion",
+                 "com.badlogicgames.gdx:gdx-backend-gwt:$gdxVersion",
+                 "com.badlogicgames.gdx:gdx-freetype:$gdxVersion",
+                 "com.badlogicgames.gdx-controllers:gdx-controllers-core:$controllersVersion",
+                 "com.badlogicgames.gdx-controllers:gdx-controllers-gwt:$controllersVersion",
+                 "com.kotcrab.vis:vis-ui:$visuiVersion",
+                 "com.github.tommyettinger:textratypist:$textratypistVersion",
+                 "com.github.tommyettinger:regexodus:0.1.21",
+                 "io.github.javakhanstudio:parallax-background:$parallaxVersion"]) {
+        gwt(lib) { transitive = false }
+        gwt("$lib:sources") { transitive = false }
+    }
+    // libGDX publishes no FreeType for GWT. This community port (FreeType compiled to JavaScript,
+    // and its own copy of FreeTypeFontGenerator as super-source) is the only one on Maven Central,
+    // and is what gdx-liftoff sets up; it was built against libGDX 1.9.10. Its sources jar is the
+    // whole module: the .gwt.xml, the Java and freetype.js.
+    gwt("com.github.intrigus.gdx-freetype-gwt:gdx-freetype-gwt:$freetypeGwtVersion:sources") { transitive = false }
+}
+
+def draft = providers.gradleProperty('draft').isPresent()
+def gwtWar = layout.buildDirectory.dir('gwt/war')
+def gwtWork = layout.buildDirectory.dir('gwt/work')
+
+tasks.register('gwtCompile', JavaExec) {
+    group = 'build'
+    description = 'Compiles the game to JavaScript (GWT). -Pdraft for a fast unoptimized compile.'
+    mainClass = 'com.google.gwt.dev.Compiler'
+    classpath = files('../core/src', 'src', 'gwt', 'freetype-gwt') + configurations.gwt
+    // gdx.assetpath and gdx.assetoutputpath in the .gwt.xml are relative to THIS directory
+    workingDir = projectDir
+    maxHeapSize = '3g'
+    // The 33 MB asset copy is a GWT generator, and a generator does not run again while its output
+    // is in the persistent unit cache: a second compile would make a page with no assets
+    systemProperty 'gwt.persistentunitcache', 'false'
+    args '-war', gwtWar.get().asFile.path, '-workDir', gwtWork.get().asFile.path, '-logLevel', 'WARN'
+    args(draft ? ['-draftCompile', '-style', 'PRETTY'] : ['-optimize', '9'])
+    args 'jks.GdxDefinition'
+
+    inputs.files(classpath).withPropertyName('sources')
+    inputs.dir('../desktop/assets').withPropertyName('assets')
+    inputs.property('draft', draft)
+    outputs.dir(gwtWar)
+
+    def war = gwtWar.get().asFile
+    doFirst { war.deleteDir() }
+    doLast {
+        if (!new File(war, 'assets/assets.txt').exists())
+            throw new GradleException("the asset generator did not run: $war has no assets and the page would hang on the preloader")
+    }
+}
+
+tasks.register('war', Sync) {
+    group = 'build'
+    description = 'The browser build as a static site in html/build/war.'
+    from tasks.named('gwtCompile')
+    from 'webapp'
+    // symbol maps and compile reports: not for the page
+    exclude 'WEB-INF/**'
+    into layout.buildDirectory.dir('war')
+}
+
+def port = providers.gradleProperty('port').orElse('8099')
+def javaHome = providers.systemProperty('java.home')
+
+// jwebserver is in every JDK since 18: nothing to install
+tasks.register('serve', Exec) {
+    group = 'application'
+    description = 'Serves html/build/war on http://localhost:8099/index.html (-Pport=).'
+    dependsOn tasks.named('war')
+    executable = "${javaHome.get()}/bin/jwebserver"
+    args '-b', '127.0.0.1', '-p', port.get(), '-d', layout.buildDirectory.dir('war').get().asFile.path
+}

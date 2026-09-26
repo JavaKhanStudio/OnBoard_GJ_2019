@@ -1,6 +1,6 @@
 package jks.vue.models.game;
 
-import java.util.Locale;
+import jks.tools.Utils_Format;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.scenes.scene2d.Actor;
@@ -80,7 +80,7 @@ public class ItemOutlineLab extends VisTable
 	}
 
 	private static String format(float value)
-	{return String.format(Locale.ROOT, "%.2f", value) ;}
+	{return Utils_Format.fixed(value, 2) ;}
 
 	/** Opens the lab over whatever carriage is showing. */
 	public static void open()

@@ -12,6 +12,7 @@ import com.badlogic.gdx.files.FileHandle;
 import jks.amain.GVars_Platform;
 import jks.amain.Platform;
 import jks.index.Index_Text;
+import jks.tools2d.parallax.heart.Parallax_Heart;
 
 /**
  * The game on a desktop (r135): the settings in a file next to the game, a window to centre,
@@ -68,6 +69,12 @@ public class DesktopPlatform implements Platform
 	}
 
 	@Override
+	public boolean choosesWindowSize()
+	{
+		return true ;
+	}
+
+	@Override
 	public void centreWindow()
 	{
 		// libGDX has no cross-platform window position, hence all of this class.
@@ -93,5 +100,12 @@ public class DesktopPlatform implements Platform
 	{
 		// Under -Donboard.assets, or assets/ from desktop/, where runGame starts.
 		return new FileHandle(new File(System.getProperty("onboard.assets", "assets"), Index_Text.TABLE)) ;
+	}
+
+	@Override
+	public Parallax_Heart loadBackdrop(String plaxPath)
+	{
+		// The .plax itself, through Kryo, as the game always has: the browser reads the .plaxpj
+		return new Parallax_Heart(plaxPath) ;
 	}
 }

@@ -1,0 +1,9 @@
+{
+  "name": "onboard-browser-gate",
+  "private": true,
+  "description": "Plays the html module's page in headless Chrome and fails unless it gets past the logos to the start screen (gate.sh).",
+  "type": "module",
+  "dependencies": {
+    "puppeteer-core": "25.12.0"
+  }
+}

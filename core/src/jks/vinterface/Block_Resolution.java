@@ -120,25 +120,34 @@ public class Block_Resolution extends VisTable
 		titleCell = this.add(graphicLabel).colspan(2).expandX().fillX() ;
 		this.row() ; 
 		
-		rowCells.add(this.add(resolutionLabel).left().expandX()) ; 
-		this.add(selectBox_Resolution).right() ;
-		this.row() ; 
-		
-		rowCells.add(this.add(fpsLabel).left().expandX()) ; 
-		this.add(selectBox_FPS).right() ;
-		this.row() ;
-		
-		rowCells.add(this.add(fullScreenCheckBox).colspan(2).fillX()) ; 
-		this.row() ;
-		
-		rowCells.add(this.add(vSynchCheckBox).colspan(2).fillX()) ; 
-		this.row() ;
+		// In a browser tab only the mipmaps row (r137): the window rows are built all the same,
+		// so the rest of this class need not ask, but never shown.
+		if(sizesWindow)
+		{
+			rowCells.add(this.add(resolutionLabel).left().expandX()) ; 
+			this.add(selectBox_Resolution).right() ;
+			this.row() ; 
+			
+			rowCells.add(this.add(fpsLabel).left().expandX()) ; 
+			this.add(selectBox_FPS).right() ;
+			this.row() ;
+			
+			rowCells.add(this.add(fullScreenCheckBox).colspan(2).fillX()) ; 
+			this.row() ;
+			
+			rowCells.add(this.add(vSynchCheckBox).colspan(2).fillX()) ; 
+			this.row() ;
+		}
 		
 		rowCells.add(this.add(mipmapsCheckBox).colspan(2).fillX()) ; 
 		this.row() ;
 		
-		applyCell = this.add(apply).colspan(2).center() ; 
+		if(sizesWindow)
+			applyCell = this.add(apply).colspan(2).center() ; 
 	}
+	
+	/** False in a browser tab, where only the mipmaps row is shown (Platform.choosesWindowSize). */
+	private final boolean sizesWindow = GVars_Platform.current.choosesWindowSize() ;
 	
 	/** Fits the block to a board of this size: the title on the plank, the rest on the wood. */
 	public void resize(float width, float height)
@@ -159,7 +168,8 @@ public class Block_Resolution extends VisTable
 			cell.height(row) ;
 		for(PaintedCheckBox box : new PaintedCheckBox[] {fullScreenCheckBox, vSynchCheckBox, mipmapsCheckBox})
 			box.setBoxHeight(row * 0.8f) ;
-		applyCell.padTop(row * 0.5f).height(row).minWidth(width / 3f) ;
+		if(applyCell != null)
+			applyCell.padTop(row * 0.5f).height(row).minWidth(width / 3f) ;
 		invalidateHierarchy() ;
 	}
 	
@@ -191,12 +201,16 @@ public class Block_Resolution extends VisTable
 	public ArrayList<Actor> focusOrder()
 	{
 		ArrayList<Actor> order = new ArrayList<>() ;
-		order.add(selectBox_Resolution) ;
-		order.add(selectBox_FPS) ;
-		order.add(fullScreenCheckBox) ;
-		order.add(vSynchCheckBox) ;
+		if(sizesWindow)
+		{
+			order.add(selectBox_Resolution) ;
+			order.add(selectBox_FPS) ;
+			order.add(fullScreenCheckBox) ;
+			order.add(vSynchCheckBox) ;
+		}
 		order.add(mipmapsCheckBox) ;
-		order.add(apply) ;
+		if(sizesWindow)
+			order.add(apply) ;
 		return order ;
 	}
 	

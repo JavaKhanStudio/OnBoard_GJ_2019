@@ -110,10 +110,14 @@ description = "The .plax backdrops and the parallax-background library that draw
 color = "#36d7e0"
 sort = 35
 context = """
-Each carriage scrolls a backdrop: WagonLevel.init -> new Parallax_Heart(path_parallax), from
-io.github.javakhanstudio:parallax-background (parallaxVersion in build.gradle; source at
-../parralax/JKS_Tools2D_ParallaxBackground, tag v2.1.0), which draws it AND owns .plax.
+Each carriage scrolls a backdrop: WagonLevel.init -> GVars_Platform.current.loadBackdrop(path),
+from io.github.javakhanstudio:parallax-background (parallaxVersion in build.gradle; source at
+../parralax/JKS_Tools2D_ParallaxBackground, tag v<version>), which draws it AND owns .plax.
 It replaced core/jars/parallaxReader0.7.jar in r33 (onboard 58f4a70).
+TWO FILES PER BACKDROP (r137): the desktop (DesktopPlatform) reads the .plax with
+new Parallax_Heart(path), through Kryo; the browser build reads the .plaxpj beside it with
+Parallax_Heart.fromJson (Platform's default), because GWT cannot translate Kryo. Edit one
+without the other and the tab draws a different carriage. core never names the .plax constructor.
 .plax is a Kryo binary written in 2019 by kryo 5.0.0-RC1. The library runs kryo 5.6.2 and
 reads that layout through jks.tools2d.parallax.heart.GVars_Serialization.prepareKryo() —
 the ONLY Kryo to read a .plax with. A plain new Kryo() FAILS SILENTLY: with references off,
@@ -325,8 +329,8 @@ color = "#f2d45c"
 sort = 80
 context = """
 Every version lives in one ext block at the top of build.gradle: gdxVersion, visuiVersion,
-textratypistVersion, parallaxVersion, junitVersion, javaTarget. Change it
-there and nowhere else.
+textratypistVersion, parallaxVersion, junitVersion, javaTarget, and the browser's gwtVersion
+and freetypeGwtVersion. Change it there and nowhere else.
 THE ENGINE VERSION IS ENFORCED BY A resolutionStrategy over an explicit lockstep list.
 vis-ui and typing-label each declare their own libGDX and Gradle resolves a conflict by
 taking the HIGHEST — which silently gave the runtime a different engine than the compiler
@@ -350,6 +354,11 @@ window centring, lab-assets/, the source text table) goes through jks.amain.Plat
 jks.launcher.DesktopPlatform implements; every launcher calls DesktopPlatform.install() first,
 and verify's DesktopSession (META-INF/services) does it for the tests. CoreIsPortableTest
 fails the build on anything that slips back in.
+JAVAC DOES NOT SEE WHAT GWT REFUSES (r137). Not in core/src: String.format, Boolean.getBoolean,
+Integer.getInteger, a Kryo type, or System.getProperty of a name html/gwt/jks/GdxDefinition.gwt.xml
+does not declare (each -Donboard.* is declared there, empty; a blank value reads as unset). Numbers
+as text go through jks.tools.Utils_Format. `tools/browser-gate/gate.sh --draft` compiles core
+for the browser in ~20 s and names the line; `./gradlew build` never runs the GWT compile.
 vis-ui 1.5.9 was built against libGDX 1.14.1 and printed a version warning on every startup.
 No vis-ui release targets 1.14.2 yet (1.5.9 was still the latest on Maven Central on
 2026-09-11), so GVars_UI.init calls VisUI.setSkipGdxVersionCheck(true) before VisUI.load to
@@ -398,6 +407,20 @@ Those shots are 1280x720: cage's headless output cannot be resized. tools/itch_s
 per -Donboard.start scene (ONLY="wa1 wa3" for a few). tools/itch_cover.sh makes the 630x500 cover.
 Only the Linux package can be executed on this machine. Say in the report what you ran and
 what you inferred from an identical configuration — do not call an unrun .exe verified.
+THE BROWSER BUILD (r137) is html/: libGDX's GWT backend, a JavaExec of the GWT compiler (not a
+plugin), La chasse-galerie's recipe.
+  ./gradlew :html:war            html/build/war, a static site (~1 min; -Pdraft ~20 s, unoptimized)
+  tools/browser-gate/gate.sh     builds it, plays it in headless Chrome with --mute-audio
+It fails unless the logos reach the intro, clicks reach the start screen, music plays, the
+French letters have glyphs, the config survives a reload (localStorage) and carriage 1 opens
+at 20+ fps. Renders and gate.json (load time, war files and bytes) in html/build/gate/.
+FreeType in a tab is the community port gdx-freetype-gwt 1.9.10.1 (libGDX has none); its
+generator is 1.9.10's, so html/freetype-gwt/ carries 1.14.2's with the port's three GWT hunks.
+Take libGDX's file again when gdxVersion moves. Page parameters: ?mute, ?start=game&level=3.
+In a tab, Options shows no resolution, fps, vsync or full screen (Platform.choosesWindowSize).
+user.agent is safari (Chrome, Edge, Safari) AND gecko1_8 (Firefox), collapsed into one
+permutation: a page built for one alone is blank in the other. BROWSER=firefox gate.sh checks
+Firefox, in a window inside cage (headless Firefox has no WebGL here). No Safari to run here.
 """
 
 [tags.docs]

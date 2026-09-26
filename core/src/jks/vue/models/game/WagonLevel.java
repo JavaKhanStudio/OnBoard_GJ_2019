@@ -11,6 +11,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.math.Vector3;
 
+import jks.amain.GVars_Platform;
 import jks.camera.GVars_Camera;
 import jks.input.IKM_Game_Keyboard;
 import jks.tools2d.parallax.heart.Parallax_Heart;
@@ -67,7 +68,7 @@ public class WagonLevel
 			myWagonPath = metaPath + "WAGON.png" ; 
 			myParallaxPath = metaPath + path_parallax ;  
 			
-			parallax = new Parallax_Heart(myParallaxPath) ;
+			parallax = GVars_Platform.current.loadBackdrop(myParallaxPath) ;
 			parallax.screenSpeedConstantX = 800 ; 
 
 			loadTexture(myWagonPath) ;
