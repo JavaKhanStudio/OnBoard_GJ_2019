@@ -339,6 +339,12 @@ artifact released in lockstep with the engine; gdx-jnigen-loader carries its own
 and must be left alone.
 There is NO kryo line: parallax-background brings kryo 5.6.2 and the .plax reader tuned to it
 (see the `parallax` pack). The old 5.0.0-RC1 pin went with the jar in r33.
+A PARALLAX FIX COMES AS A PINNED SNAPSHOT, not a release (Simon, parallax:r57): don't ask
+parallax to release. Add maven { url 'https://central.sonatype.com/repository/maven-snapshots/' }
+to the repositories and set parallaxVersion to one timestamped build, e.g.
+'2.5.0-20260926.092334-1' — never 'X.Y.Z-SNAPSHOT', which moves with every push. Central drops a
+snapshot build after 90 days, so a pin needs a newer snapshot or a release by then. How to find a
+build: RELEASING.md 'Test versions (snapshots)' in ../parralax/JKS_Tools2D_ParallaxBackground.
 There is NO Jackson (r136): the .wa levels and the config are read and written with libGDX
 Json through jks.vars.GVars_Serialization, which GWT can translate. CoreIsPortableTest fails
 on any com.fasterxml in core/src. jackson-annotations is still on the classpath, brought by

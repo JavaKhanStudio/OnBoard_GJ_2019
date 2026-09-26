@@ -36,6 +36,9 @@ allprojects {
         javaTarget = 21
         // The parallax renderer, which also owns the .plax format. It brings its own Kryo
         // (5.6.2) and reads the 2019 files written by kryo 5.0.0-RC1 itself - don't add a kryo.
+        // A fix not released yet comes as a snapshot: pin its timestamped build here (e.g.
+        // '2.5.0-20260926.092334-1', never 'X.Y.Z-SNAPSHOT') and add Central's snapshot repo
+        // (https://central.sonatype.com/repository/maven-snapshots/). Central drops it after 90 days.
         parallaxVersion = '2.4.0'
         junitVersion = '5.14.4'
     }
