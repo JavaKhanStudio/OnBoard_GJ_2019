@@ -283,7 +283,9 @@ beside it. **Optimus Princeps** (titles) and **Geo Sans Light** (everything smal
 Manfred Klein: free for private, charity and commercial use, but not to be included in
 "compilation CDs, disks or products" without his permission (`*-README.txt`, quoting his
 site; r130). **Mansalva** (Ross's thoughts) is by Carolina Short, SIL Open Font License 1.1
-(`Mansalva-OFL.txt`). The credits screen names none of them.
+(`Mansalva-OFL.txt`). The credits screen names none of them. Settled in 2026 by Simon (r130):
+the game only draws its own text with Klein's two fonts, which is not a font compilation, so
+they ship as they are, credited in the README beside each font and on the itch page.
 
 The intro's old smoke image (`ui/story/intro/smoke.jpg`, not shown since r85, when the painted
 fumee steam took its place) started as a stock image: its metadata
