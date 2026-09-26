@@ -8,6 +8,7 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -78,6 +79,11 @@ class KeyHintRenderTest
 	private static volatile boolean[][] interior;
 	private static volatile String hintShown;
 	private static volatile Throwable error;
+	/** Every frame from the hover to the READING_BY capture, for the failure message (r145). */
+	private static final List<String> timeline = new ArrayList<>();
+	/** The bubble's highest alpha after the hover, and when: above 1 it draws as transparent. */
+	private static volatile float highestAlpha;
+	private static volatile double highestAlphaAt;
 
 	@BeforeAll
 	void hoverAKeyPart()
@@ -92,6 +98,8 @@ class KeyHintRenderTest
 		gl.useVsync(false);
 
 		double[] hoveredAt = {-1};
+		long[] hoveredWall = {0};
+		int[] framesSinceHover = {0}, lastTyped = {-1};
 		int[] next = {0};
 
 		harness = new GameHarness(new Main_Application(), Integer.MAX_VALUE, Integer.MAX_VALUE);
@@ -111,11 +119,33 @@ class KeyHintRenderTest
 					int[] part = firstKeyPart();
 					Gdx.input.getInputProcessor().mouseMoved(part[0], part[1]);
 					hoveredAt[0] = harness.gameSeconds;
+					hoveredWall[0] = System.nanoTime();
 					return;
 				}
 
 				if (next[0] >= AFTER.length) return;
 				double since = harness.gameSeconds - hoveredAt[0];
+				float alpha = GVars_Game.dialogBubble.getColor().a;
+				if (alpha > highestAlpha)
+				{
+					highestAlpha = alpha;
+					highestAlphaAt = since;
+				}
+				if (next[0] <= READING_BY)
+				{
+					// Uncapped, the game draws thousands of frames a second: only the ones where
+					// something happens are kept - a long frame, a new letter, a capture.
+					framesSinceHover[0]++;
+					float delta = Gdx.graphics.getDeltaTime();
+					int typed = typed();
+					if (delta > 0.010f || typed != lastTyped[0] || since >= AFTER[next[0]] || timeline.isEmpty())
+						timeline.add(String.format(
+							"  frame %5d  wall %4d ms  delta %4.0f ms  game %.3f s  alpha %.2f  typed %2d  bubble at %.0f,%.0f",
+							framesSinceHover[0], (System.nanoTime() - hoveredWall[0]) / 1_000_000, delta * 1000,
+							since, alpha, typed,
+							GVars_Game.dialogBubble.getX(), GVars_Game.dialogBubble.getY()));
+					lastTyped[0] = typed;
+				}
 				if (since < AFTER[next[0]]) return;
 				if (hintShown == null) hintShown = GVars_Game.dialogBubble.getText();
 				taken[next[0]] = since;
@@ -188,6 +218,17 @@ class KeyHintRenderTest
 			for (int x = cx - radius; x <= cx + radius; x++)
 				if (y < 0 || x < 0 || y >= solid.length || x >= solid[0].length || !solid[y][x]) return false;
 		return true;
+	}
+
+	/** Characters the bubble's TypingLabel has let through so far; it keeps the count private. */
+	private static int typed() throws ReflectiveOperationException
+	{
+		Field typing = GVars_Game.dialogBubble.getClass().getDeclaredField("typing");
+		typing.setAccessible(true);
+		Object label = typing.get(GVars_Game.dialogBubble);
+		Field index = label.getClass().getDeclaredField("glyphCharIndex");
+		index.setAccessible(true);
+		return index.getInt(label) + 1;
 	}
 
 	private static int brightness(int p)
@@ -275,12 +316,23 @@ class KeyHintRenderTest
 			for (int x = 0; x < interior[0].length; x++)
 				maskImage.setRGB(x, y, interior[y][x] ? 0xFFFFFF : 0);
 		Frames.write(maskImage, new File(OUTPUT, "hint-mask.png"));
-		String report = "hint: " + hintShown + "\n" + String.join("\n", seen) + "\nsee " + strip.getAbsolutePath();
+		String report = "hint: " + hintShown + "\n" + String.join("\n", seen) + "\nsee " + strip.getAbsolutePath()
+			+ "\nframe by frame after the hover:\n" + String.join("\n", timeline);
 		System.out.println(report);
+
+		// Before the ink: an overshoot blanks the very frame the 0.25 s check lands on, since the
+		// fade reaches 1 at 0.25 s, and that read as a late hint under load (r145).
+		assertTrue(highestAlpha <= 1f, String.format(
+			"the bubble's alpha reached %.3f at %.3fs after the hover. SpriteBatch packs alpha into a "
+			+ "byte without clamping, so anything over 1 + 1/255 draws the cloud and its text "
+			+ "transparent for that frame: DialogBubble.act must clamp in the frame it steps.%n%s",
+			highestAlpha, highestAlphaAt, report));
 
 		assertTrue(ink(frames[STARTED_BY]) >= INK_STARTED, String.format(
 			"the hint is still blank %.2fs after the mouse lands on a key part: ink %d, wanted %d.%n%s%n"
-			+ "The bubble must type while it fades in rather than after it (DialogBubble.applyText).",
+			+ "The frames above say which: few letters typed by then means the typing starts late "
+			+ "(it must run while the cloud fades in, DialogBubble.applyText); letters typed at alpha 1 "
+			+ "with no ink means that frame drew them invisible.",
 			taken[STARTED_BY], ink(frames[STARTED_BY]), INK_STARTED, report));
 
 		assertTrue(ink(frames[READING_BY]) >= INK_READING, String.format(

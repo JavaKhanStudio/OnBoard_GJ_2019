@@ -304,6 +304,10 @@ verify/src/test/resources/golden/reference-1.9.10/ is EVIDENCE, not a comparison
 nothing tests against it. Leave it there.
 ONBOARD_NO_OFFSCREEN=1 puts the windows back, and the sound with them, when you want to
 watch: ONBOARD_NO_OFFSCREEN=1 ./gradlew :desktop:runGame
+A GL test that failed "once, under load" is not proven flaky by an idle rerun: run it with
+tools/gl_test_under_load.sh <Class> (10 runs beside 8 busy loops) and compare what the game
+did on a failing frame with a passing one. r145's "late hint" was an alpha of 1.01, which
+SpriteBatch packs as transparent (no clamp): a fade must clamp in the frame it steps.
 """
 
 [tags.build]

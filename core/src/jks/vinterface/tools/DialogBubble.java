@@ -173,6 +173,10 @@ public class DialogBubble extends VisTable
 				makeDisappear() ; 
 		}
 		
+		// Clamped in the frame it steps, not the next: SpriteBatch packs alpha into a byte without
+		// clamping, so 1.01 draws as 0 and -0.05 as 0.96. The cloud blinked out for one frame as
+		// it finished fading in, and flashed back as it finished fading out, whenever a frame was
+		// long enough to overshoot by more than 1/255: nearly every fade at 60 fps (r145).
 		if(appearing) 
 		{
 			if(this.getColor().a >= 1) 
@@ -182,7 +186,7 @@ public class DialogBubble extends VisTable
 			}
 			else 
 			{
-				this.getColor().a += alphaGrowingSpeed * delta ; 
+				this.getColor().a = Math.min(1, this.getColor().a + alphaGrowingSpeed * delta) ; 
 			}
 			
 		} 
@@ -197,7 +201,7 @@ public class DialogBubble extends VisTable
 			}
 			else 
 			{
-				this.getColor().a -= alphaGrowingSpeed * delta ; 
+				this.getColor().a = Math.max(0, this.getColor().a - alphaGrowingSpeed * delta) ; 
 			}
 		}
 			
