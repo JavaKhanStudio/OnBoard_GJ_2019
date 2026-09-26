@@ -33,7 +33,6 @@ allprojects {
         // The parallax renderer, which also owns the .plax format. It brings its own Kryo
         // (5.6.2) and reads the 2019 files written by kryo 5.0.0-RC1 itself - don't add a kryo.
         parallaxVersion = '2.1.0'
-        jacksonVersion = '2.22.2'
         junitVersion = '5.14.4'
     }
 
@@ -137,7 +136,8 @@ project(":core") {
         // com.badlogic.gdx.utils.StringBuilder - a class libGDX deleted in 1.14.0. This is
         // the maintained successor and tracks the current engine.
         api "com.github.tommyettinger:textratypist:$textratypistVersion"
-        api "com.fasterxml.jackson.core:jackson-databind:$jacksonVersion"
+        // No Jackson (r136): the .wa levels and the config are read with libGDX Json, which the
+        // browser build can translate. CoreIsPortableTest fails the build on com.fasterxml.
 
         // Draws the carriage backdrops and reads their .plax files. Brings gdx (held to
         // gdxVersion by the lockstep above), kryo 5.6.2 and jackson-annotations.

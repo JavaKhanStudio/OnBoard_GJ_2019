@@ -10,7 +10,6 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.math.Vector3;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jks.camera.GVars_Camera;
 import jks.input.IKM_Game_Keyboard;
@@ -37,23 +36,28 @@ public class WagonLevel
 		return piece == 1 ? hint1 : piece == 2 ? hint2 : piece == 3 ? hint3 : null ; 
 	}
 	
-	@JsonIgnore
-	public Texture wagon ; 
-	@JsonIgnore
-	Parallax_Heart parallax ;  
+	// Transient: not in the .wa. libGDX Json reads and writes every other field, whatever its
+	// visibility, where Jackson (until r136) saw only the public ones - so everything that is
+	// not level data is marked here, the public and the package-private alike.
+	public transient Texture wagon ; 
+	transient Parallax_Heart parallax ;  
 	
 	public boolean readyForUse = false ; 
 	
-	@JsonIgnore
-	float currentCamPosition ; 
+	transient float currentCamPosition ; 
 	
-	int currentLevel ; 
+	/**
+	 * Never set by anything: always 0, so setAsGameReady preloads level 1. wa1.wa carries a
+	 * "currentLevel": 1 that Jackson never read (package-private, no setter); transient keeps
+	 * it unread, since reading it would change what the first carriage preloads (r136).
+	 */
+	transient int currentLevel ; 
 	
 	public WagonLevel()
 	{}
 
-	String myWagonPath,myParallaxPath ; 
-	String metaPath ;
+	transient String myWagonPath,myParallaxPath ; 
+	transient String metaPath ;
 	
 	public void init()
 	{

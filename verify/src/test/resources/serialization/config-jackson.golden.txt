@@ -1,0 +1,13 @@
+config-jackson.width = 1600
+config-jackson.height = 900
+config-jackson.isFullScreen = false
+config-jackson.useVsynch = true
+config-jackson.fps = 60
+config-jackson.volume = 1.0
+config-jackson.effectsVolume = 1.0
+config-jackson.railsSound = "RAILS_RIDE"
+config-jackson.departureSound = null
+config-jackson.keyPieceSound = null
+config-jackson.levelCompleteSound = null
+config-jackson.footstepsSound = null
+config-jackson.useMipmaps = false

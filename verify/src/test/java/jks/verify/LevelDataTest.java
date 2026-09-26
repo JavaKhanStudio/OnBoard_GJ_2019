@@ -17,17 +17,20 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.badlogic.gdx.files.FileHandle;
+import com.badlogic.gdx.utils.Json;
+import com.badlogic.gdx.utils.JsonReader;
+import com.badlogic.gdx.utils.JsonValue;
 
 import jks.vars.GVars_Serialization;
 import jks.vue.models.game.GameItem;
 import jks.vue.models.game.WagonLevel;
 
 /**
- * The four levels are Jackson-serialised .wa files written by the in-house editor in 2019.
- * They are the least replaceable thing in the repository - the code can be rewritten, this
- * content cannot - so the mapper configuration that reads them is pinned here.
+ * The four levels are .wa files written by the in-house editor in 2019, with Jackson; the game
+ * and the editor read and write them with libGDX Json since r136. They are the least replaceable
+ * thing in the repository - the code can be rewritten, this content cannot - so the reader
+ * that reads them is pinned here, and SerializationDumpTest holds it to what Jackson made of them.
  */
 class LevelDataTest
 {
@@ -40,9 +43,9 @@ class LevelDataTest
 
 	private static WagonLevel load(int n) throws Exception
 	{
-		ObjectMapper mapper = GVars_Serialization.prepareJson();
-		assertNotNull(mapper, "GVars_Serialization.prepareJson() returned null");
-		return mapper.readValue(levelFile(n), WagonLevel.class);
+		Json json = GVars_Serialization.prepareJson();
+		assertNotNull(json, "GVars_Serialization.prepareJson() returned null");
+		return json.fromJson(WagonLevel.class, new FileHandle(levelFile(n)));
 	}
 
 	@Test
@@ -72,17 +75,16 @@ class LevelDataTest
 	@ValueSource(ints = {1, 2, 3, 4})
 	void itemFieldsRoundTrip(int n) throws Exception
 	{
-		// GameItem is shared with the editor, which saves with a plain ObjectMapper: runtime
+		// GameItem is shared with the editor, which saves with the game's own Json: runtime
 		// state such as picked or hovered (r40) must stay out of the files it writes.
-		ObjectMapper editor = new ObjectMapper();
-		JsonNode onDisk = editor.readTree(levelFile(n)).get("listItems").get(0);
-		JsonNode resaved = editor.valueToTree(load(n)).get("listItems").get(0);
+		JsonValue onDisk = new JsonReader().parse(new FileHandle(levelFile(n))).get("listItems").get(0);
+		JsonValue resaved = new JsonReader().parse(GVars_Serialization.prepareJson().prettyPrint(load(n))).get("listItems").get(0);
 
 		Set<String> expected = new TreeSet<>(), actual = new TreeSet<>();
-		onDisk.fieldNames().forEachRemaining(expected::add);
+		for (JsonValue field = onDisk.child; field != null; field = field.next) expected.add(field.name);
 		// Data fields GameItem gained after the four files were last saved.
 		expected.addAll(List.of("message_Crucial_1", "message_Crucial_2", "path_Inventaire"));
-		resaved.fieldNames().forEachRemaining(actual::add);
+		for (JsonValue field = resaved.child; field != null; field = field.next) actual.add(field.name);
 		assertEquals(expected, actual, "wa" + n + ": a re-saved item would not have the fields the file has");
 	}
 
@@ -91,10 +93,9 @@ class LevelDataTest
 	void inventoryImageRoundTrips() throws Exception
 	{
 		// path_Inventaire (r86) is what the bar shows for the knife; the editor has no widget for
-		// it, so a save must at least carry it through. The editor writes with a plain mapper.
-		ObjectMapper editor = new ObjectMapper();
-		WagonLevel resaved = GVars_Serialization.prepareJson()
-			.readValue(editor.writeValueAsString(load(2)), WagonLevel.class);
+		// it, so a save must at least carry it through. The editor writes with the game's Json.
+		Json json = GVars_Serialization.prepareJson();
+		WagonLevel resaved = json.fromJson(WagonLevel.class, json.prettyPrint(load(2)));
 		GameItem knife = resaved.listItems.stream()
 			.filter(item -> "couteauSocle.png".equals(item.name)).findFirst().orElseThrow();
 		assertEquals("couteau.png", knife.path_Inventaire, "an editor re-save of wa2 lost the knife's inventory image");

@@ -1,0 +1,13 @@
+config-mipmaps.width = 1600
+config-mipmaps.height = 900
+config-mipmaps.isFullScreen = false
+config-mipmaps.useVsynch = true
+config-mipmaps.fps = 60
+config-mipmaps.volume = 1.0
+config-mipmaps.effectsVolume = 1.0
+config-mipmaps.railsSound = null
+config-mipmaps.departureSound = null
+config-mipmaps.keyPieceSound = null
+config-mipmaps.levelCompleteSound = null
+config-mipmaps.footstepsSound = null
+config-mipmaps.useMipmaps = true

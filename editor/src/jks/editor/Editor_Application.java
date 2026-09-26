@@ -180,7 +180,7 @@ public class Editor_Application extends ApplicationAdapter implements ImportActi
 			if("wa".contentEquals(getExtension(firstFile)))
 			{
 				FileHandle handle = new FileHandle(files[0]); 
-				WagonLevel level = GVars_Serialization.objectMapper.readValue(handle.file(), WagonLevel.class) ; 
+				WagonLevel level = GVars_Serialization.prepareJson().fromJson(WagonLevel.class, handle) ; 
 				GVars_Editor.workingOnLevel = level ; 
 				GVars_Editor.workingOnLevel.init(); 
 				Index_Interface.manager.finishLoading() ; 

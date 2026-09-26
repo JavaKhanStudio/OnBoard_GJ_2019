@@ -1,0 +1,13 @@
+config-2019.width = 1600
+config-2019.height = 900
+config-2019.isFullScreen = false
+config-2019.useVsynch = true
+config-2019.fps = 60
+config-2019.volume = 1.0
+config-2019.effectsVolume = 1.0
+config-2019.railsSound = null
+config-2019.departureSound = null
+config-2019.keyPieceSound = null
+config-2019.levelCompleteSound = null
+config-2019.footstepsSound = null
+config-2019.useMipmaps = false

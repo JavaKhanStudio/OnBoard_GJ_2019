@@ -236,7 +236,7 @@ public class GVars_Game
     		// (no "assets/" prefix, found on the classpath), so this now matches.
     		FileHandle handle = Gdx.files.internal("game/wagon/wa" + value + ".wa") ; 
 
-    		level = GVars_Serialization.objectMapper.readValue(handle.read(), WagonLevel.class) ; 
+    		level = GVars_Serialization.prepareJson().fromJson(WagonLevel.class, handle) ; 
     		level.init(); 
     		preloadedlevel.put(value, level) ; 
     		return level ; 

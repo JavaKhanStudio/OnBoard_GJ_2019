@@ -11,6 +11,7 @@ import java.io.File;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.InputAdapter;
+import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.math.Vector3;
 
 import jks.camera.GVars_Camera;
@@ -62,7 +63,8 @@ public class Editor_Keyboard extends InputAdapter
 		{
 			try 
 			{
-				GVars_Serialization.objectMapper.writeValue(new File(GVars_Editor.workingOnLevel.path_meta + ".wa"),GVars_Editor.workingOnLevel);
+				new FileHandle(new File(GVars_Editor.workingOnLevel.path_meta + ".wa"))
+					.writeString(GVars_Serialization.prepareJson().prettyPrint(GVars_Editor.workingOnLevel), false, "UTF-8") ;
 			} 
 			catch (Exception e) 
 			{e.printStackTrace();}

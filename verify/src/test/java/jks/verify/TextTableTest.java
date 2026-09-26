@@ -18,7 +18,8 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import com.badlogic.gdx.files.FileHandle;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.badlogic.gdx.files.FileHandle;
+import com.badlogic.gdx.utils.Json;
 
 import jks.index.Index_Text;
 import jks.vars.GVars_Serialization;
@@ -57,11 +58,11 @@ class TextTableTest
 	@DisplayName("every hint and message a level names, and every item's click line, is a row of the table")
 	void levelKeysExist() throws Exception
 	{
-		ObjectMapper mapper = GVars_Serialization.prepareJson() ;
+		Json json = GVars_Serialization.prepareJson() ;
 		List<String> missing = new ArrayList<>() ;
 		for (int n = 1 ; n <= 4 ; n++)
 		{
-			WagonLevel level = mapper.readValue(new File(Assets.DIR, "game/wagon/wa" + n + ".wa"), WagonLevel.class) ;
+			WagonLevel level = json.fromJson(WagonLevel.class, new FileHandle(new File(Assets.DIR, "game/wagon/wa" + n + ".wa"))) ;
 			List<String> keys = new ArrayList<>(List.of(level.hint1, level.hint2, level.hint3)) ;
 			for (GameItem item : level.listItems)
 			{
@@ -85,11 +86,11 @@ class TextTableTest
 	@DisplayName("every choice item has a line for each of its two uses")
 	void choicesSpeak() throws Exception
 	{
-		ObjectMapper mapper = GVars_Serialization.prepareJson() ;
+		Json json = GVars_Serialization.prepareJson() ;
 		List<String> silent = new ArrayList<>() ;
 		for (int n = 1 ; n <= 4 ; n++)
 		{
-			WagonLevel level = mapper.readValue(new File(Assets.DIR, "game/wagon/wa" + n + ".wa"), WagonLevel.class) ;
+			WagonLevel level = json.fromJson(WagonLevel.class, new FileHandle(new File(Assets.DIR, "game/wagon/wa" + n + ".wa"))) ;
 			for (GameItem item : level.listItems)
 			{
 				if (item.name_Interaction_2 == null)

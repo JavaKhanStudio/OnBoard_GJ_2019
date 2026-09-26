@@ -1,9 +1,6 @@
 package jks.editor;
 import java.util.HashMap;
 
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import jks.vars.GVars_Heart;
 import jks.vars.GVars_Serialization;
@@ -26,7 +23,8 @@ public class GVars_Editor
 		listItems = new HashMap<>() ; 
 		listItemsInLevel = new HashMap<String, GameItem>() ; 
 		workingOnLevel = new WagonLevel() ; 
-		GVars_Serialization.objectMapper = prepareJson() ; 
+		// The game's own reader and writer (r136): what the editor saves is what the game reads.
+		GVars_Serialization.prepareJson() ; 
 		ref = appli ; 
 	}
 	
@@ -35,12 +33,4 @@ public class GVars_Editor
 		
 	}
 	
-	private static ObjectMapper prepareJson() 
-	{
-		ObjectMapper objectMapper = new ObjectMapper() ; 
-		objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false) ; 
-//		objectMapper.addMixInAnnotations(TextureRegion.class, MyMixInForIgnoreType.class);
-		return objectMapper ; 
-	}
-
 }

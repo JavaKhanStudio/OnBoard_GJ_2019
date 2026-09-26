@@ -6,7 +6,6 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector3;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jks.index.Index_Interface;
 
@@ -39,23 +38,18 @@ public class GameItem
 	public boolean pickable = true; 
 	public int keyNumb ; 
 	
-	@JsonIgnore
-	public Texture objectTexture ; 
-	@JsonIgnore
-	public Rectangle bottomSelectBound ; 
-	@JsonIgnore
-	Rectangle textureBounds ; 
-	@JsonIgnore
-	boolean picked ; 
+	// Transient: not in the .wa. libGDX Json reads and writes every field that is not, whatever
+	// its visibility (r136); runtime state such as picked or hovered (r40) stays out of the files.
+	public transient Texture objectTexture ; 
+	public transient Rectangle bottomSelectBound ; 
+	transient Rectangle textureBounds ; 
+	transient boolean picked ; 
 	/** Under the mouse: a click now would reach it, so it is drawn outlined (r40, d10). */
-	@JsonIgnore
-	boolean hovered ; 
+	transient boolean hovered ; 
 	/** Which line it is outlined with: what it gives (r71). Set by WagonLevel.init. */
-	@JsonIgnore
-	ItemOutline.Kind outline = ItemOutline.Kind.NEUTRAL ; 
+	transient ItemOutline.Kind outline = ItemOutline.Kind.NEUTRAL ; 
 	/** Something has been used on it: its click line no longer describes it (r74). */
-	@JsonIgnore
-	boolean used ; 
+	transient boolean used ; 
 	
 	public GameItem() 
 	{}
@@ -67,7 +61,7 @@ public class GameItem
 		this.name = name ; 
 	}
 	
-	String relativePath ;
+	transient String relativePath ;
 	
 	public void init()
 	{
@@ -83,7 +77,6 @@ public class GameItem
 	}
 	
 	/** The picture the inventory bar carries: path_Inventaire, or the item as it was found (r86). */
-	@JsonIgnore
 	public Texture inventoryTexture()
 	{
 		if(path_Inventaire != null && !"".equals(path_Inventaire))
@@ -96,7 +89,6 @@ public class GameItem
 	 * its empty mount stays on the wall. It is only drawn - not hovered, not clickable again.
 	 * No pickable item had an after-texture before, so none that vanished whole now changes.
 	 */
-	@JsonIgnore
 	public boolean leavesSomethingBehind()
 	{
 		return pickable && path_EtatApres_1 != null && !"".equals(path_EtatApres_1) ; 
@@ -170,13 +162,11 @@ public class GameItem
 				&& textureBounds.contains(pointer.x, pointer.y) ;
 	}
 	
-	@JsonIgnore
 	public ItemOutline.Kind getOutline()
 	{
 		return outline ; 
 	}
 	
-	@JsonIgnore
 	public boolean isHovered()
 	{
 		return hovered ; 
@@ -186,7 +176,6 @@ public class GameItem
 	 * Taken, so it is not clickable, and not drawn unless it leaves something behind (r86). Put
 	 * back by {@link #resetToStart()} (r60).
 	 */
-	@JsonIgnore
 	public boolean isPicked()
 	{
 		return picked ; 

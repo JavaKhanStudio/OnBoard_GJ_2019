@@ -271,7 +271,7 @@ public class Vue_LineLab extends AVue_Model
 		String path = "game/wagon/wa" + n + ".wa" ;
 		try
 		{
-			return GVars_Serialization.objectMapper.readValue(Gdx.files.internal(path).read(), WagonLevel.class) ;
+			return GVars_Serialization.prepareJson().fromJson(WagonLevel.class, Gdx.files.internal(path)) ;
 		}
 		catch(Exception e)
 		{

@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -28,8 +29,6 @@ import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.SelectBox;
 import com.badlogic.gdx.scenes.scene2d.ui.Slider;
 import com.badlogic.gdx.utils.Array;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import jks.amain.GameConfigs;
 import jks.amain.Main_Application;
@@ -294,9 +293,7 @@ class SettingsTest
 	/** The config file as the next launch would read it, not Utils_Config.current. */
 	private static GameConfigs reread() throws Exception
 	{
-		ObjectMapper mapper = new ObjectMapper();
-		mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-		return mapper.readValue(config.toFile(), GameConfigs.class);
+		return Utils_Config.parse(Files.readString(config, StandardCharsets.UTF_8));
 	}
 
 	private static InputProcessor processor()

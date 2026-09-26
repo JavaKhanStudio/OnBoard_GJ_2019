@@ -9,6 +9,8 @@ import java.util.TreeMap;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import com.badlogic.gdx.files.FileHandle;
+
 import jks.vars.GVars_Serialization;
 import jks.vue.models.game.GameItem;
 import jks.vue.models.game.ItemOutline;
@@ -42,7 +44,7 @@ class ItemOutlineKindTest
 		for (int n = 1 ; n <= 4 ; n++)
 		{
 			WagonLevel level = GVars_Serialization.prepareJson()
-				.readValue(new File(Assets.DIR, "game/wagon/wa" + n + ".wa"), WagonLevel.class) ;
+				.fromJson(WagonLevel.class, new FileHandle(new File(Assets.DIR, "game/wagon/wa" + n + ".wa"))) ;
 			for (GameItem item : level.listItems)
 				actual.put(item.name.replace(".png", ""), ItemOutline.of(item, level.listItems)) ;
 		}

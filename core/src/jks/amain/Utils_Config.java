@@ -1,9 +1,7 @@
 package jks.amain;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import jks.tools.Utils_Debug;
+import jks.vars.GVars_Serialization;
 
 /**
  * Reads and writes the "config" file that sits next to the game.
@@ -20,11 +18,19 @@ public class Utils_Config
 	/** The settings in force. Loaded once at startup; the options screen edits this. */
 	public static GameConfigs current = new GameConfigs() ;
 	
-	private static ObjectMapper mapper()
+	/** The settings a config text holds; a field it lacks keeps its default, one it adds is skipped. */
+	public static GameConfigs parse(String text)
 	{
-		ObjectMapper mapper = new ObjectMapper() ;
-		mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false) ;
-		return mapper ;
+		GameConfigs parsed = GVars_Serialization.newJson().fromJson(GameConfigs.class, text) ;
+		if(parsed == null)
+			throw new IllegalArgumentException("no settings in it") ;
+		return parsed ;
+	}
+	
+	/** The config text for these settings, one field a line. */
+	public static String write(GameConfigs configs)
+	{
+		return GVars_Serialization.newJson().prettyPrint(configs) ;
 	}
 	
 	/**
@@ -39,7 +45,7 @@ public class Utils_Config
 		{
 			String text = platform.readConfig() ;
 			if(text != null)
-				current = mapper().readValue(text, GameConfigs.class) ;
+				current = parse(text) ;
 			else
 			{
 				current = new GameConfigs() ;
@@ -60,7 +66,7 @@ public class Utils_Config
 	{
 		try
 		{
-			GVars_Platform.current.writeConfig(mapper().writerWithDefaultPrettyPrinter().writeValueAsString(current)) ;
+			GVars_Platform.current.writeConfig(write(current)) ;
 		}
 		catch(Exception e)
 		{

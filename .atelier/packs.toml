@@ -46,9 +46,17 @@ description = "The four carriages, the .wa format, the puzzle state, the editor 
 color = "#ff9f43"
 sort = 20
 context = """
-A level is desktop/assets/game/wagon/wa{1..4}.wa — JSON read by Jackson into
-core/src/jks/vue/models/game/WagonLevel.java; its objects are GameItem.java. The art for a
-level lives in the sibling directory of the same name (wa1/), named by path_meta.
+A level is desktop/assets/game/wagon/wa{1..4}.wa — JSON read by libGDX Json
+(GVars_Serialization, r136; Jackson before) into core/src/jks/vue/models/game/WagonLevel.java;
+its objects are GameItem.java. The art for a level lives in the sibling directory of the same
+name (wa1/), named by path_meta.
+libGDX Json reads and writes EVERY field that is not static or transient, private ones too.
+A field that is not level data (a texture, hover state, a cached path) MUST be transient, or
+the editor writes it into the .wa and the game reads it back. wa1.wa carries a stale
+"currentLevel": 1 that only transient keeps unread. SerializationDumpTest dumps every field
+of the four parsed levels against what Jackson made of them; a new data field is a new line
+in verify/src/test/resources/serialization/wa*.golden.txt (re-record with -PrecordGolden, and read
+the diff).
 The model classes are SHARED WITH THE EDITOR (editor/src/jks/editor/), which wrote those
 four files. A field added to WagonLevel or GameItem must round-trip through both — open it
 with ./gradlew :editor:runEditor and re-save a level before calling it done.
@@ -317,7 +325,7 @@ color = "#f2d45c"
 sort = 80
 context = """
 Every version lives in one ext block at the top of build.gradle: gdxVersion, visuiVersion,
-textratypistVersion, parallaxVersion, jacksonVersion, junitVersion, javaTarget. Change it
+textratypistVersion, parallaxVersion, junitVersion, javaTarget. Change it
 there and nowhere else.
 THE ENGINE VERSION IS ENFORCED BY A resolutionStrategy over an explicit lockstep list.
 vis-ui and typing-label each declare their own libGDX and Gradle resolves a conflict by
@@ -326,8 +334,11 @@ saw, and is how a class that existed at compile time went missing at run time. O
 artifact released in lockstep with the engine; gdx-jnigen-loader carries its own version
 and must be left alone.
 There is NO kryo line: parallax-background brings kryo 5.6.2 and the .plax reader tuned to it
-(see the `parallax` pack). The old 5.0.0-RC1 pin went with the jar in r33. jackson-databind
-stays — the game reads its .wa levels and config through ObjectMapper.
+(see the `parallax` pack). The old 5.0.0-RC1 pin went with the jar in r33.
+There is NO Jackson (r136): the .wa levels and the config are read and written with libGDX
+Json through jks.vars.GVars_Serialization, which GWT can translate. CoreIsPortableTest fails
+on any com.fasterxml in core/src. jackson-annotations is still on the classpath, brought by
+parallax-background for its own classes; core does not use it.
 typing-label is dead: its last release (1.4.0) calls com.badlogic.gdx.utils.StringBuilder,
 which libGDX deleted in 1.14.0. TextraTypist is the maintained successor.
 Java 21 everywhere: a toolchain in build.gradle, the foojay resolver in settings.gradle so

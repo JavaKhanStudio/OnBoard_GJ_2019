@@ -19,18 +19,20 @@ import org.junit.jupiter.api.Test;
 /**
  * The rail for the browser build (r135): GWT translates core/src, and none of these translate.
  * What core needs of them goes through jks.amain.Platform, which desktop/ implements. Jackson
- * joins the list when phase 2 (r136) takes it out.
+ * is on the list since phase 2 (r136): the game's JSON is read with libGDX Json.
  */
 class CoreIsPortableTest
 {
 	/**
 	 * java.io.File and its streams, java.nio.file, and anything of the lwjgl3 backend. Then the
 	 * classloader and the readers GWT 2.11 does not emulate (r140): a resource is read through
-	 * Gdx.files.internal, a text is cut with Index_Text.lines.
+	 * Gdx.files.internal, a text is cut with Index_Text.lines. Then Jackson (r136), whose
+	 * databind is reflection GWT cannot translate: JSON goes through jks.vars.GVars_Serialization.
 	 */
 	static final Pattern DESKTOP_ONLY = Pattern.compile(
 		"\\b(com\\.badlogic\\.gdx\\.backends\\.|org\\.lwjgl\\.|java\\.io\\.File\\w*\\b|java\\.nio\\.file\\."
-		+ "|getClassLoader\\b|getResource(AsStream)?\\b|java\\.io\\.BufferedReader\\b|java\\.io\\.InputStreamReader\\b)") ;
+		+ "|getClassLoader\\b|getResource(AsStream)?\\b|java\\.io\\.BufferedReader\\b|java\\.io\\.InputStreamReader\\b"
+		+ "|com\\.fasterxml\\.)") ;
 
 	static final Path CORE = Paths.get(System.getProperty("onboard.root", ".."), "core", "src") ;
 
@@ -54,7 +56,7 @@ class CoreIsPortableTest
 	}
 
 	@Test
-	@DisplayName("the scan catches an import, a qualified name, a stream and the classloader, and passes a comment")
+	@DisplayName("the scan catches an import, a qualified name, a stream, the classloader and Jackson, and passes a comment")
 	void scanCatchesWhatItShould()
 	{
 		List<String> found = offences("Planted.java", List.of(
@@ -66,10 +68,11 @@ class CoreIsPortableTest
 			"InputStream in = Index_Text.class.getClassLoader().getResourceAsStream(TABLE) ;",
 			"import java.io.BufferedReader;",
 			"import java.io.InputStreamReader;",
+			"import com.fasterxml.jackson.annotation.JsonIgnore;",
 			"// java.io.File was here once",
 			" * java.nio.file.Files in a javadoc",
 			"import java.io.InputStream;")) ;
-		assertEquals(8, found.size(), "the scan did not find exactly the eight planted uses: " + found) ;
+		assertEquals(9, found.size(), "the scan did not find exactly the nine planted uses: " + found) ;
 	}
 
 	/** Every line of code, comments aside, that names a desktop-only API, as file:line: text. */
