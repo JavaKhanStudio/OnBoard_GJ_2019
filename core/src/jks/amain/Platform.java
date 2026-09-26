@@ -1,5 +1,6 @@
 package jks.amain;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
 
 import jks.tools2d.parallax.heart.Parallax_Heart;
@@ -44,6 +45,15 @@ public interface Platform
 	/** Puts the window back in the middle of the screen after it changed size. */
 	default void centreWindow()
 	{
+	}
+
+	/**
+	 * A sound or a music under the assets, by the path the game names it with. The desktop plays the
+	 * .ogg; a browser build may ship another encoding under the same name (r152: .mp3, for Safari).
+	 */
+	default FileHandle soundFile(String path)
+	{
+		return Gdx.files.internal(path) ;
 	}
 
 	/** A file under lab-assets/ (r99), or null where there is none. Lab-only: the game never needs one. */

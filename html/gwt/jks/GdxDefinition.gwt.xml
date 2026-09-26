@@ -39,8 +39,9 @@
 
 	<entry-point class="jks.html.HtmlLauncher" />
 	<!-- Both relative to the directory the compiler runs in, which html/build.gradle sets to html/ :
-	     the asset generator resolves them against the working directory, not against -war. -->
-	<set-configuration-property name="gdx.assetpath" value="../desktop/assets" />
+	     the asset generator resolves them against the working directory, not against -war. The assets
+	     are html/build.gradle's webAssets: desktop/assets with each .ogg as .mp3 (r152). -->
+	<set-configuration-property name="gdx.assetpath" value="build/web-assets" />
 	<set-configuration-property name="gdx.assetoutputpath" value="build/gwt/war/" />
 	<set-configuration-property name="xsiframe.failIfScriptTag" value="FALSE" />
 	<!-- Chrome, Edge and Safari are "safari" to GWT, Firefox is "gecko1_8": a page compiled for one

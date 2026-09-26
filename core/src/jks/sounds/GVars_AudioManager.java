@@ -51,7 +51,7 @@ public class GVars_AudioManager
 		switch(variant)
 		{
 			case MODULATED :
-				return Gdx.files.internal("musics/wagons/wa" + carriage + "_modulated.ogg") ;
+				return GVars_Platform.current.soundFile("musics/wagons/wa" + carriage + "_modulated.ogg") ;
 			case IDEAL :
 				FileHandle ideal = idealFile(carriage) ;
 				return ideal != null ? ideal : musicFile ;
@@ -490,7 +490,7 @@ public class GVars_AudioManager
 		{
 			if(Gdx.audio == null)
 				return null ;
-			sound = Gdx.audio.newSound(Gdx.files.internal(which.path)) ;
+			sound = Gdx.audio.newSound(GVars_Platform.current.soundFile(which.path)) ;
 			effectSounds.put(which, sound) ;
 		}
 		return sound ;

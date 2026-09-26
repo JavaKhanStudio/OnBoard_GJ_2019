@@ -128,7 +128,7 @@ try {
 	await sleep(2500);
 	await page.screenshot({ path: `${out}/4_credits.png` });
 
-	// 6. A carriage: its backdrop is read from the .plaxpj, its music is an .ogg
+	// 6. A carriage: its backdrop is read from the .plaxpj, its music is an .ogg made .mp3 (r152)
 	report.carriageMs = await open(page, '?start=game&level=1');
 	try {
 		await waitVue(page, 'Vue_Game', 20000);

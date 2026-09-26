@@ -231,6 +231,8 @@ saved in the config (GameConfigs.chooseSound — a new Slot needs its field ther
 under desktop/assets/sounds/<group>/ with a SOURCES.md giving each one's licence, and each
 group is rebuilt by a tools/make_*.py script. A new effect means making or finding the files,
 crediting them in SOURCES.md, and adding a Slot: there is no loader to uncomment.
+Load a sound or a track through GVars_Platform.current.soundFile(path), never
+Gdx.files.internal: the web build ships every .ogg as .mp3 (r152) and HtmlPlatform swaps the name.
 Footsteps (r87) are one-shots fired by SpriteModel.playFootsteps on the WALK frames that
 SIW_Data.stepFrames names (heel strikes, 3 and 7). Nothing times them, so they stop the moment
 Ross is IDLE. Ross has no jump or run: Enum_Sounds_Game is gone. Enum_Sounds_Interface
@@ -427,6 +429,10 @@ at 20+ fps. Renders and gate.json (load time, war files and bytes) in html/build
 FreeType in a tab is the community port gdx-freetype-gwt 1.9.10.1 (libGDX has none); its
 generator is 1.9.10's, so html/freetype-gwt/ carries 1.14.2's with the port's three GWT hunks.
 Take libGDX's file again when gdxVersion moves. Page parameters: ?mute, ?start=game&level=3.
+THE PAGE CARRIES MP3, NOT OGG (r152): gdx.assetpath is html/build/web-assets, desktop/assets
+with each .ogg encoded as .mp3 by :html:webMp3 (ffmpeg libmp3lame, needed on the build machine),
+since Safari's Ogg is unproven. tools/check_web_mp3.sh proves each decodes to its .ogg's sample
+count (no loop gap). The desktop's .ogg stay; HtmlPlatform.soundFile swaps the name.
 In a tab, Options shows no resolution, fps, vsync or full screen (Platform.choosesWindowSize).
 user.agent is safari (Chrome, Edge, Safari) AND gecko1_8 (Firefox), collapsed into one
 permutation: a page built for one alone is blank in the other. BROWSER=firefox gate.sh checks

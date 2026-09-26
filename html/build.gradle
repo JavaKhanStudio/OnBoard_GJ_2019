@@ -50,6 +50,48 @@ dependencies {
     gwt("com.github.intrigus.gdx-freetype-gwt:gdx-freetype-gwt:$freetypeGwtVersion:sources") { transitive = false }
 }
 
+// THE PAGE'S ASSETS ARE NOT desktop/assets (r152): every .ogg there is MP3 here, since Safari's Ogg
+// Vorbis support is not something anyone here can check, and every browser plays MP3. The game asks
+// for the .ogg name and HtmlPlatform.soundFile hands it the .mp3. webMp3 encodes each one once
+// (again only when the .ogg is newer); webAssets is desktop/assets less its .ogg, plus those.
+// Needs ffmpeg with libmp3lame. The desktop's files are not touched.
+def desktopAssets = file('../desktop/assets')
+def oggs = fileTree(desktopAssets) { include '**/*.ogg' }
+def mp3Dir = layout.buildDirectory.dir('web-mp3')
+def webAssetsDir = layout.buildDirectory.dir('web-assets')
+
+tasks.register('webMp3') {
+    group = 'build'
+    description = 'Encodes every .ogg under desktop/assets as .mp3 for the browser build (ffmpeg).'
+    inputs.files(oggs).withPropertyName('oggs')
+    outputs.dir(mp3Dir)
+    doLast {
+        def out = mp3Dir.get().asFile
+        oggs.visit { entry ->
+            if (entry.directory) return
+            def mp3 = new File(out, entry.relativePath.pathString.replaceAll(/\.ogg$/, '.mp3'))
+            if (mp3.exists() && mp3.lastModified() >= entry.file.lastModified()) return
+            mp3.parentFile.mkdirs()
+            // VBR quality 5: about the .ogg files' own rates (50-170 kb/s), so the page does not grow.
+            // LAME's gapless header tells the decoder to cut the encoder's padding: the loops stay loops.
+            def ffmpeg = new ProcessBuilder('ffmpeg', '-v', 'error', '-y', '-i', entry.file.path,
+                    '-map_metadata', '-1', '-c:a', 'libmp3lame', '-q:a', '5', mp3.path)
+                    .redirectErrorStream(true).start()
+            def log = ffmpeg.inputStream.text
+            if (ffmpeg.waitFor() != 0)
+                throw new GradleException("ffmpeg could not encode ${entry.relativePath}: $log")
+        }
+    }
+}
+
+tasks.register('webAssets', Sync) {
+    group = 'build'
+    description = 'The assets the page is built with: desktop/assets with its .ogg as .mp3.'
+    from(desktopAssets) { exclude '**/*.ogg' }
+    from tasks.named('webMp3')
+    into webAssetsDir
+}
+
 def draft = providers.gradleProperty('draft').isPresent()
 def gwtWar = layout.buildDirectory.dir('gwt/war')
 def gwtWork = layout.buildDirectory.dir('gwt/work')
@@ -70,7 +112,8 @@ tasks.register('gwtCompile', JavaExec) {
     args 'jks.GdxDefinition'
 
     inputs.files(classpath).withPropertyName('sources')
-    inputs.dir('../desktop/assets').withPropertyName('assets')
+    dependsOn tasks.named('webAssets')
+    inputs.dir(webAssetsDir).withPropertyName('assets')
     inputs.property('draft', draft)
     outputs.dir(gwtWar)
 
