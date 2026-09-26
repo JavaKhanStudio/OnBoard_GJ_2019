@@ -43,7 +43,7 @@ credits.made_with	Credits, last line	Réalisé avec libGDX
 
 # == Carriage 1 ============================================================
 # Ross thinks these in the bubble while the mouse is on a piece of the key.
-wa1.hint1	Carriage 1, thought bubble on key piece 1	Je vais enfin partir d'ici! Mais ou est mon bagage ? 
+wa1.hint1	Carriage 1, thought bubble on key piece 1	Je vais enfin partir d'ici! Mais où est mon bagage ? 
 wa1.hint2	Carriage 1, thought bubble on key piece 2	Nom de non, qui à laissé trainer tous ces cubes ?
 wa1.hint3	Carriage 1, thought bubble on key piece 3	Ce pauvre petit oiseau.\n Il a l'air affamé dans sa cage dorée. Si seulement je pouvais faire quelque chose pour lui.
 wa1.cage.message1	Carriage 1, cage used with sac (choice 1), bubble by Ross for a few seconds	Voila qui devrait remplir son estomac ! \nMais s’il était {WAVE}libre{ENDWAVE} tout ce serait plus simple... \nnon ?
