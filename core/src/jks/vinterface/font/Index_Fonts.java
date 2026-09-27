@@ -12,7 +12,9 @@ public class Index_Fonts
      * capital height, carriage 3's wa3.trou.message2 ran past the round cloud's edges. So the
      * sizes below are the pre-r103 ones a twelfth smaller, and DialogBubble wraps them narrower than it used to.
      * Then they were too small to read (r121): all six are a third bigger again (divided by
-     * 1.35), and DialogBubble stretches its cloud wider to hold them.
+     * 1.35), and DialogBubble stretches its cloud wider to hold them. Still hard to read at
+     * 1280 wide (r163): the game's own, BUBBLE_LARGE_TEXT_MEDIUM, went from 80 to 70 - 16 px to
+     * 18 there - in a cloud a tenth bigger that grows for a long line.
      */
     private static final String regular = "Mansalva-Regular.ttf";  
     
@@ -23,7 +25,7 @@ public class Index_Fonts
     	BUBBLE_LARGE_TEXT_LARGE(PATH + regular,52),
     	BUBBLE_SMALL_TEXT_MEDIUM(PATH + regular,113),
     	BUBBLE_MEDIUM_TEXT_MEDIUM(PATH + regular,97),
-    	BUBBLE_LARGE_TEXT_MEDIUM(PATH + regular,80),
+    	BUBBLE_LARGE_TEXT_MEDIUM(PATH + regular,70),
     	
     	/**
     	 * The card the game ends on (r60, ClosureMessage), and the FIN under it.

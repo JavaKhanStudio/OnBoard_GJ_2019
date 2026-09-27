@@ -41,8 +41,8 @@ class ChoiceStaysMadeRenderTest
 	private static final double FEED_AT  = 2.0;
 	/** After the feeding line has been read: the refusal is said over nothing. */
 	private static final double TRY_AT   = FEED_AT + 6.0;
-	/** Long enough for the line to be typed out. */
-	private static final double SHOWN_AT = TRY_AT + 5.0;
+	/** Long enough for the line to be typed out, and short of its fading: a short line goes after 4.5 s. */
+	private static final double SHOWN_AT = TRY_AT + 2.5;
 
 	private static final File OUTPUT = new File(new File(System.getProperty("onboard.verify")), "build/frames");
 

@@ -17,9 +17,6 @@ public class DialogBubble extends VisTable
 
 	VisImage bubbleBackground ; 
 	TypingLabel typing ; 
-	float decalXRight ;
-	float decalXLeft ;
-	float decalY ;	
 	
 	DialogSize dialogSize ; 
 	
@@ -73,7 +70,41 @@ public class DialogBubble extends VisTable
 		textWhenVisible = text ; 
 		appearing = true ;
 		disappearing = false ; 
-		typing.restart(textStartUp + text);
+		typing.restart(textStartUp + gentle(text));
+		fitCloud() ; 
+	}
+	
+	/**
+	 * TextraTypist's own {WAVE} lifts a word a third of a line: caught high, it reads as a word
+	 * printed on the line above (r163). Half that still waves (D4). The table keeps {WAVE}.
+	 */
+	public static final String GENTLE_WAVE = "{WAVE=0.5}" ; 
+	
+	static String gentle(String text)
+	{
+		return text.replace("{WAVE}", GENTLE_WAVE) ; 
+	}
+	
+	/**
+	 * A long line gets a bigger cloud rather than smaller letters or a rim it runs into (r163):
+	 * the cloud grows by GROWTH, up to MAX_GROWTH, until the typed text fits its body. The
+	 * letters stay the size they are; only the room around them, and so the wrap, grows.
+	 */
+	private void fitCloud()
+	{
+		for(scale = 1f ; ; scale *= GROWTH)
+		{
+			layoutCloud() ; 
+			if(textFits() || scale * GROWTH > MAX_GROWTH + 0.001f)
+				return ; 
+		}
+	}
+	
+	/** The text, wrapped at the body's width, is no taller than the body. */
+	public boolean textFits()
+	{
+		typing.invalidate() ; 
+		return typing.getPrefHeight() <= typing.getHeight() + 1 ; 
 	}
 	
 	/**
@@ -148,10 +179,11 @@ public class DialogBubble extends VisTable
 	{
 		reversed = reverse ; 
 		bubbleBackground.setSize(width * (reverse ? -1 : 1),height);
+		// Mirrored, the cloud's body is mirrored too: its right margin is on the left.
 		if(reverse)
-			typing.setPosition(decalXLeft - width, decalY * 1.5f);
+			typing.setPosition(width * (1 - BODY_RIGHT) - width, height * (1 - BODY_BOTTOM));
 		else
-			typing.setPosition(decalXLeft, decalY * 1.5f);
+			typing.setPosition(width * BODY_LEFT, height * (1 - BODY_BOTTOM));
 	}
 	
 	@Override
@@ -238,7 +270,22 @@ public class DialogBubble extends VisTable
 	
 	private static final float devisingSmall = 10 ; 
 	private static final float devisingMedium = 7.2f ; 
-	private static final float devisingLarge = 6.5f ; 
+	/** Bigger since r163 (6.5), with letters to match: Index_Fonts.BUBBLE_LARGE_TEXT_MEDIUM. */
+	private static final float devisingLarge = 5.8f ; 
+	
+	/**
+	 * Where the text goes in bubble_think_2.png (r163), as fractions of it from its top-left: the
+	 * round body of the cloud, clear of its pointed top and of the tail. The text box used to be
+	 * nearly the whole square, and a line of five rows ran into the rim at both ends. Between
+	 * rows 230 and 780 of the 1200, the cloud is white from at most 0.12 to at least 0.85 across.
+	 */
+	static final float BODY_TOP = 230f / 1200f, BODY_BOTTOM = 780f / 1200f ; 
+	static final float BODY_LEFT = 0.14f, BODY_RIGHT = 0.84f ; 
+	
+	/** A step of {@link #fitCloud()}, and the most it grows: a cloud a third bigger at worst. */
+	static final float GROWTH = 1.15f, MAX_GROWTH = 1.33f ; 
+	/** How much bigger than its usual size the cloud is for the line it holds now. */
+	float scale = 1f ; 
 	
 	/**
 	 * The cloud is stretched wider than it is tall (r121). Its letters were made bigger, and a
@@ -295,18 +342,26 @@ public class DialogBubble extends VisTable
 			}
 		}
 		
-		// The cloud is round: a line as wide as its middle runs onto its edge higher up.
-		// Narrowed for Mansalva's wider lines (r103), from size/10 and size/9.
+		baseSize = size ; 
+		if(textWhenVisible != null && !textWhenVisible.isEmpty())
+			fitCloud() ; 
+		else
+			layoutCloud() ; 
+	}
+	
+	/** The size resize() works out for the window, before fitCloud() grows it for a line. */
+	float baseSize ; 
+	
+	/** The cloud at baseSize times scale, the text in its body (BODY_*). */
+	private void layoutCloud()
+	{
+		float size = baseSize * scale ; 
 		width = size * WIDE ; 
 		height = size * TALL ; 
-		decalXLeft = width/7.0f ;
-		decalXRight = width/6.5f ;
-		decalY = height/8.5f ;
 		
 		this.setSize(width,height);
-		typing.setSize(width - decalXLeft - decalXRight,height - (decalY * 2));
+		typing.setSize(width * (BODY_RIGHT - BODY_LEFT), height * (BODY_BOTTOM - BODY_TOP));
 		reverse(reversed) ; 
-		
 	}
 	
 	/**

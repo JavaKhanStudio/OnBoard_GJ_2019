@@ -167,6 +167,12 @@ Vue_StartScreen calls it immediately after building the menu.
 Dialogue is TextraTypist, NOT typing-label: setAlignment takes one argument, there is no
 setStyle(Label.LabelStyle), and the face comes from setFont — GVars_Font.buildTextraFont()
 wraps the same FreeType BitmapFont once and caches it. COLOR/EASE/WAVE markup still parses.
+THE BUBBLE'S TEXT GOES IN THE CLOUD'S BODY (r163): DialogBubble.BODY_* are fractions of
+bubble_think_2.png, clear of its pointed top and its tail. A line too tall for them grows the
+cloud (fitCloud, x1.15 steps up to x1.33), never shrinks the letters. BubbleLinesRenderTest
+types every line of the four carriages at 1280x720, fails on one that does not fit, and writes
+build/frames/bubble-lines-<n>.png: read those after any change to a line, the font or the cloud.
+Keep a line to about 90 characters; {WAVE} is halved at runtime (GENTLE_WAVE).
 VisUI is loaded here with libGDX's STOCK skin, not VisUI's own, so a widget style that
 uiskin.json does not declare will not resolve.
 An ImageButton left alone draws its drawable at natural size — give it a size and its
