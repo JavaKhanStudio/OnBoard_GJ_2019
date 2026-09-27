@@ -1,11 +1,13 @@
 package jks.html;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.Window;
 
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.backends.gwt.GwtApplication;
 import com.badlogic.gdx.backends.gwt.GwtApplicationConfiguration;
+import com.badlogic.gdx.backends.gwt.preloader.Preloader.PreloaderCallback;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.BitmapFont.Glyph;
 import com.badlogic.gdx.graphics.g2d.freetype.gwt.FreetypeInjector;
@@ -41,6 +43,13 @@ public class HtmlLauncher extends GwtApplication
 	{
 		// 1280x720, the desktop window's default: the menus and the carriages are laid out for 16:9
 		return new GwtApplicationConfiguration(1280, 720);
+	}
+
+	// The loading screen shows the game's logo, not libGDX's (r165): html:war copies it beside index.html
+	@Override
+	public PreloaderCallback getPreloaderCallback()
+	{
+		return createPreloaderPanel(GWT.getHostPageBaseURL() + "logo_onboard.png");
 	}
 
 	@Override

@@ -1,0 +1,33 @@
+{
+  "url": "http://127.0.0.1:8811/index.html",
+  "preloader": {
+    "src": "http://127.0.0.1:8811/logo_onboard.png",
+    "natural": [
+      480,
+      489
+    ],
+    "shown": [
+      480,
+      489
+    ]
+  },
+  "preloader_phone": {
+    "src": "http://127.0.0.1:8811/logo_onboard.png",
+    "natural": [
+      480,
+      489
+    ],
+    "shown": [
+      480,
+      489
+    ]
+  },
+  "icon": {
+    "href": "http://127.0.0.1:8811/icon.png",
+    "fromLink": true,
+    "status": 200,
+    "type": "image/png",
+    "bytes": 43881,
+    "title": "On Board"
+  }
+}

@@ -130,6 +130,8 @@ tasks.register('war', Sync) {
     description = 'The browser build as a static site in html/build/war.'
     from tasks.named('gwtCompile')
     from 'webapp'
+    // The preloader's logo (HtmlLauncher.getPreloaderCallback, r165), taken from the desktop's icon
+    from('../desktop/assets/ui/icon') { include 'logo_onboard.png' }
     // symbol maps and compile reports: not for the page
     exclude 'WEB-INF/**'
     into layout.buildDirectory.dir('war')

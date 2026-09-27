@@ -3,7 +3,14 @@
 <head>
 	<meta charset="utf-8">
 	<title>On Board</title>
-	<style>body { margin: 0; background: #000; } #embed-html { display: flex; justify-content: center; }</style>
+	<!-- r165: without these the tab wears Java's Duke, which jwebserver serves for /favicon.ico. Both are
+	     desktop/assets/ui/icon/logo_onboard.png centred on a square (never squashed, D3). -->
+	<link rel="icon" type="image/png" sizes="192x192" href="icon.png">
+	<link rel="icon" sizes="16x16 32x32 48x48 64x64" href="favicon.ico">
+	<link rel="apple-touch-icon" href="icon.png">
+	<style>body { margin: 0; background: #000; } #embed-html { display: flex; justify-content: center; }
+		.gdx-preloader .logo { max-width: 80vw; max-height: 70vh; width: auto; height: auto; }
+		.gdx-preloader .gdx-meter { margin: 0 auto; }</style>
 	<script type="text/javascript" src="html/html.nocache.js"></script>
 </head>
 <body>
