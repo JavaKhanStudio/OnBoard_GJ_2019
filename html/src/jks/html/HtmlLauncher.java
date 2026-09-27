@@ -88,7 +88,7 @@ public class HtmlLauncher extends GwtApplication
 	static int frames()
 	{return Gdx.graphics == null ? 0 : (int) Gdx.graphics.getFrameId();}
 
-	/** The view on screen, by its simple name: Vue_Preloading, Vue_Scenematic_Intro, Vue_StartScreen... */
+	/** The view on screen, by its simple name: Vue_Scenematic_Intro, Vue_StartScreen, Vue_Game... */
 	static String vue()
 	{
 		if(GVars_Heart.vue == null)

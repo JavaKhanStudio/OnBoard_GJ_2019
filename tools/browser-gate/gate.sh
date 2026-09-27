@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # gate.sh — the browser gate (r137): build the html module, serve it, and play it in headless Chrome
-# past the logos, through the intro to the start screen, then open a carriage. Headless always, and
+# through the intro (and the logos on its pages) to the start screen, then open a carriage. Headless always, and
 # Chrome's audio muted (--mute-audio): nothing reaches Simon's screen or speakers (D6).
 #
 #   tools/browser-gate/gate.sh             an optimized compile (~1 min), then the gate

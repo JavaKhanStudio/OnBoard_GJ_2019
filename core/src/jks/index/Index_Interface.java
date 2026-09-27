@@ -60,9 +60,11 @@ public class Index_Interface
 	public static String board_Blank = pausePath + "panneauVide.png" ;
 	public static String frame_GraySmoke = frame + "borderSmokeGray.png" ; 
 	
-	public static String introLogo_Jam = preload + "logo_jam.png" ; 
-	public static String introLogo_LibGDX = preload + "logo_libGdx.png" ; 
-	public static String introLogo_Team = preload + "logo_team.png" ; 
+	// The splash logos, borne by the intro's pages (r158): the ui/preload originals, shrunk and
+	// ringed in ink by tools/make_intro_logos.py so they read on the painted art.
+	public static String introLogo_Jam = intro + "logo_jam.png" ; 
+	public static String introLogo_LibGDX = intro + "logo_libGdx.png" ; 
+	public static String introLogo_Team = intro + "logo_team.png" ; 
 	
 	public static String introPage_1 = intro + "introPage1.png" ; 
 	public static String introPage_2 = intro + "introPage2.png" ; 

@@ -1,13 +1,14 @@
 // gate.mjs <url> <outdir> — the browser gate's driver, run by gate.sh (r137).
 //
 // Plays the page the way a player would, in HEADLESS Chrome with its audio muted (never a window
-// or a sound on anyone's machine, D6): the logos must hand over to the intro by themselves, real
+// or a sound on anyone's machine, D6): the game must open on the intro, its first page
+// carrying the team's logo (r158: the logos ride on the intro's pages, no screen of their own), real
 // mouse clicks must turn the intro's pages to the start screen, and a carriage must open. It drives
 // the system Chrome through puppeteer-core, NOT `chrome --screenshot`, which pumps about five
 // animation frames and then shoots a game that looks frozen (La chasse-galerie's
 // docs/browser-target.md section 10). Screenshots and gate.json land in <outdir>.
 //
-// It fails when: the game does not run, the logos do not reach the intro, clicks do not reach the
+// It fails when: the game does not run, it does not open on the intro, clicks do not reach the
 // start screen, no music plays, a French letter has no glyph, the config is not kept in
 // localStorage or not read back from it, the carriage does not open, or the loop runs under 20 fps.
 import puppeteer from 'puppeteer-core';
@@ -67,19 +68,17 @@ try {
 	page.on('console', (m) => report.console.push(m.type() + ': ' + m.text()));
 	page.on('pageerror', (e) => report.console.push('pageerror: ' + e.message));
 
-	// 1. The logos, by themselves
+	// 1. The intro, its first page and the team's logo
 	report.firstFramesMs = await open(page, '');
 	say(`running after ${report.firstFramesMs} ms, on ${await vue(page)}`);
-	await sleep(1500);
-	await page.screenshot({ path: `${out}/1_logo.png` });
-	report.logoMusic = await probe(page, () => window.onboard.music());
 	try {
 		await waitVue(page, 'Vue_Scenematic_Intro', 60000);
 	} catch {
-		fail(`the logos did not hand over to the intro in 60 s (still on ${await vue(page)})`);
+		fail(`the game did not open on the intro in 60 s (still on ${await vue(page)})`);
 		throw new Error('stopped');
 	}
-	await sleep(2500);
+	// The page takes 2 s to come up and its logo 1.5 s more
+	await sleep(4000);
 	await page.screenshot({ path: `${out}/2_intro.png` });
 	report.introMusic = await probe(page, () => window.onboard.music());
 	say(`intro reached; music ${report.introMusic || 'NONE'}`);

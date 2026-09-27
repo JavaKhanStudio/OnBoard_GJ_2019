@@ -11,7 +11,10 @@ sort = 10
 context = """
 The chain, in order: desktop/src/jks/launcher/Launcher_Game.java ->
 Utils_Launcher.loadConfig -> core/src/jks/amain/Main_Application.java (create) ->
-Vue_Preloading -> Vue_Scenematic_Intro -> Vue_StartScreen -> Vue_Game -> Vue_Scenematic_Outro.
+Vue_Scenematic_Intro -> Vue_StartScreen -> Vue_Game -> Vue_Scenematic_Outro.
+The splash logos have no screen of their own (r158): one rides on each intro page, placed by
+Vue_Scenematic_Intro.LOGO_PLACES, baked with their ink border by tools/make_intro_logos.py
+(the ui/preload originals are its source). start=logo and start=intro now start alike.
 The views hand off to each other; GVars_Heart.changeVue(view, true) is the only switch.
 NEVER comment out an entry point to skip ahead — that is how a working intro shipped
 out of a build mid-story. Use the property:
@@ -423,7 +426,7 @@ THE BROWSER BUILD (r137) is html/: libGDX's GWT backend, a JavaExec of the GWT c
 plugin), La chasse-galerie's recipe.
   ./gradlew :html:war            html/build/war, a static site (~1 min; -Pdraft ~20 s, unoptimized)
   tools/browser-gate/gate.sh     builds it, plays it in headless Chrome with --mute-audio
-It fails unless the logos reach the intro, clicks reach the start screen, music plays, the
+It fails unless the game opens on the intro, clicks reach the start screen, music plays, the
 French letters have glyphs, the config survives a reload (localStorage) and carriage 1 opens
 at 20+ fps. Renders and gate.json (load time, war files and bytes) in html/build/gate/.
   tools/play_web.sh              builds it and serves it on 127.0.0.1:8795 until killed

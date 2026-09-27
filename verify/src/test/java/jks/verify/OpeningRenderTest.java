@@ -22,22 +22,26 @@ import jks.amain.Main_Application;
 import jks.vars.GVars_Heart;
 
 /**
- * The opening - three splash logos, then the story cinematic, then the start screen -
+ * The opening - the story cinematic, bearing the splash logos (r158), then the start screen -
  * was written in 2019 and then commented out of Main_Application, so it has never been
  * exercised by anything. Now that the game starts there again, it needs a guard.
  *
- * The screens hand off to each other on a timer, so this run also records which views it
- * passed through, proving the chain still moves rather than stalling on the first logo.
+ * The screens hand off to each other, so this run also records which views it passed
+ * through, proving the chain still moves rather than stalling on the first page.
  */
 @Tag("gl")
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class OpeningRenderTest
 {
-	private static final int CAPTURE_FRAME = 60;
+	/**
+	 * The golden frame: the first page fully up, its logo two thirds in (r158 put the splash
+	 * logos on the pages). The stand-in clicks below hold off until it is taken.
+	 */
+	private static final double CAPTURE_AFTER = 3.0;
 
 	/**
-	 * A frame budget is the wrong unit here. The logo sequence is driven by scene2d actions
-	 * on a wall clock - three logos at three seconds each - and the test window renders
+	 * A frame budget is the wrong unit here. The pages fade on the game's clock and the
+	 * test window renders
 	 * unthrottled, so a few hundred frames can pass in well under a second. Run until the
 	 * sequence has visibly moved on, with a hard ceiling so a stall still ends the test.
 	 * That ceiling is TIMEOUT_SEC, not a frame count: an idle machine draws 100 000 frames
@@ -47,7 +51,7 @@ class OpeningRenderTest
 	/**
 	 * Generous, because game time can lag real time here: Main_Application clamps delta to
 	 * 1/30s, so if a frame takes longer than that the scene2d timers advance slower than
-	 * the wall clock. The logo sequence is ~9s of game time.
+	 * the wall clock. The golden waits 3s of game time, then each page ~0.4s.
 	 */
 	private static final double TIMEOUT_SEC = 60.0;
 
@@ -77,7 +81,8 @@ class OpeningRenderTest
 		// to 1/30s the game's own clock then falls behind real time and the wait times out.
 		config.useVsync(false);
 
-		harness = new GameHarness(new Main_Application(), CAPTURE_FRAME, EXIT_FRAME);
+		harness = new GameHarness(new Main_Application(), -1, EXIT_FRAME);
+		harness.captureAfterSeconds = CAPTURE_AFTER;
 		long startedAt = System.nanoTime();
 		harness.frameHook = frame ->
 		{
@@ -92,6 +97,7 @@ class OpeningRenderTest
 			// label went unnoticed.
 			if (GVars_Heart.vue != null
 				&& GVars_Heart.vue.getClass().getSimpleName().equals("Vue_Scenematic_Intro")
+				&& harness.capture != null
 				&& harness.gameSeconds - lastPageTurn > 0.4)
 			{
 				lastPageTurn = harness.gameSeconds;
@@ -118,13 +124,11 @@ class OpeningRenderTest
 	}
 
 	@Test
-	@DisplayName("the opening runs all the way from the logos to the menu")
+	@DisplayName("the opening runs all the way from the story pages to the menu")
 	void openingAdvances()
 	{
-		assertTrue(viewsSeen.contains("Vue_Preloading"),
-			"never showed the logo screen; saw " + viewsSeen);
 		assertTrue(viewsSeen.contains("Vue_Scenematic_Intro"),
-			"the logos never handed off to the story pages. Saw " + viewsSeen);
+			"never showed the story pages. Saw " + viewsSeen);
 		assertTrue(viewsSeen.contains("Vue_StartScreen"),
 			"the opening never reached the menu. Saw " + viewsSeen + " in "
 			+ String.format("%.1fs / %d frames / %.1fs of game time", secondsRun,
@@ -136,7 +140,7 @@ class OpeningRenderTest
 	}
 
 	@Test
-	@DisplayName("the logo screen still looks the same")
+	@DisplayName("the first page, with its logo, still looks the same")
 	void matchesGoldenOpening() throws Exception
 	{
 		BufferedImage frame = harness.capture;

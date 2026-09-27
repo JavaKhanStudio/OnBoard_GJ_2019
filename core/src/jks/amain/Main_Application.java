@@ -20,7 +20,6 @@ import jks.vinterface.GVars_UI;
 import jks.vinterface.font.GVars_Font;
 import jks.vue.GVars_Fade;
 import jks.vue.GVars_Steam;
-import jks.vue.models.Vue_Preloading;
 import jks.vue.models.Vue_Scenematic_Intro;
 import jks.vue.models.Vue_Scenematic_Outro;
 import jks.vue.models.Vue_LineLab;
@@ -38,9 +37,11 @@ public class Main_Application extends ApplicationAdapter
 	/**
 	 * Where the game begins.
 	 *
-	 * The screens chain into each other by themselves - the logos hand off to the intro,
-	 * the intro to the start screen, "New Game" to the first carriage, and finishing the
-	 * fourth to the ending - so LOGO plays the whole thing through.
+	 * The screens chain into each other by themselves - the intro to the start screen,
+	 * "New Game" to the first carriage, and finishing the fourth to the ending - so LOGO
+	 * plays the whole thing through. The splash logos no longer have a screen of their own:
+	 * they ride on the intro's pages (r158), so LOGO and INTRO now start at the same place;
+	 * LOGO stays the name of "from the very beginning".
 	 *
 	 * This used to be five lines with four of them commented out, which meant jumping past
 	 * the intro during development left the shipped game starting mid-story. Override it
@@ -54,7 +55,7 @@ public class Main_Application extends ApplicationAdapter
 	 *
 	 * CREDITS is the start screen with the credits already open, exactly as its Credits
 	 * button leaves it, so Retour lands on the menu. It is there so the credits can be looked
-	 * at without sitting through the logos.
+	 * at without sitting through the intro.
 	 */
 	public enum StartPoint
 	{
@@ -75,7 +76,7 @@ public class Main_Application extends ApplicationAdapter
 		}
 		catch(IllegalArgumentException unknown)
 		{
-			Utils_Debug.warn("Unknown onboard.start value '" + requested + "', starting at the logos") ; 
+			Utils_Debug.warn("Unknown onboard.start value '" + requested + "', starting at the beginning") ; 
 			return StartPoint.LOGO ; 
 		}
 	}
@@ -191,7 +192,7 @@ public class Main_Application extends ApplicationAdapter
 	
 	public void startAtLogo() 
 	{
-		GVars_Heart.changeVue(new Vue_Preloading(),true) ; 
+		startAtIntro() ; 
 	}
 	
 	private void mainInit()
