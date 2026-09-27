@@ -426,6 +426,11 @@ plugin), La chasse-galerie's recipe.
 It fails unless the logos reach the intro, clicks reach the start screen, music plays, the
 French letters have glyphs, the config survives a reload (localStorage) and carriage 1 opens
 at 20+ fps. Renders and gate.json (load time, war files and bytes) in html/build/gate/.
+  tools/play_web.sh              builds it and serves it on 127.0.0.1:8795 until killed
+The board's second Play option, "Play it in the browser" ([viewers.web], r156), runs it and
+opens a tab ON SIMON'S DESK: never open that viewer or `atelier tools open play_web` from a
+session (D6). To check a change, run gate.sh; node tools/browser-gate/gate.mjs <url> <dir>
+plays any page already served.
 FreeType in a tab is the community port gdx-freetype-gwt 1.9.10.1 (libGDX has none); its
 generator is 1.9.10's, so html/freetype-gwt/ carries 1.14.2's with the port's three GWT hunks.
 Take libGDX's file again when gdxVersion moves. Page parameters: ?mute, ?start=game&level=3.
