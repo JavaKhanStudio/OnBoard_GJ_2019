@@ -104,6 +104,17 @@ public class GVars_Game
 	}
 	
 	/**
+	 * What Ross says when the other use of a choice already made is tried (r160): the row
+	 * GameItem.afterKey names. Silent when the table has none - TextTableTest wants one for each.
+	 */
+	public static void sayAfterLine(GameItem item)
+	{
+		String key = GameItem.afterKey(currentLevelInt, item.name, item.usedAs) ; 
+		if(Index_Text.has(key))
+			sayItemMessage(key) ; 
+	}
+	
+	/**
 	 * What Ross has on his mind as a carriage opens (r73): the hint of the first piece he lacks -
 	 * his state of mind and, between the lines, what he needs to find. The same line the piece
 	 * shows under the mouse. Only then since r91: the player explores, the key flashes at each

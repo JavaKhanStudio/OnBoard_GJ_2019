@@ -42,7 +42,8 @@ import jks.vue.models.game.WagonLevel;
 /**
  * The line lab (r74): every item of every carriage with what Ross says about it, editable in
  * place. A row per item holds the line said when it is clicked; an item something can be used
- * on has a row more per use - the message_Crucial lines (r81). Say types the line in the
+ * on has a row more per use - the message_Crucial lines (r81) - and a choice two more, for
+ * the other use tried once one is made (r160). Say types the line in the
  * game's own bubble; Save writes it into the text table.
  *
  * A development screen, not part of the game. Nothing leads here; open it with
@@ -151,6 +152,12 @@ public class Vue_LineLab extends AVue_Model
 				addRow(rows, null, "  + " + item.name_Interaction_1, item.message_Crucial_1) ;
 			if(item.message_Crucial_2 != null)
 				addRow(rows, null, "  + " + item.name_Interaction_2, item.message_Crucial_2) ;
+			// A choice made, then the other use tried (r160).
+			if(item.name_Interaction_1 != null && item.name_Interaction_2 != null)
+			{
+				addRow(rows, null, "  " + item.name_Interaction_1 + ", then " + item.name_Interaction_2, GameItem.afterKey(n, item.name, 1)) ;
+				addRow(rows, null, "  " + item.name_Interaction_2 + ", then " + item.name_Interaction_1, GameItem.afterKey(n, item.name, 2)) ;
+			}
 		}
 		return rows ;
 	}

@@ -102,6 +102,34 @@ class TextTableTest
 		assertTrue(silent.isEmpty(), "uses of a choice item that say nothing: " + silent) ;
 	}
 
+	/**
+	 * A choice is not taken back (r160): once one use is made, the other changes nothing, and
+	 * Ross says why - a line for each side, GameItem.afterKey.
+	 */
+	@Test
+	@DisplayName("every choice item has a line for the other use tried after each one")
+	void choicesStayMade() throws Exception
+	{
+		Json json = GVars_Serialization.prepareJson() ;
+		List<String> missing = new ArrayList<>() ;
+		int choices = 0 ;
+		for (int n = 1 ; n <= 4 ; n++)
+		{
+			WagonLevel level = json.fromJson(WagonLevel.class, new FileHandle(new File(Assets.DIR, "game/wagon/wa" + n + ".wa"))) ;
+			for (GameItem item : level.listItems)
+			{
+				if (item.name_Interaction_1 == null || item.name_Interaction_2 == null)
+					continue ;
+				choices++ ;
+				for (int side = 1 ; side <= 2 ; side++)
+					if (!Index_Text.has(GameItem.afterKey(n, item.name, side)))
+						missing.add(GameItem.afterKey(n, item.name, side)) ;
+			}
+		}
+		assertEquals(4, choices, "the four carriages no longer hold one choice each") ;
+		assertTrue(missing.isEmpty(), "choices with no line for the other use tried after: " + missing) ;
+	}
+
 	@Test
 	@DisplayName("every key the code asks for is a row of the table")
 	void codeKeysExist() throws Exception

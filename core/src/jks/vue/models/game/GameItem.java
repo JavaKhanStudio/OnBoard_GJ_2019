@@ -50,6 +50,8 @@ public class GameItem
 	transient ItemOutline.Kind outline = ItemOutline.Kind.NEUTRAL ; 
 	/** Something has been used on it: its click line no longer describes it (r74). */
 	transient boolean used ; 
+	/** Which of its two uses it was given, 1 or 2; 0 while nothing has been used on it (r160). */
+	transient int usedAs ; 
 	
 	public GameItem() 
 	{}
@@ -136,6 +138,7 @@ public class GameItem
 		picked = false ; 
 		hovered = false ; 
 		used = false ; 
+		usedAs = 0 ; 
 		
 		if(objectTexture != null)
 			setGameReady() ; 
@@ -192,6 +195,23 @@ public class GameItem
 		return "wa" + carriage + "." + stem + ".click" ; 
 	}
 	
+	/**
+	 * The text-table key of what Ross says when the other use of a choice is tried once one has
+	 * been made (r160): "wa1.cage.after1" when the bird was fed (use 1) and the cage's key is
+	 * then held to it. A choice is not taken back; the line is his state of mind about it (D2).
+	 */
+	public static String afterKey(int carriage, String itemName, int usedAs)
+	{
+		String stem = itemName.endsWith(".png") ? itemName.substring(0, itemName.length() - 4) : itemName ; 
+		return "wa" + carriage + "." + stem + ".after" + usedAs ; 
+	}
+	
+	/** The item that makes the use this one was not given: interaction 2's after 1, 1's after 2. */
+	public String otherUse()
+	{
+		return usedAs == 1 ? name_Interaction_2 : usedAs == 2 ? name_Interaction_1 : null ; 
+	}
+	
 	public void tryTouch(Vector3 touchPos, GameItem touchingWith, boolean inTest)
 	{
 		if(picked)
@@ -217,6 +237,17 @@ public class GameItem
 					GVars_Game.sayClickLine(this) ; 
 				return ; 
 			}
+			else if(used && touchingWith.name.equals(otherUse()))
+			{
+				// The choice is made (r160): the other use changes nothing - no texture, no
+				// karma, no second key piece. It stays in hand, and Ross says why not.
+				if(!inTest)
+					GVars_Game.sayAfterLine(this) ; 
+			}
+			else if(used)
+			{
+				// Nothing more happens to it: a use it was given cannot be given again either.
+			}
 			else if(name_Interaction_1 != null && name_Interaction_1.equals(touchingWith.name))
 			{
 				if(inTest)
@@ -225,6 +256,7 @@ public class GameItem
 				{
 					objectTexture = Index_Interface.manager.get(relativePath + path_EtatApres_1, Texture.class);
 					used = true ; 
+					usedAs = 1 ; 
 					// Said first, so a key piece this gives thinks of the next step after it (r73).
 					GVars_Game.sayItemMessage(message_Crucial_1) ; 
 					GVars_Game.applyItem(this, touchingWith.name,1) ; 
@@ -238,6 +270,7 @@ public class GameItem
 				{
 					objectTexture = Index_Interface.manager.get(relativePath + path_EtatApres_2, Texture.class);
 					used = true ; 
+					usedAs = 2 ; 
 					GVars_Game.sayItemMessage(message_Crucial_2) ; 
 					GVars_Game.applyItem(this, touchingWith.name,2) ;  
 				}

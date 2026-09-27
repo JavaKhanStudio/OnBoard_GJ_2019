@@ -48,6 +48,8 @@ wa1.hint2	Carriage 1, thought bubble on key piece 2	Nom de non, qui à laissé t
 wa1.hint3	Carriage 1, thought bubble on key piece 3	Ce pauvre petit oiseau.\n Il a l'air affamé dans sa cage dorée. Si seulement je pouvais faire quelque chose pour lui.
 wa1.cage.message1	Carriage 1, cage used with sac (choice 1), bubble by Ross for a few seconds	Voila qui devrait remplir son estomac ! \nMais s’il était {WAVE}libre{ENDWAVE} tout ce serait plus simple... \nnon ?
 wa1.cage.message2	Carriage 1, cage used with clefCage (choice 2), bubble by Ross for a few seconds	Je pourrais le rendre libre comme l’air ! Mais je ne suis pas sûr qu’il trouvera de la {WAVE}nourriture{ENDWAVE} avant de tomber dans les pommes...
+wa1.cage.after1	Carriage 1, cage already used with sac (choice 1), then clefCage tried on it - bubble by Ross for a few seconds (r160)	Il picore ses graines, tout content. \nJe l'ai aidé comme je pouvais... la cage restera fermée.
+wa1.cage.after2	Carriage 1, cage already used with clefCage (choice 2), then sac tried on it - bubble by Ross for a few seconds (r160)	Il est déjà loin, mon petit oiseau. \nPlus personne à qui donner ces graines... j'espère qu'il trouvera à manger.
 # Ross says these when the item is clicked (r74) - edit them in the line lab:
 #   ./gradlew :desktop:runGame -Donboard.start=line_lab
 wa1.cubeM.click	Carriage 1, cubeM.png clicked, bubble by Ross for a few seconds	Il manque un cube ici. Le creux a juste la bonne forme.
@@ -64,6 +66,8 @@ wa2.hint2	Carriage 2, thought bubble on key piece 2	Cette mauvaise habitude ma t
 wa2.hint3	Carriage 2, thought bubble on key piece 3	Le paternel a presque l'air gentil sur ce tableau. \nLe beau mensonge... \nIl mériterait des retouches sur sa tronche !
 wa2.tableau.message1	Carriage 2, tableau used with crayon (choice 1), bubble by Ross for a few seconds	Une moustache, des cornes... Le voilà presque drôle, le paternel. \nMais il est toujours {WAVE}là{ENDWAVE}, accroché au mur, à me juger.
 wa2.tableau.message2	Carriage 2, tableau used with couteauSocle (choice 2), bubble by Ross for a few seconds	Un coup de lame, et il ne me juge plus. \nC'était son couteau, pourtant. Une toile, ça ne se {WAVE}recoud{ENDWAVE} pas...
+wa2.tableau.after1	Carriage 2, tableau already used with crayon (choice 1), then couteauSocle tried on it - bubble by Ross for a few seconds (r160)	Je lui ai déjà fait sa fête, au paternel. \nLa moustache restera, le couteau n'y changera rien.
+wa2.tableau.after2	Carriage 2, tableau already used with couteauSocle (choice 2), then crayon tried on it - bubble by Ross for a few seconds (r160)	Il n'y a plus rien à dessiner, la toile pend en lambeaux. \nCe qui est déchiré est déchiré.
 # Ross says these when the item is clicked (r74) - edit them in the line lab:
 #   ./gradlew :desktop:runGame -Donboard.start=line_lab
 wa2.tableau.click	Carriage 2, tableau.png clicked, bubble by Ross for a few seconds	Le paternel, en uniforme. Même en peinture, il me juge.
@@ -80,6 +84,8 @@ wa3.hint2	Carriage 3, thought bubble on key piece 2	Ma douce Diana me manques, j
 wa3.hint3	Carriage 3, thought bubble on key piece 3	Le trou dans ce mur semble bien étrange. Je pourrais le fixer… ou le finir.
 wa3.trou.message1	Carriage 3, trou used with porteTrou (choice 1), bubble by Ross for a few seconds	Voilà, le mur tient. Plus de courant d'air, plus rien à voir dehors. \nComme si on pouvait tout {WAVE}refermer{ENDWAVE} comme ça...
 wa3.trou.message2	Carriage 3, trou used with grenade (choice 2), bubble by Ross for a few seconds	Plus de mur du tout. Au moins, maintenant, on voit {WAVE}dehors{ENDWAVE}. \nJ'espère juste que personne n'était derrière...
+wa3.trou.after1	Carriage 3, trou already used with porteTrou (choice 1), then grenade tried on it - bubble by Ross for a few seconds (r160)	Le mur tient, maintenant. \nJe ne vais pas défaire ce que je viens de refermer.
+wa3.trou.after2	Carriage 3, trou already used with grenade (choice 2), then porteTrou tried on it - bubble by Ross for a few seconds (r160)	Il n'y a plus de mur à boucher. \nPlus rien à réparer, juste {WAVE}dehors{ENDWAVE}...
 # Ross says these when the item is clicked (r74) - edit them in the line lab:
 #   ./gradlew :desktop:runGame -Donboard.start=line_lab
 wa3.trou.click	Carriage 3, trou.png clicked, bubble by Ross for a few seconds	Un trou dans le mur. Quelque chose est passé par là.
@@ -97,6 +103,8 @@ wa4.hint2	Carriage 4, thought bubble on key piece 2	Il est tellement jolie le ho
 wa4.hint3	Carriage 4, thought bubble on key piece 3	J'ai la gorge sèche et le coeur qui s'agite. Je devrais boire quelque chose avant de partir... 
 wa4.verre.message1	Carriage 4, verre used with cruche (choice 1), bubble by Ross for a few seconds	De l'eau fraîche. J'ai les idées claires, et les mains qui tremblent encore. \nIl faudra bien {WAVE}rester{ENDWAVE} debout, comme ça...
 wa4.verre.message2	Carriage 4, verre used with wisky (choice 2), bubble by Ross for a few seconds	Une gorgée, et la gare me paraît déjà moins loin. \nElle a toujours eu un goût de {WAVE}départ{ENDWAVE}, cette bouteille...
+wa4.verre.after1	Carriage 4, verre already used with cruche (choice 1), then wisky tried on it - bubble by Ross for a few seconds (r160)	Le verre est plein d'eau. \nJe l'ai choisie, je la bois jusqu'au bout.
+wa4.verre.after2	Carriage 4, verre already used with wisky (choice 2), then cruche tried on it - bubble by Ross for a few seconds (r160)	Trop tard pour l'eau. \nLe whisky me brûle déjà la gorge.
 # Ross says these when the item is clicked (r74) - edit them in the line lab:
 #   ./gradlew :desktop:runGame -Donboard.start=line_lab
 wa4.cadre.click	Carriage 4, cadre.png clicked, bubble by Ross for a few seconds	Ma femme, et le bébé qui arrive. Le plus beau portrait que j'ai fait.

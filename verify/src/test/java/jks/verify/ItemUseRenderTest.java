@@ -1,6 +1,7 @@
 package jks.verify;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.io.File;
@@ -23,9 +24,10 @@ import jks.vue.models.game.GameItem;
 
 /**
  * An item, once used, is spent (r77). In carriage 1 both the seed bag and the cage key are
- * taken, the bag is used on the cage: it leaves the hand and the bar, the key stays. Then the
- * key is used too, and the bar is empty. Before r77 the bag stayed selected and could be
- * used on the cage again, and the key's choice could add karma twice.
+ * taken, the bag is used on the cage: it leaves the hand and the bar, the key stays. Before r77
+ * the bag stayed selected and could be used on the cage again. Then the key is tried on the
+ * fed bird: the other side of a choice already made, refused since r160 - the key stays in
+ * hand and on the bar, and no karma comes of it, however often it is tried.
  */
 @Tag("gl")
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -99,7 +101,7 @@ class ItemUseRenderTest
 				else if (step[0] == 5 && t >= AGAIN_AT)
 				{
 					step[0] = 6;
-					// Whatever is in hand now - nothing - clicking the cage again gives nothing.
+					// The key, still in hand: tried again, it still gives nothing.
 					click(item("cage.png"), GVars_Game.selectedItem);
 					karmaAfterAgain = GVars_Game.karma;
 					Gdx.app.exit();
@@ -144,10 +146,11 @@ class ItemUseRenderTest
 		assertEquals(List.of("clefCage.png"), carriedAfterBag, "only the cage key should still be carried");
 		assertEquals(1, barAfterBag, "the bar should show the cage key alone");
 
-		assertNull(selectedAfterKey, "the cage key is still in hand after it was used");
-		assertEquals(List.of(), carriedAfterKey, "nothing should be carried once both were used");
-		assertEquals(0, barAfterKey, "the bar should be empty");
-		assertEquals(1, karmaAfterKey, "the cage key's choice gives one karma");
-		assertEquals(1, karmaAfterAgain, "clicking the cage again with nothing in hand gave karma again");
+		// r160: the bird is fed, the cage stays shut; the key is refused, not spent.
+		assertNotNull(selectedAfterKey, "the cage key left the hand when the fed bird refused it");
+		assertEquals(List.of("clefCage.png"), carriedAfterKey, "the refused cage key should still be carried");
+		assertEquals(1, barAfterKey, "the bar should still show the cage key");
+		assertEquals(0, karmaAfterKey, "the cage key counted karma on a bird already fed");
+		assertEquals(0, karmaAfterAgain, "trying the cage key again counted karma");
 	}
 }
