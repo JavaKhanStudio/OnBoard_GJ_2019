@@ -78,7 +78,7 @@ class ClosureMessageTest
 		String all = joined(0, false) + joined(4, true) ;
 		assertTrue(all.chars().anyMatch(c -> c > 127),
 			"no accented character in either card - check which font it should be drawn with") ;
-		assertFalse(ClosureMessage.END.chars().anyMatch(c -> c > 127),
+		assertFalse(ClosureMessage.end().chars().anyMatch(c -> c > 127),
 			"FIN gained an accent; it is drawn with the same face, which is fine, but say so") ;
 	}
 }

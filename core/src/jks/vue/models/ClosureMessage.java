@@ -25,8 +25,11 @@ public final class ClosureMessage
 {
 	private ClosureMessage() {}
 
-	/** Drawn on its own, larger, under the message. */
-	public static final String END = Index_Text.get("ending.end") ;
+	/** Drawn on its own, larger, under the message. A method: the language can change (r162). */
+	public static String end()
+	{
+		return Index_Text.get("ending.end") ; 
+	}
 
 	/** How often he took the opening, out of the four carriages, said plainly at both ends of the range. */
 	public static String tally(int karma)

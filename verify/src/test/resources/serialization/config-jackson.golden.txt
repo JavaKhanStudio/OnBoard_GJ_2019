@@ -11,3 +11,4 @@ config-jackson.keyPieceSound = null
 config-jackson.levelCompleteSound = null
 config-jackson.footstepsSound = null
 config-jackson.useMipmaps = false
+config-jackson.language = "fr"

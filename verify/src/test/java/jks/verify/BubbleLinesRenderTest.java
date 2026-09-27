@@ -32,8 +32,9 @@ import jks.vue.models.game.WagonLevel;
 /**
  * Every line Ross says, in the bubble he says it in (r163): each carriage in turn, each of its
  * lines typed out in the game's own bubble over the carriage, at 1280 x 720 - the smallest
- * window the options offer, where the letters are smallest. Each cloud is cropped into
- * build/frames/bubble-lines-<carriage>.png, a sheet a person reads to judge the lines.
+ * window the options offer, where the letters are smallest - and again in each language of the
+ * table (r162). Each cloud is cropped into build/frames/bubble-lines-<language>-<carriage>.png,
+ * a sheet a person reads to judge the lines.
  *
  * And each line must fit its cloud: the typed text no taller than the room the cloud leaves it,
  * measured on the label as it laid the line out.
@@ -50,7 +51,7 @@ class BubbleLinesRenderTest
 	private static final List<String> overflowing = new ArrayList<>();
 	private static final List<BufferedImage> crops = new ArrayList<>();
 	private static final List<String> cropKeys = new ArrayList<>();
-	private static volatile int carriage = 0, sheets;
+	private static volatile int carriage = 0, sheets, languageAt = 0;
 	private static volatile double shownAt = -1, loadedAt;
 	private static volatile boolean finished;
 	private static volatile Throwable error;
@@ -76,7 +77,10 @@ class BubbleLinesRenderTest
 			{
 				double t = harness.gameSeconds;
 				if (carriage == 0 && t >= 2.0)
+				{
+					Index_Text.setLanguage(Index_Text.languages().get(0));
 					enter(1);
+				}
 				else if (carriage > 0 && shownAt < 0 && t >= loadedAt + 1.5)
 					next();
 				else if (shownAt >= 0 && t >= shownAt + 0.6)
@@ -97,8 +101,9 @@ class BubbleLinesRenderTest
 	/** Loads the carriage and queues every line of it: hints, then each item's lines. */
 	private static void enter(int n)
 	{
+		boolean fresh = carriage == 0;
 		carriage = n;
-		if (n > 1)
+		if (!fresh)
 		{
 			GVars_Game.currentLevelInt = n;
 			GVars_Game.loadLevel(n);
@@ -130,6 +135,11 @@ class BubbleLinesRenderTest
 			writeSheet();
 			if (carriage < GVars_Game.LEVEL_COUNT)
 				enter(carriage + 1);
+			else if (languageAt + 1 < Index_Text.languages().size())
+			{
+				Index_Text.setLanguage(Index_Text.languages().get(++languageAt));
+				enter(1);
+			}
 			else
 			{
 				finished = true;
@@ -138,7 +148,7 @@ class BubbleLinesRenderTest
 			return;
 		}
 		String key = queue.remove(0)[0];
-		cropKeys.add(key);
+		cropKeys.add(Index_Text.getLanguage() + " " + key);
 		DialogBubble bubble = GVars_Game.dialogBubble;
 		bubble.applyText(Index_Text.get(key));
 		typing(bubble).skipToTheEnd();
@@ -149,9 +159,9 @@ class BubbleLinesRenderTest
 	{
 		DialogBubble bubble = GVars_Game.dialogBubble;
 		TypingLabel typing = typing(bubble);
-		String key = cropKeys.get(cropKeys.size() - 1);
+		String key = cropKeys.get(cropKeys.size() - 1), text = Index_Text.get(key.substring(key.indexOf(' ') + 1));
 		float needed = typing.getPrefHeight(), room = typing.getHeight();
-		System.out.println("r163 " + key + ": " + Index_Text.get(key).length() + " chars, text "
+		System.out.println("r163 " + key + ": " + text.length() + " chars, text "
 			+ Math.round(needed) + " px tall in " + Math.round(room) + ", cloud " + Math.round(bubble.cloudBox()[2]) + " wide");
 		if (needed > room + 1)
 			overflowing.add(key + " (" + Math.round(needed) + " px in " + Math.round(room) + ")");
@@ -184,7 +194,7 @@ class BubbleLinesRenderTest
 			g.drawString(cropKeys.get(i), x + 4, y + ch + 14);
 		}
 		g.dispose();
-		Frames.write(sheet, new File(OUTPUT, "bubble-lines-" + carriage + ".png"));
+		Frames.write(sheet, new File(OUTPUT, "bubble-lines-" + Index_Text.getLanguage() + "-" + carriage + ".png"));
 		sheets++;
 		crops.clear();
 		cropKeys.clear();
@@ -198,12 +208,12 @@ class BubbleLinesRenderTest
 	}
 
 	@Test
-	@DisplayName("every line of the four carriages is typed into the bubble and kept on a sheet")
+	@DisplayName("every line of the four carriages, in every language, is typed into the bubble and kept on a sheet")
 	void everyLineIsDrawn()
 	{
 		assertNull(harness.error, harness.error == null ? null : "the game threw: " + harness.error);
 		assertNull(error, error == null ? null : "a step threw: " + error);
-		assertTrue(finished && sheets == GVars_Game.LEVEL_COUNT, "only " + sheets + " carriages were drawn");
+		assertTrue(finished && sheets == GVars_Game.LEVEL_COUNT * Index_Text.languages().size(), "only " + sheets + " carriages were drawn");
 	}
 
 	@Test

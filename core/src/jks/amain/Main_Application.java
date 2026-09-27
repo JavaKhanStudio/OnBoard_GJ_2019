@@ -12,6 +12,7 @@ import jks.tools.Utils_Debug;
 
 import jks.camera.GVars_Camera;
 import jks.index.Index_Interface;
+import jks.index.Index_Text;
 import jks.input.GVars_Controller;
 import jks.input.Player_Inputs;
 import jks.vars.GVars_Heart;
@@ -204,6 +205,8 @@ public class Main_Application extends ApplicationAdapter
 		GVars_Camera.init();	
 		GVars_Controller.init();
 		Index_Interface.init();
+		// The language picked with the start menu's flags, last time (r162).
+		Index_Text.chooseLanguage(Utils_Config.current.language) ;
 	}
 
 	public void startAtStartScreen()

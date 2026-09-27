@@ -54,6 +54,55 @@ class TextTableTest
 		assertTrue(empty.isEmpty(), "rows with no French text: " + empty) ;
 	}
 
+	/** The flags on the start menu offer English (r162): a row with none would drop back to French mid-sentence. */
+	@Test
+	@DisplayName("the table has English in every row")
+	void everyRowHasEnglish()
+	{
+		assertTrue(Index_Text.languages().contains("en"), "no en column: " + Index_Text.languages()) ;
+		List<String> empty = new ArrayList<>() ;
+		for (Map.Entry<String, Map<String, String>> row : Index_Text.rows().entrySet())
+		{
+			String en = row.getValue().get("en") ;
+			if (en == null || en.isEmpty())
+				empty.add(row.getKey()) ;
+		}
+		assertTrue(empty.isEmpty(), "rows with no English text: " + empty) ;
+	}
+
+	/** A translation keeps the markup its French has: a {WAVE} lost is a word that no longer waves. */
+	@Test
+	@DisplayName("each English text carries the same markup as its French")
+	void englishKeepsTheMarkup()
+	{
+		Pattern markup = Pattern.compile("\\{[A-Z]+[^}]*\\}|\\{\\d\\}") ;
+		List<String> differ = new ArrayList<>() ;
+		for (Map.Entry<String, Map<String, String>> row : Index_Text.rows().entrySet())
+		{
+			List<String> fr = new ArrayList<>(), en = new ArrayList<>() ;
+			Matcher m = markup.matcher(row.getValue().get("fr")) ;
+			while (m.find()) fr.add(m.group()) ;
+			m = markup.matcher(row.getValue().getOrDefault("en", "")) ;
+			while (m.find()) en.add(m.group()) ;
+			if (!fr.equals(en))
+				differ.add(row.getKey() + " " + fr + " / " + en) ;
+		}
+		assertTrue(differ.isEmpty(), "English with other markup than its French: " + differ) ;
+	}
+
+	/** The config names the language (r162); one the table has no column for reads French, it does not stop the game. */
+	@Test
+	@DisplayName("choosing a language the table does not have reads French")
+	void unknownLanguageReadsFrench()
+	{
+		Index_Text.chooseLanguage("en") ;
+		assertEquals("Play", Index_Text.get("menu.play")) ;
+		Index_Text.chooseLanguage("xx") ;
+		assertEquals(Index_Text.FALLBACK, Index_Text.getLanguage()) ;
+		Index_Text.chooseLanguage(null) ;
+		assertEquals("Jouer", Index_Text.get("menu.play")) ;
+	}
+
 	@Test
 	@DisplayName("every hint and message a level names, and every item's click line, is a row of the table")
 	void levelKeysExist() throws Exception
@@ -218,7 +267,8 @@ class TextTableTest
 					changed.add(after.get(i)) ;
 			assertEquals(1, changed.size(), "more than one line changed: " + changed) ;
 			assertTrue(changed.get(0).startsWith("wa2.clope.click\t"), "the wrong line changed: " + changed) ;
-			assertTrue(changed.get(0).endsWith("\tDeux lignes,\\nune barre \\\\ et « des guillemets »"),
+			// The French cell, the third; the English after it (r162) is left as it was.
+			assertEquals("Deux lignes,\\nune barre \\\\ et « des guillemets »", changed.get(0).split("\t", -1)[2],
 				"the cell is not escaped as the table writes it: " + changed.get(0)) ;
 
 			// What a fresh read of that file gives back is what was written.

@@ -93,7 +93,7 @@ class CreditsRenderTest
 	void everyoneIsCredited()
 	{
 		java.util.List<String> everyone = new java.util.ArrayList<>();
-		for (Index_Credits.Section section : Index_Credits.SECTIONS)
+		for (Index_Credits.Section section : Index_Credits.sections())
 			for (String person : section.people)
 				everyone.add(person);
 

@@ -68,7 +68,7 @@ public class StartScreen_SmoothSideSelect extends Table implements ReplayAction,
 		selectableOptionsMapped = new ArrayList<>() ;
 		selectableOptionsMapped.add(selectableOptionsX) ; 	
 		
-		Button jouer = buildButton(Index_Text.get("menu.play")) ;
+		Button jouer = buildButton("menu.play") ;
 		selectableOptionsX.add(jouer) ; 
 		jouer.addListener(new ChangeListener()
 		{
@@ -92,7 +92,7 @@ public class StartScreen_SmoothSideSelect extends Table implements ReplayAction,
 			}
 		}) ;
 		
-		Button options = buildButton(Index_Text.get("menu.options")) ;
+		Button options = buildButton("menu.options") ;
 		selectableOptionsX.add(options) ; 
 		options.addListener(new ChangeListener()
 		{
@@ -110,10 +110,10 @@ public class StartScreen_SmoothSideSelect extends Table implements ReplayAction,
 		// The font draws everything as capitals anyway, and an unaccented capital is ordinary
 		// French typography. Simon settled it under d8: "Credits is fine" - so this is the
 		// word, not a stopgap, and the font is not getting patched or swapped to spell it.
-		// Index_Credits.TITLE, the heading of the screen this opens, is the same word for the
+		// Index_Credits.title(), the heading of the screen this opens, is the same word for the
 		// same reason. Anything in GeosansLight - the options rows, "Simon Bédard" in the
 		// credits - takes accents fine.
-		Button credits = buildButton(Index_Text.get("menu.credits")) ;
+		Button credits = buildButton("menu.credits") ;
 		selectableOptionsX.add(credits) ; 
 		credits.addListener(new ChangeListener()
 		{
@@ -125,7 +125,7 @@ public class StartScreen_SmoothSideSelect extends Table implements ReplayAction,
 			}
 		}) ;
 		
-		Button quitter = buildButton(Index_Text.get("menu.quit")) ;
+		Button quitter = buildButton("menu.quit") ;
 		selectableOptionsX.add(quitter) ; 
 		quitter.addListener(new ChangeListener()
 		{
@@ -166,12 +166,23 @@ public class StartScreen_SmoothSideSelect extends Table implements ReplayAction,
 		
 	}
 	
-	public Button buildButton(String text)
+	/** Each entry's label and the text-table key it is lettered from, to letter it again (r162). */
+	private final java.util.Map<Label, String> labelKeys = new java.util.LinkedHashMap<>() ;
+	
+	/** Letters every entry again in the language now in force: the flags changed it (r162). */
+	public void relabel()
+	{
+		for(java.util.Map.Entry<Label, String> entry : labelKeys.entrySet())
+			entry.getKey().setText(Index_Text.get(entry.getValue())) ;
+	}
+	
+	public Button buildButton(String key)
 	{		
 		Table table = new Table(); 
 		table.setLayoutEnabled(false);
 		
-		Label textLabel = new Label(text, GVars_Font.labelStyle_ScreenTitle) ;
+		Label textLabel = new Label(Index_Text.get(key), GVars_Font.labelStyle_ScreenTitle) ;
+		labelKeys.put(textLabel, key) ;
 		textLabel.setTouchable(Touchable.disabled);
 		
 		Button textButton = new Button(GVars_UI.baseSkin);
@@ -218,9 +229,19 @@ public class StartScreen_SmoothSideSelect extends Table implements ReplayAction,
 		table.setBounds(positionX, positionY, sizeX, sizeY);
 	}
 
+	/** Shown with the entries and hidden with them: the language flags (r162), not over Options or Credits. */
+	public Actor alongside ; 
+	
 	public void enterScene(float startAfterXSecondes)
 	{
 		resize();
+		if(alongside != null)
+		{
+			alongside.clearActions() ;
+			alongside.setVisible(true) ;
+			alongside.getColor().a = 0 ;
+			alongside.addAction(new SequenceAction(new DelayAction(startAfterXSecondes), buildAlpha(1))) ;
+		}
 		for(int a = 0 ; a < buttonContainerList.size() ; a++)
 		{
 			DelayAction preInitDelay = new DelayAction(startAfterXSecondes) ;
@@ -244,6 +265,11 @@ public class StartScreen_SmoothSideSelect extends Table implements ReplayAction,
 	
 	public void exitScene()
 	{
+		if(alongside != null)
+		{
+			alongside.clearActions() ;
+			alongside.addAction(new SequenceAction(buildAlpha(0), com.badlogic.gdx.scenes.scene2d.actions.Actions.visible(false))) ;
+		}
 
 		for(int a = 0 ;  a < buttonContainerList.size() ; a++)
 		{

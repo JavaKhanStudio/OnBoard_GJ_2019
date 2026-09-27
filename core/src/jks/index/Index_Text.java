@@ -35,7 +35,7 @@ public final class Index_Text
 	/** The language every row has, and the one a missing text falls back to. */
 	public static final String FALLBACK = "fr" ;
 
-	/** The column read, by its header name. Only French exists for now. */
+	/** The column read, by its header name: fr, or en since r162. */
 	private static String language = FALLBACK ;
 
 	/** key -> (language -> text), in the table's order. */
@@ -78,6 +78,22 @@ public final class Index_Text
 		if(!languages.contains(code))
 			throw new GdxRuntimeException("No '" + code + "' column in " + TABLE + ", which has " + languages) ;
 		language = code ;
+	}
+
+	/**
+	 * setLanguage for a code from the config (r162): one the table has no column for - a
+	 * hand-edited file, a language since removed - warns and reads French, never stops the game.
+	 */
+	public static void chooseLanguage(String code)
+	{
+		table() ;
+		if(code != null && languages.contains(code))
+			language = code ;
+		else
+		{
+			Utils_Debug.warn("No '" + code + "' column in " + TABLE + ", reading " + FALLBACK) ;
+			language = FALLBACK ;
+		}
 	}
 
 	public static String getLanguage()

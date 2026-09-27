@@ -72,10 +72,10 @@ public class OverlayCredits extends OverlayModel
 		table.align(Align.top) ;
 		table.pad(24f) ;
 
-		table.add(label(Index_Credits.TITLE, GVars_Font.labelStyle_ScreenTitle)).padBottom(6f).row() ;
+		table.add(label(Index_Credits.title(), GVars_Font.labelStyle_ScreenTitle)).padBottom(6f).row() ;
 		table.add(label(Index_Credits.TEAM, GVars_Font.labelStyle_OptionsTitle)).padBottom(20f).row() ;
 
-		for(Index_Credits.Section section : Index_Credits.SECTIONS)
+		for(Index_Credits.Section section : Index_Credits.sections())
 		{
 			table.add(label(section.role, GVars_Font.labelStyle_OptionsTitle)).padTop(10f).padBottom(4f).row() ;
 
@@ -83,7 +83,7 @@ public class OverlayCredits extends OverlayModel
 				table.add(label(person, GVars_Font.labelStyle_Second)).padBottom(2f).row() ;
 		}
 
-		for(String line : Index_Credits.FOOTER)
+		for(String line : Index_Credits.footer())
 			table.add(label(line, GVars_Font.labelStyle_Second)).padTop(14f).row() ;
 
 		return table ;

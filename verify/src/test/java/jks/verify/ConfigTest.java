@@ -60,6 +60,17 @@ class ConfigTest
 		assertEquals(60, loaded.fps, "60 is the chosen frame rate default (d5)");
 	}
 
+	/** The flags on the start menu (r162): French until one is picked, and the pick is kept. */
+	@Test
+	@DisplayName("the language is French by default and survives a round trip")
+	void languageRoundTrip()
+	{
+		assertEquals("fr", Utils_Config.load().language, "the game is French until a flag says otherwise");
+		Utils_Config.current.language = "en";
+		Utils_Config.save();
+		assertEquals("en", Utils_Config.load().language);
+	}
+
 	@Test
 	@DisplayName("settings survive a round trip")
 	void settingsRoundTrip()

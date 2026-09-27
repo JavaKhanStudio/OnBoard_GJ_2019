@@ -11,3 +11,4 @@ config-mipmaps.keyPieceSound = null
 config-mipmaps.levelCompleteSound = null
 config-mipmaps.footstepsSound = null
 config-mipmaps.useMipmaps = true
+config-mipmaps.language = "fr"

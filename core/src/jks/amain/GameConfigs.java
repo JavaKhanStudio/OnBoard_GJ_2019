@@ -25,6 +25,8 @@ public class GameConfigs
 	public String footstepsSound = null ; 
 	/** Off: the UI, carriages and items are filtered Linear, which Simon chose as the default. */
 	public boolean useMipmaps = false ; 
+	/** The column of i18n/textes.tsv the game reads (r162): "fr" or "en", picked by the start menu's flags. */
+	public String language = "fr" ; 
 	
 	/** The saved sound for a slot. Not a getter, so Jackson leaves it out of the file. */
 	public String chosenSound(Enum_Effect_Sound.Slot slot)

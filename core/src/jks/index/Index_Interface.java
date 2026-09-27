@@ -40,6 +40,8 @@ public class Index_Interface
 	
 	public static String mainMenus_quit = menu + "UI_quit.png";
 	public static String mainMenus_quitON = menu + "UI_quit2.png";
+	/** The language flags, fr.png and en.png (r162), drawn by tools/make_flags.py. */
+	public static final String flags = icon + "flags/" ;
 	
 		
 	public static String empty = icon + "grayEmpty.png" ; 
@@ -247,6 +249,8 @@ public class Index_Interface
 		loadTexture(mainMenus_SettingsON);
 		loadTexture(mainMenus_quit);
 		loadTexture(mainMenus_quitON);
+		loadTexture(flags + "fr.png");
+		loadTexture(flags + "en.png");
 		manager.finishLoading();
 	}
 	

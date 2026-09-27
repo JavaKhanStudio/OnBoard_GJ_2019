@@ -222,7 +222,7 @@ public class Vue_Scenematic_Outro extends AVue_Model
 			y -= step ; 
 		}
 		
-		drawCentred(end, ClosureMessage.END, y - endStep * 0.4f) ; 
+		drawCentred(end, ClosureMessage.end(), y - endStep * 0.4f) ; 
 	}
 	
 	private void drawCentred(BitmapFont font, String text, float y)

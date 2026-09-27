@@ -11,13 +11,19 @@ package jks.index;
 public class Index_Credits 
 {
 
-	/** Unaccented on purpose: the title face cannot draw é, and "Credits" was chosen (d8). */
-	public static final String TITLE = Index_Text.get("credits.title") ;
+	/**
+	 * Unaccented on purpose: the title face cannot draw é, and "Credits" was chosen (d8).
+	 * Methods, not constants, since the language can change at the start menu (r162): a
+	 * constant kept the words of whichever language was in force when the class loaded.
+	 */
+	public static String title()
+	{return Index_Text.get("credits.title") ;}
 	
 	/** The team, as the logo that plays before the game says it. */
 	public static final String TEAM = "PIX MEN" ;
 	
-	public static final Section[] SECTIONS = new Section[]
+	public static Section[] sections()
+	{return new Section[]
 	{
 		new Section(Index_Text.get("credits.programming"), new String[]
 		{
@@ -30,16 +36,17 @@ public class Index_Credits
 			"Claire Montagut",
 			"Clement Diolot",
 		}),
-	} ;
+	} ;}
 	
 	/**
 	 * Where the game came from, and what it was built on.
 	 */
-	public static final String[] FOOTER = new String[]
+	public static String[] footer()
+	{return new String[]
 	{
 		"Jamming Assembly - 2019",
 		Index_Text.get("credits.made_with"),
-	} ;
+	} ;}
 
 	public static class Section
 	{

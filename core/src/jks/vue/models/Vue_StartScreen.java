@@ -20,6 +20,7 @@ import jks.input.Player_Inputs;
 import jks.sounds.Enum_Music;
 import jks.sounds.GVars_AudioManager;
 import jks.vinterface.GVars_UI;
+import jks.vinterface.LanguageFlags;
 import jks.vinterface.StartScreen_SmoothSideSelect;
 import jks.vinterface.font.GVars_Font;
 import jks.vinterface.overlay.OverlayCredits;
@@ -33,6 +34,7 @@ public class Vue_StartScreen extends AVue_Model
 	public Texture sourceTexture ;
 	TextButton incrementOnce ;
 	StartScreen_SmoothSideSelect smoothSideSelect ; 
+	LanguageFlags flags ; 
 	
 	private float gettingUpPercent = 0 ; 
 	private final float gettingUpInXSec = 2 ; 
@@ -61,6 +63,10 @@ public class Vue_StartScreen extends AVue_Model
 		
 		smoothSideSelect = new StartScreen_SmoothSideSelect() ; 
 		GVars_UI.mainUi.addActor(smoothSideSelect);
+		// French or English (r162): a click letters the menu again, and every screen after it.
+		flags = new LanguageFlags(smoothSideSelect::relabel) ; 
+		GVars_UI.mainUi.addActor(flags);
+		smoothSideSelect.alongside = flags ; 
 		incrementOnce = new TextButton("increment Once +",GVars_UI.baseSkin) ; 
 		GVars_Font.resize();
 
@@ -68,7 +74,10 @@ public class Vue_StartScreen extends AVue_Model
 		// button sends them, so skipping enterScene leaves the screen as that button would.
 		// Retour calls enterScene and the menu slides in as usual.
 		if(openOnCredits)
+		{
+			flags.setVisible(false) ;
 			Utils_View.setOverlay(new OverlayCredits(smoothSideSelect)) ;
+		}
 		else
 			smoothSideSelect.enterScene(gettingUpInXSec/2);
 		GVars_Game.preLoadLevel(1); 
@@ -124,5 +133,7 @@ public class Vue_StartScreen extends AVue_Model
 		// placed again by enterScene, when the options hand the menu back.
 		GVars_Font.resize() ;
 		GVars_UI.massResize(null) ;
+		if(flags != null)
+			flags.resize() ;
 	}
 }
