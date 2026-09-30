@@ -46,9 +46,9 @@ credits.made_with	Credits, last line	Réalisé avec libGDX	Made with libGDX
 # Ross thinks these in the bubble while the mouse is on a piece of the key.
 wa1.hint1	Carriage 1, thought bubble on key piece 1	Je vais enfin partir d'ici! Mais où est mon bagage ? 	I'm finally leaving this place! But where's my bag?
 wa1.hint2	Carriage 1, thought bubble on key piece 2	Nom de non, qui à laissé trainer tous ces cubes ?	Good grief, who left all these cubes lying around?
-wa1.hint3	Carriage 1, thought bubble on key piece 3	Ce pauvre petit oiseau.\n Il a l'air affamé dans sa cage dorée. Si seulement je pouvais faire quelque chose pour lui.	Poor little bird.\n It looks starved in its golden cage. If only I could do something for it.
-wa1.cage.message1	Carriage 1, cage used with sac (choice 1), bubble by Ross for a few seconds	Voila qui devrait remplir son estomac ! \nMais s’il était {WAVE}libre{ENDWAVE} tout ce serait plus simple... \nnon ?	That should fill its tummy! \nBut if it were {WAVE}free{ENDWAVE}, wouldn't everything be simpler... \nright?
-wa1.cage.message2	Carriage 1, cage used with clefCage (choice 2), bubble by Ross for a few seconds	Je pourrais le rendre libre comme l’air ! Mais je ne suis pas sûr qu’il trouvera de la {WAVE}nourriture{ENDWAVE} avant de tomber dans les pommes...	I could set it free as a bird! But I'm not sure it'll find any {WAVE}food{ENDWAVE} before it faints...
+wa1.hint3	Carriage 1, thought bubble on key piece 3	Ce pauvre petit oiseau a l'air affamé dans sa cage dorée. \nSi seulement je pouvais l'aider...	This poor little bird looks starved in its golden cage. \nIf only I could help it...
+wa1.cage.message1	Carriage 1, cage used with sac (choice 1), bubble by Ross for a few seconds	Voilà qui devrait remplir son estomac ! \nMais s’il était {WAVE}libre{ENDWAVE}... non ?	That should fill its tummy! \nBut if it were {WAVE}free{ENDWAVE}... right?
+wa1.cage.message2	Carriage 1, cage used with clefCage (choice 2), bubble by Ross for a few seconds	Libre comme l’air ! \nMais trouvera-t-il de la {WAVE}nourriture{ENDWAVE} avant de tomber dans les pommes ?	Free as a bird! \nBut will it find any {WAVE}food{ENDWAVE} before it faints?
 wa1.cage.after1	Carriage 1, cage already used with sac (choice 1), then clefCage tried on it - bubble by Ross for a few seconds (r160)	Il picore, tout content. \nLa cage restera fermée.	It's pecking away, happy as can be. \nThe cage stays shut.
 wa1.cage.after2	Carriage 1, cage already used with clefCage (choice 2), then sac tried on it - bubble by Ross for a few seconds (r160)	Il est déjà loin. \nJ'espère qu'il trouvera à manger...	It's long gone. \nI hope it finds something to eat...
 # Ross says these when the item is clicked (r74) - edit them in the line lab:
@@ -63,8 +63,8 @@ wa1.baluchon.click	Carriage 1, baluchon.png clicked, bubble by Ross for a few se
 # == Carriage 2 ============================================================
 # Ross thinks these in the bubble while the mouse is on a piece of the key.
 wa2.hint1	Carriage 2, thought bubble on key piece 1	Je me suis toujours demandé ce qu'ils avaient écrit dans ce foutu rapport	I always wondered what they wrote in that damn report
-wa2.hint2	Carriage 2, thought bubble on key piece 2	Cette mauvaise habitude ma toujours fait cracher mes poumons, je devrais peut être m'en débarrasser	This bad habit has always made me cough my lungs out, maybe I should get rid of it
-wa2.hint3	Carriage 2, thought bubble on key piece 3	Le paternel a presque l'air gentil sur ce tableau. \nLe beau mensonge... \nIl mériterait des retouches sur sa tronche !	The old man almost looks kind in this painting. \nWhat a lie... \nHis mug could use some touching up!
+wa2.hint2	Carriage 2, thought bubble on key piece 2	Cette mauvaise habitude m'a toujours fait cracher mes poumons. \nJe devrais m'en débarrasser.	This bad habit has always made me cough my lungs out. \nI should get rid of it.
+wa2.hint3	Carriage 2, thought bubble on key piece 3	Le paternel a l'air presque gentil, sur ce tableau. \nIl mériterait des retouches !	The old man looks almost kind in this painting. \nIt could use some touching up!
 wa2.tableau.message1	Carriage 2, tableau used with crayon (choice 1), bubble by Ross for a few seconds	Des cornes, une moustache... le voilà presque drôle. \nMais il est toujours {WAVE}là{ENDWAVE}, à me juger.	Horns, a moustache... he's almost funny now. \nBut he's still {WAVE}there{ENDWAVE}, judging me.
 wa2.tableau.message2	Carriage 2, tableau used with couteauSocle (choice 2), bubble by Ross for a few seconds	Un coup de son propre couteau, et il ne me juge plus. \nÇa ne se {WAVE}recoud{ENDWAVE} pas...	One stroke of his own knife, and he judges me no more. \nThat can't be {WAVE}sewn{ENDWAVE} back...
 wa2.tableau.after1	Carriage 2, tableau already used with crayon (choice 1), then couteauSocle tried on it - bubble by Ross for a few seconds (r160)	Il a déjà ses cornes et sa moustache. \nÇa lui suffira.	He's got his horns and his moustache already. \nThat'll do.
@@ -80,7 +80,7 @@ wa2.dossierPolice.click	Carriage 2, dossierPolice.png clicked, bubble by Ross fo
 
 # == Carriage 3 ============================================================
 # Ross thinks these in the bubble while the mouse is on a piece of the key.
-wa3.hint1	Carriage 3, thought bubble on key piece 1	Si les gens savaient ce qui s'est passé ici. Je dois retranscrire tout ce que j'ai vu. \nJ'espère que le monde n'oubliera jamais	If only people knew what happened here. I have to write down everything I saw. \nI hope the world never forgets
+wa3.hint1	Carriage 3, thought bubble on key piece 1	Si les gens savaient ce qui s'est passé ici... \nJe dois écrire tout ce que j'ai vu.	If only people knew what happened here... \nI have to write down everything I saw.
 wa3.hint2	Carriage 3, thought bubble on key piece 2	Ma douce Diana me manques, je devrais vraiment lui envoyer un signe de vie	I miss my sweet Diana, I really should send her a sign of life
 wa3.hint3	Carriage 3, thought bubble on key piece 3	Le trou dans ce mur semble bien étrange. Je pourrais le fixer… ou le finir.	That hole in the wall looks very strange. I could fix it… or finish it.
 wa3.trou.message1	Carriage 3, trou used with porteTrou (choice 1), bubble by Ross for a few seconds	Voilà, le mur tient. Plus rien à voir dehors. \nComme si tout se {WAVE}refermait{ENDWAVE} si vite...	There, the wall holds. Nothing more to see outside. \nAs if everything could {WAVE}close up{ENDWAVE} that fast...

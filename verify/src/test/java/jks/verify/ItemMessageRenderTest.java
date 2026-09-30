@@ -125,7 +125,7 @@ class ItemMessageRenderTest
 		assertNull(error, error == null ? null : "a step threw: " + error);
 		assertNotNull(said, "no frame was taken after the sac was used");
 
-		assertTrue(expected.startsWith("Voila qui devrait remplir son estomac"),
+		assertTrue(expected.startsWith("Voilà qui devrait remplir son estomac"),
 			"wa1.cage.message1 is not the line it was: " + expected);
 		assertEquals(expected, shownText, "the bubble is not saying the cage's line");
 		assertEquals(1f, shownAlpha, 0.01f, "the bubble is not fully shown");
