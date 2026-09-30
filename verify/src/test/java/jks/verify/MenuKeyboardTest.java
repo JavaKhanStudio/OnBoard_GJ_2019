@@ -5,8 +5,6 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
-import java.nio.file.Files;
-import java.nio.file.Path;
 
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -52,8 +50,7 @@ class MenuKeyboardTest
 	private static final File OUTPUT = new File(System.getProperty("onboard.verify"), "build/frames");
 
 	private static GameHarness harness;
-	private static Path config;
-	private static String previousConfig;
+	private static TempConfig config;
 
 	/** What each step saw, in order. A failed step names itself. */
 	private static final Checks seen = new Checks();
@@ -64,9 +61,7 @@ class MenuKeyboardTest
 	void driveTheMenus() throws Exception
 	{
 		// The sound and mipmaps settings save as they change; keep the real config out of it.
-		config = Files.createTempFile("onboard-config", "");
-		previousConfig = System.getProperty("onboard.config");
-		System.setProperty("onboard.config", config.toString());
+		config = TempConfig.use();
 
 		Main_Application.startPoint = Main_Application.StartPoint.START_SCREEN;
 
@@ -193,9 +188,7 @@ class MenuKeyboardTest
 	@AfterAll
 	void restore() throws Exception
 	{
-		if (previousConfig == null) System.clearProperty("onboard.config");
-		else System.setProperty("onboard.config", previousConfig);
-		Files.deleteIfExists(config);
+		config.restore();
 	}
 
 	private static InputProcessor processor()

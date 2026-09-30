@@ -7,7 +7,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -70,8 +69,7 @@ class EffectSoundTest
 	private static AudioCapture capture;
 	private static Throwable captureError;
 
-	private static Path config;
-	private static String previousConfig;
+	private static TempConfig config;
 
 	@BeforeAll
 	void runTheGame() throws Exception
@@ -80,9 +78,7 @@ class EffectSoundTest
 		if (captured != null) Files.deleteIfExists(captured.toPath());
 
 		// Choosing in the lab saves; keep that out of the real config file.
-		config = Files.createTempFile("onboard-config", "");
-		previousConfig = System.getProperty("onboard.config");
-		System.setProperty("onboard.config", config.toString());
+		config = TempConfig.use();
 		Utils_Config.current = new GameConfigs();
 
 		GVars_Audio.muted = false;
@@ -167,9 +163,7 @@ class EffectSoundTest
 	@AfterAll
 	void restoreConfig() throws Exception
 	{
-		if (previousConfig == null) System.clearProperty("onboard.config");
-		else System.setProperty("onboard.config", previousConfig);
-		Files.deleteIfExists(config);
+		config.restore();
 		GVars_Audio.musiqueVolume = 1f;
 		GVars_Audio.loadChoices(new GameConfigs());
 	}

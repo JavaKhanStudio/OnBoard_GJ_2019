@@ -7,8 +7,6 @@ import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 import java.io.File;
 import java.lang.reflect.Field;
-import java.nio.file.Files;
-import java.nio.file.Path;
 
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -56,8 +54,7 @@ class MenuResizeRenderTest
 	private static final String TO = "960x540";
 
 	private static GameHarness harness;
-	private static Path config;
-	private static String previousConfig;
+	private static TempConfig config;
 	private static volatile String stuck, stage;
 	private static volatile float boardRight, boardTop, menuX;
 	private static volatile int centreCalls;
@@ -69,9 +66,7 @@ class MenuResizeRenderTest
 	void changeTheResolution() throws Exception
 	{
 		// Applying a resolution saves it; keep the real config out of it.
-		config = Files.createTempFile("onboard-config", "");
-		previousConfig = System.getProperty("onboard.config");
-		System.setProperty("onboard.config", config.toString());
+		config = TempConfig.use();
 
 		Main_Application.startPoint = Main_Application.StartPoint.START_SCREEN;
 		GVars_Platform.current = new DesktopPlatform()
@@ -172,9 +167,7 @@ class MenuResizeRenderTest
 	@AfterAll
 	void restore() throws Exception
 	{
-		if (previousConfig == null) System.clearProperty("onboard.config");
-		else System.setProperty("onboard.config", previousConfig);
-		Files.deleteIfExists(config);
+		config.restore();
 	}
 
 	private static Object field(Object owner, String name) throws Exception

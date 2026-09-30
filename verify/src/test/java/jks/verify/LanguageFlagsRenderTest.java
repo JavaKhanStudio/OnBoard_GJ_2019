@@ -7,7 +7,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.List;
 
 import org.junit.jupiter.api.AfterAll;
@@ -46,8 +45,7 @@ class LanguageFlagsRenderTest
 	private static final File OUTPUT = new File(System.getProperty("onboard.verify"), "build/frames");
 
 	private static GameHarness harness;
-	private static Path config;
-	private static String previousConfig;
+	private static TempConfig config;
 
 	private static final Checks seen = new Checks();
 	private static Steps steps;
@@ -57,10 +55,8 @@ class LanguageFlagsRenderTest
 	void clickTheEnglishFlag() throws Exception
 	{
 		// The pick is saved as it is made; keep the real config out of it.
-		config = Files.createTempFile("onboard-config", "");
-		Files.delete(config);
-		previousConfig = System.getProperty("onboard.config");
-		System.setProperty("onboard.config", config.toString());
+		config = TempConfig.use();
+		Files.delete(config.path);
 
 		Main_Application.startPoint = Main_Application.StartPoint.START_SCREEN;
 
@@ -81,7 +77,7 @@ class LanguageFlagsRenderTest
 			seen.record("a click on the English flag reads English", Index_Text.getLanguage().equals("en"));
 			seen.record("the menu letters itself again", labelSays("Play") && labelSays("Quit") && !labelSays("Jouer"));
 			seen.record("the English flag is the one lit now", find("flag.en").getColor().a > find("flag.fr").getColor().a);
-			String saved = Files.exists(config) ? Files.readString(config, StandardCharsets.UTF_8) : "";
+			String saved = Files.exists(config.path) ? Files.readString(config.path, StandardCharsets.UTF_8) : "";
 			seen.record("the pick is kept in the config", saved.replaceAll("\\s", "").contains("\"language\":\"en\""));
 			Frames.write(GameHarness.grab(), new File(OUTPUT, "language-en-menu.png"));
 			press(Keys.DOWN); press(Keys.DOWN); press(Keys.ENTER);
@@ -104,9 +100,7 @@ class LanguageFlagsRenderTest
 	@AfterAll
 	void restore() throws Exception
 	{
-		if (previousConfig == null) System.clearProperty("onboard.config");
-		else System.setProperty("onboard.config", previousConfig);
-		Files.deleteIfExists(config);
+		config.restore();
 	}
 
 	private static InputProcessor processor()

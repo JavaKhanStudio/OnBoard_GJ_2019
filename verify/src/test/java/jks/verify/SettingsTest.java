@@ -6,7 +6,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.HashSet;
 import java.util.List;
 
@@ -54,8 +53,7 @@ class SettingsTest
 	private static final File OUTPUT = new File(System.getProperty("onboard.verify"), "build/frames");
 
 	private static GameHarness harness;
-	private static Path config;
-	private static String previousConfig;
+	private static TempConfig config;
 
 	private static final Checks seen = new Checks();
 	private static Steps steps;
@@ -69,9 +67,7 @@ class SettingsTest
 	@BeforeAll
 	void driveTheSettings() throws Exception
 	{
-		config = Files.createTempFile("onboard-config", "");
-		previousConfig = System.getProperty("onboard.config");
-		System.setProperty("onboard.config", config.toString());
+		config = TempConfig.use();
 
 		// Nothing here is a default, so a widget that ignores the config shows it. 1366x768
 		// is not the first entry the box offers, and it is what the launcher would have read.
@@ -230,9 +226,7 @@ class SettingsTest
 	@AfterAll
 	void restore() throws Exception
 	{
-		if (previousConfig == null) System.clearProperty("onboard.config");
-		else System.setProperty("onboard.config", previousConfig);
-		Files.deleteIfExists(config);
+		config.restore();
 	}
 
 	/** From the start screen: the first key shows the focus on Jouer, the next one moves to Options. */
@@ -265,7 +259,7 @@ class SettingsTest
 	/** The config file as the next launch would read it, not Utils_Config.current. */
 	private static GameConfigs reread() throws Exception
 	{
-		return Utils_Config.parse(Files.readString(config, StandardCharsets.UTF_8));
+		return Utils_Config.parse(Files.readString(config.path, StandardCharsets.UTF_8));
 	}
 
 	private static InputProcessor processor()

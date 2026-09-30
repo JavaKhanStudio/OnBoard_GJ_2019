@@ -7,8 +7,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.nio.file.Files;
-import java.nio.file.Path;
 
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -49,8 +47,7 @@ class PauseRenderTest
 	private static final File OUTPUT = new File(MODULE, "build/frames");
 
 	private static GameHarness harness;
-	private static Path config;
-	private static String previousConfig;
+	private static TempConfig config;
 
 	private static final Checks seen = new Checks();
 	private static volatile BufferedImage paused;
@@ -61,9 +58,7 @@ class PauseRenderTest
 	void pauseALevel() throws Exception
 	{
 		// The mute box saves as it changes; keep the real config out of it.
-		config = Files.createTempFile("onboard-config", "");
-		previousConfig = System.getProperty("onboard.config");
-		System.setProperty("onboard.config", config.toString());
+		config = TempConfig.use();
 
 		Main_Application.startPoint = Main_Application.StartPoint.GAME;
 
@@ -130,9 +125,7 @@ class PauseRenderTest
 	@AfterAll
 	void restore() throws Exception
 	{
-		if (previousConfig == null) System.clearProperty("onboard.config");
-		else System.setProperty("onboard.config", previousConfig);
-		Files.deleteIfExists(config);
+		config.restore();
 	}
 
 	private static void press(int key)

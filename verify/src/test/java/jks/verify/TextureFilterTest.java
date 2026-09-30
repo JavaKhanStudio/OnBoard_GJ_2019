@@ -4,8 +4,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -45,8 +43,7 @@ class TextureFilterTest
 	private static final String LOADED_LATER = "game/wagon/wa1/cube.png";
 
 	private static GameHarness harness;
-	private static Path config;
-	private static String previousConfig;
+	private static TempConfig config;
 
 	private static final List<String> atStart = new ArrayList<>();
 	private static final List<String> switchedOn = new ArrayList<>();
@@ -60,9 +57,7 @@ class TextureFilterTest
 	void runTheSwitch() throws Exception
 	{
 		// The checkbox saves the config, and the tests must not write the real one.
-		config = Files.createTempFile("onboard-config", "");
-		previousConfig = System.getProperty("onboard.config");
-		System.setProperty("onboard.config", config.toString());
+		config = TempConfig.use();
 
 		Main_Application.startPoint = Main_Application.StartPoint.START_SCREEN;
 
@@ -107,9 +102,7 @@ class TextureFilterTest
 	@AfterAll
 	void restore() throws Exception
 	{
-		if (previousConfig == null) System.clearProperty("onboard.config");
-		else System.setProperty("onboard.config", previousConfig);
-		Files.deleteIfExists(config);
+		config.restore();
 	}
 
 	private static void describe(List<String> into)
