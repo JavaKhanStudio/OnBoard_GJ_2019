@@ -18,9 +18,11 @@ public class SIW_Data
 	
 	/**
 	 * One frame of Ross's walk (r114). 0.106 s until then, when his legs covered half the ground
-	 * he did and he skated; Simon settled on 0.075 s and a speed from each age's step.
+	 * he did and he skated; Simon settled on 0.075 s and a speed from each age's step. At that
+	 * he did not feel like he was going anywhere (r177): 0.06 s brings the grown-ups back to the
+	 * 480 px/s he walked at before r114, with his boots still planted.
 	 */
-	public static final float WALK_FRAME_SECONDS = 0.075f ;
+	public static final float WALK_FRAME_SECONDS = 0.06f ;
 	/** Frames of 'move' from one heel strike to the next: two steps in its 8. */
 	public static final int FRAMES_PER_STEP = 4 ;
 	
