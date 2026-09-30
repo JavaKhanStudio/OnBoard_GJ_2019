@@ -436,7 +436,12 @@ plugin), La chasse-galerie's recipe.
   tools/browser-gate/gate.sh     builds it, plays it in headless Chrome with --mute-audio
 It fails unless the game opens on the intro, clicks reach the start screen, music plays, the
 French letters have glyphs, the config survives a reload (localStorage) and carriage 1 opens
-at 20+ fps. Renders and gate.json (load time, war files and bytes) in html/build/gate/.
+at 20+ fps, and unless a resized tab (landscape and portrait) gets the largest 16:9 canvas it
+holds, centred, drawn at that size. Renders (6_fit_*.png) and gate.json in html/build/gate/.
+THE CANVAS FOLLOWS THE TAB AT 16:9 (r179): HtmlLauncher.refit on every window resize, the config
+kept FIXED-size on purpose. GwtApplicationConfiguration(true) fills any shape, and the game's
+ScreenViewport stage would lay the menus out in portrait (D3). index.html only centres the
+canvas on black: sizing it in CSS scales its pixels instead.
   tools/play_web.sh              builds it and serves it on 127.0.0.1:8795 until killed
 The board's second Play option, "Play it in the browser" ([viewers.web], r156), runs it and
 opens a tab ON SIMON'S DESK: never open that viewer or `atelier tools open play_web` from a

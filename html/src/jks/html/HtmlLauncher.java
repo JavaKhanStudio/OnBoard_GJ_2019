@@ -1,6 +1,8 @@
 package jks.html;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.event.logical.shared.ResizeEvent;
+import com.google.gwt.event.logical.shared.ResizeHandler;
 import com.google.gwt.user.client.Window;
 
 import com.badlogic.gdx.ApplicationListener;
@@ -33,7 +35,11 @@ import jks.vars.GVars_Heart;
  * silences the tab whatever the config says (the gate runs with it). ?start=game&level=3 stands for
  * -Donboard.start and -Donboard.level.
  *
- * It also sets window.onboard, what tools/browser-gate/gate.mjs reads: frames(), vue(), music(), volume()
+ * The canvas is the largest 16:9 box the tab holds, centred on black by index.html (r179, D3): libGDX's
+ * resizable form would fill the tab at any shape, and the game's screen-pixel stage would lay the menus
+ * out in a portrait tab. So the config stays a fixed size, and a resize handler of ours moves it.
+ *
+ * It also sets window.onboard, what tools/browser-gate/gate.mjs reads: frames(), vue(), size(), music(), volume()
  * and missingGlyphs(text).
  */
 public class HtmlLauncher extends GwtApplication
@@ -41,8 +47,27 @@ public class HtmlLauncher extends GwtApplication
 	@Override
 	public GwtApplicationConfiguration getConfig()
 	{
-		// 1280x720, the desktop window's default: the menus and the carriages are laid out for 16:9
-		return new GwtApplicationConfiguration(1280, 720);
+		// The menus and the carriages are laid out for 16:9, the desktop's only shape
+		return new GwtApplicationConfiguration(fitWidth(), fitHeight());
+	}
+
+	/** The widest 16:9 canvas the tab holds, in CSS pixels. */
+	static int fitWidth()
+	{return Math.min(Window.getClientWidth(), Window.getClientHeight() * 16 / 9);}
+
+	static int fitHeight()
+	{return fitWidth() * 9 / 16;}
+
+	/** Refits the canvas to the tab: the game's loop sees the new size and calls resize(), as a desktop window does. */
+	private void refit()
+	{
+		int width = fitWidth(), height = fitHeight();
+		if(width <= 0 || height <= 0)
+			return;
+		getRootPanel().setPixelSize(width, height);
+		// Before the preloader ends there is no canvas yet: the panel alone is resized
+		if(Gdx.graphics != null)
+			Gdx.graphics.setWindowedMode(width, height);
 	}
 
 	// The loading screen shows the game's logo, not libGDX's (r165): html:war copies it beside index.html
@@ -55,6 +80,13 @@ public class HtmlLauncher extends GwtApplication
 	@Override
 	public void onModuleLoad()
 	{
+		Window.enableScrolling(false);
+		Window.addResizeHandler(new ResizeHandler()
+		{
+			@Override
+			public void onResize(ResizeEvent event)
+			{refit();}
+		});
 		FreetypeInjector.inject(new OnCompletion()
 		{
 			@Override
@@ -106,6 +138,10 @@ public class HtmlLauncher extends GwtApplication
 		return name.substring(name.lastIndexOf('.') + 1);
 	}
 
+	/** The size the game draws at, "1280x720": the gate checks it follows the canvas when the tab is resized. */
+	static String size()
+	{return Gdx.graphics == null ? "" : Gdx.graphics.getWidth() + "x" + Gdx.graphics.getHeight();}
+
 	/** The track coming out of the speakers, or "" when none is. */
 	static String music()
 	{return GVars_AudioManager.isMusicPlaying() ? String.valueOf(GVars_AudioManager.currentMusic()) : "";}
@@ -145,6 +181,7 @@ public class HtmlLauncher extends GwtApplication
 		$wnd.onboard = {
 			frames: $entry(function() { return @jks.html.HtmlLauncher::frames()(); }),
 			vue: $entry(function() { return @jks.html.HtmlLauncher::vue()(); }),
+			size: $entry(function() { return @jks.html.HtmlLauncher::size()(); }),
 			music: $entry(function() { return @jks.html.HtmlLauncher::music()(); }),
 			volume: $entry(function() { return @jks.html.HtmlLauncher::volume()(); }),
 			missingGlyphs: $entry(function(text) { return @jks.html.HtmlLauncher::missingGlyphs(Ljava/lang/String;)(text); })

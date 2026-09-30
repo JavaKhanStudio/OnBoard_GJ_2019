@@ -11,6 +11,8 @@
 // It fails when: the game does not run, it does not open on the intro, clicks do not reach the
 // start screen, no music plays, a French letter has no glyph, the config is not kept in
 // localStorage or not read back from it, the carriage does not open, or the loop runs under 20 fps.
+// And when the tab is resized, the game must fill it at 16:9, centred, drawn at the canvas's own
+// size and not scaled by CSS (r179, D3): 6_fit_<w>x<h>.png, landscape and portrait.
 import puppeteer from 'puppeteer-core';
 import { writeFileSync } from 'node:fs';
 
@@ -55,6 +57,25 @@ async function open(page, query) {
 	// The preloader pulls 33 MB of assets before the first frame
 	await page.waitForFunction(() => window.onboard && window.onboard.frames() > 30, { timeout: 90000, polling: 100 });
 	return Date.now() - t0;
+}
+
+// The canvas in a tab of this size: the largest 16:9 box it holds, centred, its pixels not scaled by CSS,
+// and the game drawing at that size. Shot as 6_fit_<name>.png.
+async function fit(page, width, height, name) {
+	await page.setViewport({ width, height });
+	await sleep(1500);
+	const got = await probe(page, () => {
+		const c = document.querySelector('canvas'), r = c.getBoundingClientRect();
+		return { w: c.width, h: c.height, cssW: r.width, cssH: r.height, left: r.left, top: r.top, game: window.onboard.size() };
+	});
+	const w = Math.min(width, Math.floor(height * 16 / 9)), h = Math.floor(w * 9 / 16);
+	report.fit[`${width}x${height}`] = got;
+	await page.screenshot({ path: `${out}/6_fit_${name}.png` });
+	say(`tab ${width}x${height}: canvas ${got.w}x${got.h} at ${Math.round(got.left)},${Math.round(got.top)}, game ${got.game}`);
+	if (got.w !== w || got.h !== h) fail(`tab ${width}x${height}: canvas ${got.w}x${got.h}, not the ${w}x${h} that fills it at 16:9`);
+	if (got.cssW !== got.w || got.cssH !== got.h) fail(`tab ${width}x${height}: CSS shows the ${got.w}x${got.h} canvas at ${got.cssW}x${got.cssH}`);
+	if (Math.abs(got.left - (width - w) / 2) > 1 || Math.abs(got.top - (height - h) / 2) > 1) fail(`tab ${width}x${height}: canvas not centred (${got.left},${got.top})`);
+	if (got.game !== `${w}x${h}`) fail(`tab ${width}x${height}: the game draws at ${got.game}, not ${w}x${h}`);
 }
 
 async function fps(page) {
@@ -142,6 +163,17 @@ try {
 	if (!report.carriageMusic) fail('no music is playing in carriage 1');
 	// A page stuck on a handful of frames is what --screenshot shows; a running game is far above this
 	if (report.fps < 20) fail(`${report.fps} fps: the game loop is not running`);
+
+	// 7. The tab resized under a running carriage (the resize handler), then a portrait tab from the start (the config)
+	report.fit = {};
+	await fit(page, 1600, 900, 'wide');
+	await fit(page, 1000, 800, 'tall');
+	await fit(page, 1700, 700, 'short');
+	await fit(page, 420, 900, 'portrait');
+	await open(page, '?start=start_screen');
+	await sleep(2500);
+	await fit(page, 420, 900, 'portrait_start');
+	await page.setViewport({ width: 1280, height: 720 });
 
 	const errors = report.console.filter((l) => l.startsWith('pageerror') || l.startsWith('error'));
 	if (errors.length) say(`console errors (not fatal):\n  ${errors.join('\n  ')}`);
