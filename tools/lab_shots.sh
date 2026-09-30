@@ -5,6 +5,9 @@
 #   ONLY="Credits SoundLab" tools/lab_shots.sh
 #   AT="12 20" tools/lab_shots.sh          # the moments to grab, in seconds after the game starts
 #   W=1280 H=720 tools/lab_shots.sh        # another window size (default 1600x900)
+#   ONLY=LineLab FLAGS=-Donboard.level=3 TAG=c3 tools/lab_shots.sh
+#                                          # more flags for the game; TAG goes in the file names
+#                                          # (<Name>-c3_<s>.png), so runs do not overwrite each other
 #
 # WHY: a surface that no longer opens is a Labs button that lies, and a Gradle task that
 # ended 0 is not a screen that rendered. The labs upkeep (r188) needs to SEE each one.
@@ -49,6 +52,8 @@ for lab in json.load(sys.stdin):
 while IFS='|' read -r name flags; do
 	[[ -z $name ]] && continue
 	[[ -n ${ONLY:-} && " $ONLY " != *" $name "* ]] && continue
+	flags="$flags ${FLAGS:-}"
+	name="$name${TAG:+-$TAG}"
 	rm -f "$OUT/${name}"_*.png
 	log="$OUT/$name.log"
 	# The game opens its window at the config's size, not gamescope's: give it one of W x H,

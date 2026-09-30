@@ -57,7 +57,9 @@ import jks.vue.models.game.WagonLevel;
 public class Vue_LineLab extends AVue_Model
 {
 	/** Narrow enough to leave the right-hand column to the bubble, which is wider since r121. */
-	private static final float ICON = 44f, NAME_WIDTH = 210f, FIELD_WIDTH = 500f ;
+	private static final float ICON = 44f, NAME_WIDTH = 240f, FIELD_WIDTH = 500f ;
+	/** How far a use's rows sit under their item's name: a pad, so a wrapped name keeps it. The gap keeps a name off its field. */
+	private static final float INDENT = 15f, GAP = 8f ;
 	private final GlyphLayout measure = new GlyphLayout() ;
 
 	/** Null on a platform with no source tree (r135): the lab then only reads. */
@@ -147,22 +149,22 @@ public class Vue_LineLab extends AVue_Model
 		WagonLevel level = read(n) ;
 		for(GameItem item : level.listItems)
 		{
-			addRow(rows, icon(item), item.name, GameItem.clickKey(n, item.name)) ;
+			addRow(rows, icon(item), 0f, item.name, GameItem.clickKey(n, item.name)) ;
 			if(item.message_Crucial_1 != null)
-				addRow(rows, null, "  + " + item.name_Interaction_1, item.message_Crucial_1) ;
+				addRow(rows, null, INDENT, "+ " + item.name_Interaction_1, item.message_Crucial_1) ;
 			if(item.message_Crucial_2 != null)
-				addRow(rows, null, "  + " + item.name_Interaction_2, item.message_Crucial_2) ;
-			// A choice made, then the other use tried (r160).
+				addRow(rows, null, INDENT, "+ " + item.name_Interaction_2, item.message_Crucial_2) ;
+			// A choice made, then the other use tried (r160). Wider than the column: it wraps (r210).
 			if(item.name_Interaction_1 != null && item.name_Interaction_2 != null)
 			{
-				addRow(rows, null, "  " + item.name_Interaction_1 + ", then " + item.name_Interaction_2, GameItem.afterKey(n, item.name, 1)) ;
-				addRow(rows, null, "  " + item.name_Interaction_2 + ", then " + item.name_Interaction_1, GameItem.afterKey(n, item.name, 2)) ;
+				addRow(rows, null, INDENT, item.name_Interaction_1 + ", then " + item.name_Interaction_2, GameItem.afterKey(n, item.name, 1)) ;
+				addRow(rows, null, INDENT, item.name_Interaction_2 + ", then " + item.name_Interaction_1, GameItem.afterKey(n, item.name, 2)) ;
 			}
 		}
 		return rows ;
 	}
 
-	private void addRow(VisTable rows, Texture icon, String what, final String key)
+	private void addRow(VisTable rows, Texture icon, float indent, String what, final String key)
 	{
 		// Enter is a line break here, as \n is in the table: Save is the button.
 		final TextArea field = new TextArea(Index_Text.has(key) ? Index_Text.get(key) : "", fieldStyle) ;
@@ -192,7 +194,10 @@ public class Vue_LineLab extends AVue_Model
 			image.setScaling(Scaling.fit) ;
 			rows.add(image).size(ICON).padRight(10f) ;
 		}
-		rows.add(label(what, GVars_Font.labelStyle_Second)).left().width(NAME_WIDTH) ;
+		// Wrapped, a name longer than its column takes a second line instead of running under the field.
+		VisLabel name = label(what, GVars_Font.labelStyle_Second) ;
+		name.setWrap(true) ;
+		rows.add(name).left().width(NAME_WIDTH - indent - GAP).padLeft(indent).padRight(GAP) ;
 		rows.add(field).width(FIELD_WIDTH).height(linesFor(field.getText()) * fieldStyle.font.getLineHeight() + 6f).padRight(8f) ;
 		rows.add(say).padRight(8f) ;
 		rows.add(save) ;
