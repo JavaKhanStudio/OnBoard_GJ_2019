@@ -47,16 +47,8 @@ public class IKM_Game_Keyboard extends InputAdapter
 				return true ;
 			}
 			
-			if(Keys.D == keycode || Keys.RIGHT == keycode)
-			{
-				GVars_Inputs.rightPressed = true ; 
+			if(GVars_Inputs.pressArrow(keycode, true))
 				return true ; 
-			}
-			else if(Keys.Q == keycode || Keys.LEFT == keycode)
-			{
-				GVars_Inputs.leftPressed = true ; 
-				return true ; 
-			}
 			// Skipping the level on SPACE is a development shortcut. It used to be live in
 			// every build, and SPACE is about the first key anyone presses.
 			else if(Keys.SPACE == keycode && GVars_Debug.debugMode)
@@ -76,19 +68,7 @@ public class IKM_Game_Keyboard extends InputAdapter
 				return true; 
 			}
 			
-			if(Keys.D == keycode || Keys.RIGHT == keycode)
-			{
-				GVars_Inputs.rightPressed = false ; 
-				return true ; 
-			}
-			
-			else if(Keys.Q == keycode || Keys.LEFT == keycode)
-			{
-				GVars_Inputs.leftPressed = false ; 
-				return true ; 
-			}
-			
-			return false ; 
+			return GVars_Inputs.pressArrow(keycode, false) ; 
 		}
 		
 		private boolean debuggOptions(int keycode) 

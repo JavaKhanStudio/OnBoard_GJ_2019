@@ -1,5 +1,7 @@
 package jks.input;
 
+import com.badlogic.gdx.Input.Keys;
+
 import jks.camera.GVars_Camera;
 import jks.vinterface.GVars_UI;
 import jks.vinterface.controlling.Utils_Controllable;
@@ -85,6 +87,25 @@ public class GVars_Inputs
 	{
 		if(GVars_UI.currentControllable != null)
 		{Utils_Controllable.decodeInterfaceController();}
+	}
+
+	/**
+	 * D/Right and Q/Left walk (the game) or pan (the editor): sets the flag for the key going
+	 * down or up, and says whether it was one of them.
+	 */
+	public static boolean pressArrow(int keycode, boolean down)
+	{
+		if(Keys.D == keycode || Keys.RIGHT == keycode)
+		{
+			rightPressed = down ; 
+			return true ; 
+		}
+		else if(Keys.Q == keycode || Keys.LEFT == keycode)
+		{
+			leftPressed = down ; 
+			return true ; 
+		}
+		return false ; 
 	}
 
 	public static void resetInputs()

@@ -8,7 +8,6 @@ import static jks.vue.models.game.GVars_Game.* ;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.controllers.Controllers;
-import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.math.Vector3;
 
 import jks.camera.GVars_Camera;
@@ -63,11 +62,7 @@ public class Vue_Game extends AVue_Model
     @Override
     public void render() 
     {
-    	camera.update();
-    	Gdx.gl.glClearColor(1, 1, 1, 1);
-        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-
-        staticBatch.setProjectionMatrix(camera.combined);
+    	GVars_Camera.beginFrame();
         staticBatch.setColor(1,1,1,1);
         
         if(currentLevel != null)

@@ -30,35 +30,15 @@ public class Editor_Keyboard extends InputAdapter
 	{
 		
 		System.out.println("should be editor");
-		if(Keys.D == keycode || Keys.RIGHT == keycode)
-		{
-			GVars_Inputs.rightPressed = true ; 
-			return true ; 
-		}
-		
-		else if(Keys.Q == keycode || Keys.LEFT == keycode)
-		{
-			GVars_Inputs.leftPressed = true ; 
-			return true ; 
-		}
-		
+		GVars_Inputs.pressArrow(keycode, true) ; 
 		return true ; 
 	}
 
 	@Override
 	public boolean keyUp (int keycode) 
 	{		
-		if(Keys.D == keycode || Keys.RIGHT == keycode)
-		{
-			GVars_Inputs.rightPressed = false ; 
+		if(GVars_Inputs.pressArrow(keycode, false))
 			return true ; 
-		}
-		
-		else if(Keys.Q == keycode || Keys.LEFT == keycode)
-		{
-			GVars_Inputs.leftPressed = false ; 
-			return true ; 
-		}
 		else if(Keys.S == keycode)
 		{
 			try 

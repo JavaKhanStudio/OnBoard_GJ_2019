@@ -242,6 +242,12 @@ public class Main_Application extends ApplicationAdapter
     @Override
 	public void resize(int width, int height) 
 	{
+		fitToWindow(width, height) ;
+	}
+    
+    /** Everything that follows the window's size, in the game and in the editor. */
+    public static void fitToWindow(int width, int height)
+	{
 		GVars_UI.mainUi.getViewport().update(width, height, true);
 		GVars_UI.mainUi.getViewport().getCamera().update();
 		GVars_Camera.staticBatch.getProjectionMatrix().setToOrtho2D(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());

@@ -1,6 +1,7 @@
 package jks.camera;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -58,6 +59,15 @@ public class GVars_Camera
 	{
 		camera = new OrthographicCamera();
 		camera.setToOrtho(false, WORLD_WIDTH * GVars_Camera.worldMutiplier, WORLD_HEIGHT * GVars_Camera.worldMutiplier);	
+	}
+	
+	/** A frame's start, in the game and in the editor: the camera moved, the screen white, the batch on it. */
+	public static void beginFrame()
+	{
+		camera.update();
+		Gdx.gl.glClearColor(1, 1, 1, 1);
+		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+		staticBatch.setProjectionMatrix(camera.combined);
 	}
 	
 }
