@@ -5,6 +5,7 @@ import java.util.EnumMap;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
+import com.kotcrab.vis.ui.VisUI;
 import com.kotcrab.vis.ui.widget.VisLabel;
 import com.kotcrab.vis.ui.widget.VisTable;
 import com.kotcrab.vis.ui.widget.VisTextButton;
@@ -33,6 +34,9 @@ public class CarriageMusicSwitch extends VisTable
 	public CarriageMusicSwitch()
 	{
 		setName("carriageMusicSwitch") ;
+		// The item lab's dark card (r211): white words on carriage 4's pale ceiling did not read.
+		setBackground(VisUI.getSkin().newDrawable("white", 0.1f, 0.1f, 0.1f, 0.75f)) ;
+		pad(4f, 12f, 4f, 12f) ;
 		add(new VisLabel("Music", GVars_Font.labelStyle_Second)).padRight(14f) ;
 		for(final CarriageVariant variant : CarriageVariant.values())
 		{
