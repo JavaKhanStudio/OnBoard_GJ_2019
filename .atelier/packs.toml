@@ -211,7 +211,9 @@ description = "The music, the volume path, the sound effects and the sound lab t
 color = "#b48cff"
 sort = 50
 context = """
-core/src/jks/sounds/GVars_AudioManager.java is the only thing that plays anything;
+core/src/jks/sounds/GVars_AudioManager.java is the only thing that plays anything: a facade
+(r197) over GVars_Music (the song, carriage variants, crossfade) and GVars_Effects (rails,
+one-shots, footsteps), which callers never name; master volume and mute live in the facade.
 GVars_Audio.java holds mute and the volumes. The game has one song, musics/intro.mp3, 2:44,
 looping, under the menu, the intro and the outro. Each carriage asks for its own track
 (Enum_Music.CARRIAGE_1..4, from GVars_Game.loadLevel), which resolves through

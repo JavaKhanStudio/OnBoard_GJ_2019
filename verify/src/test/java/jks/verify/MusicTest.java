@@ -162,11 +162,12 @@ class MusicTest
 	{
 		try
 		{
-			java.lang.reflect.Field f = GVars_AudioManager.class.getDeclaredField("currentlyRunningMusic");
+			// The music half of GVars_AudioManager holds it since r197.
+			java.lang.reflect.Field f = Class.forName("jks.sounds.GVars_Music").getDeclaredField("currentlyRunningMusic");
 			f.setAccessible(true);
 			return f.get(null);
 		}
-		catch (Exception e) { return null; }
+		catch (ReflectiveOperationException e) { throw new AssertionError("cannot read the playing Music: " + e, e); }
 	}
 
 	@Test
