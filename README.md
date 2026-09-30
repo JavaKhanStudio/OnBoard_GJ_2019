@@ -187,6 +187,11 @@ sends them offscreen anyway. The mechanism is in `gradle/offscreen.gradle`. Anyt
 opens a window without going through Gradle, such as a packaged build or a fat jar, still
 needs the wrapper: `tools/offscreen.sh <command>`.
 
+To see what a run shows rather than trust that it exited 0, `tools/lab_shots.sh` opens every
+surface on the board's Labs screen (the carriages, the sound, line and item labs, the
+credits) offscreen at 1600x900 and saves a frame of each in `build/lab_shots/`;
+`ONLY="Credits SoundLab"` picks some, `AT="10 18"` the seconds to grab.
+
 The sound goes with the windows. Whenever a task goes offscreen, the game's audio plays into
 a WAV file instead of your speakers: `verify/build/audio/test.wav` for the GL tests,
 `desktop/build/audio/runGame.wav` for an agent's run. That uses OpenAL Soft's WAV writer,
