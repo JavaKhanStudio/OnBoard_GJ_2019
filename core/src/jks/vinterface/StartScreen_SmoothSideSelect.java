@@ -356,33 +356,3 @@ public class StartScreen_SmoothSideSelect extends Table implements ReplayAction,
 		return selectableOptionsX.contains(focused) ;
 	}
 }
-
-//for(int a = 0 ;  a < list.size() ; a++)
-//{
-//	MoveToAction action1 = new MoveToAction();
-//    action1.setPosition(-sizeX, topPosY - (sizeY * (a+1)) - (decalY * a));
-//    action1.setDuration(leavingSpeed);
-//    
-//    DelayAction delay = new DelayAction(a * (leavingSpeedDelayIncrement)) ; 
-//    
-//    SequenceAction sequence = new SequenceAction();
-//    sequence.addAction(delay);
-//    sequence.addAction(action1);
-//    
-//    list.get(a).addAction(sequence);
-//}
-
-//for(int a = list.size() - 1 ;  a >= 0 ; a--)
-//{
-//	MoveToAction action1 = new MoveToAction();
-//    action1.setPosition(-sizeX, topPosY - (sizeY * (a+1)) - (decalY * a));
-//    action1.setDuration(leavingSpeed);
-//    
-//    DelayAction delay = new DelayAction(((list.size() - a) + 1)  * (leavingSpeedDelayIncrement)) ; 
-//    
-//    SequenceAction sequence = new SequenceAction();
-//    sequence.addAction(delay);
-//    sequence.addAction(action1);
-//    
-//    list.get(a).addAction(sequence);
-//}

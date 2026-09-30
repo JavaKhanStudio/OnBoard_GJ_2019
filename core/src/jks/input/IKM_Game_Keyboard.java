@@ -73,7 +73,6 @@ public class IKM_Game_Keyboard extends InputAdapter
 		public boolean keyUp (int keycode) 
 		{
 			if(GVars_Heart.inCinematic) {
-//				GVars_Game.inCinematic_Click = true ;
 				return true; 
 			}
 			

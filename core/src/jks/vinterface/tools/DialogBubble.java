@@ -55,7 +55,6 @@ public class DialogBubble extends VisTable
 	
 		this.setColor(1, 1, 1, 0);
 		resize() ; 
-//		appearing = true ; 
 	}
 	
 	/**

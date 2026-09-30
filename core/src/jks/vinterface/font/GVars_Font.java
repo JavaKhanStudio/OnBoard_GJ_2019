@@ -66,16 +66,6 @@ public class GVars_Font
 		activeLabelStyle = new HashMap() ; 
 		activeTextraFont = new HashMap() ; 
 		fontGenerators = new HashMap() ; 
-//		FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/Calibri.ttf"));
-//		FreeTypeFontParameter parameter = new FreeTypeFontParameter();
-//		
-//		parameter.size = (int)(baseSize * Gdx.graphics.getWidth()/FVars_Heart.screenXModel);
-//		font12 = generator.generateFont(parameter); // font size 12 pixels
-//		
-//		parameter.size = (int)(3 * baseSize * Gdx.graphics.getWidth()/FVars_Heart.screenXModel);
-//		font24 = generator.generateFont(parameter); // font size 12 pixels
-//		
-//		generator.dispose(); // don't forget to dispose to avoid memory leaks!
 	}
 	
 	/**

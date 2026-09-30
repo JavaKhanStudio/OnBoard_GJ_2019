@@ -93,9 +93,6 @@ public class Index_Interface
 	public static final String bubbleThink = "tools/dialog/bubble_think_2.png" ; 
 	
 //	public static String wagon_1 =  path + "WAGON_1.png" ; 
-//	public static String wagon_2 = intro + "introPage2.png" ; 
-//	public static String wagon_3 = intro + "introPage3.png" ; 
-//	public static String wagon_4 = intro + "smoke.jpg" ; 
 	
 	public static AssetManager manager ; 
 	

@@ -124,10 +124,6 @@ public class Vue_Scenematic_Outro extends AVue_Model
 					currentIndex ++ ; 
 					currentpage = imageSequence.get(0) ;
 					
-//					if(currentIndex == 2)
-//					{smokeScreenOn = true ;}
-//					else
-//					{smokeScreenOn = false ;}
 					
 					imageSequence.remove(0) ; 
 					inDescent = false ; 
@@ -244,7 +240,6 @@ public class Vue_Scenematic_Outro extends AVue_Model
 	@Override
 	public void resize(int x, int y) 
 	{
-//		logoSize = Gdx.graphics.getWidth()/5 ; 
 	}
 	
 	

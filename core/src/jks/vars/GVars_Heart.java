@@ -47,7 +47,6 @@ public class GVars_Heart
 	{
 		GlobalTimmer.registerTime(Enum_Timming.ASSETS);
 		
-//		Index_Sprite.init();
 		GlobalTimmer.getElapse(Enum_Timming.ASSETS, "Sprite", true);
 		
 		GVars_AudioManager.init();

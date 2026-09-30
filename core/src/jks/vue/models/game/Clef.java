@@ -30,7 +30,6 @@ public class Clef extends Table
 	boolean hasPiece2 ; 
 	boolean hasPiece3 ; 
 	
-//	VisImageButton part1 ;
 	VisImage part1 ;
 	VisImage part2 ;
 	VisImage part3 ; 

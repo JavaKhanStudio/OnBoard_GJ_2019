@@ -33,7 +33,6 @@ public class SpriteModel extends AnimationModel
 	{
 		this.index = index;
 		changeAnimationState(Enum_AnimState.IDLE, true);
-//		TextureRegion texture = index.animationList.get(Enum_AnimState.IDLE).getKeyFrame(0);
 	}
 
 	float WIDTH, HEIGHT;
@@ -150,14 +149,6 @@ public class SpriteModel extends AnimationModel
 		{
 			shouldBe = Enum_AnimState.WALK;
 		}
-//		else if (Math.abs(velocity.x) > GVars_Personnage.velocityXRun) 
-//		{
-//			shouldBe = Enum_AnimState.RUN ;
-//		} 
-//		else 
-//		{
-//			shouldBe = Enum_AnimState.WALK;
-//		}
 		
 		if(shouldBe != null)
 			changeAnimationState(shouldBe,true) ;

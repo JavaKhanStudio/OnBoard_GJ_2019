@@ -184,7 +184,6 @@ public class Vue_Scenematic_Intro extends AVue_Model
 	@Override
 	public void resize(int x, int y) 
 	{
-//		logoSize = Gdx.graphics.getWidth()/5 ; 
 	}
 	
 	

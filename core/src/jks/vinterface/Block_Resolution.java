@@ -381,19 +381,5 @@ public class Block_Resolution extends VisTable
 		}
 	}
 	
-//	graphicLabel.setStyle(GVars_UI.labelStyle_Title) ; 
-//	
-//	vSynchCheckBox.getLabel().getStyle().font = GVars_UI.font_Main ; 
-//	fullScreenCheckBox.getLabel().getStyle().font = GVars_UI.font_Main ; 
-//	selectBox_Resolution.getStyle().font = GVars_UI.font_Main ; 
-//	selectBox_FPS.getStyle().font = GVars_UI.font_Main ;
-//	
 	
-//	VisCheckBox vSynchCheckBox ; 
-//	VisCheckBox fullScreenCheckBox ;
-//	SelectBox<String> selectBox_Resolution ; 
-//	SelectBox<String> selectBox_FPS ;
-//	
-//	HashMap<String,DisplayMode> displayMap ;
-//	ArrayList<String> displayList ;
 }
