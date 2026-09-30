@@ -11,11 +11,13 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
-import com.badlogic.gdx.scenes.scene2d.ui.Cell;
+import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
 import com.badlogic.gdx.scenes.scene2d.ui.Label.LabelStyle;
 import com.badlogic.gdx.scenes.scene2d.ui.TextField.TextFieldStyle;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
+import com.badlogic.gdx.scenes.scene2d.utils.FocusListener;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.Scaling;
@@ -67,7 +69,7 @@ public class Vue_LineLab extends AVue_Model
 	private final Map<String, Texture> icons = new HashMap<>() ;
 	private final List<VisTable> carriages = new ArrayList<>() ;
 	private final List<VisTextButton> tabs = new ArrayList<>() ;
-	private Cell<VisTable> shown ;
+	private ScrollPane shown ;
 	private VisLabel status ;
 	private DialogBubble bubble ;
 	private TextFieldStyle fieldStyle ;
@@ -121,7 +123,25 @@ public class Vue_LineLab extends AVue_Model
 		tabRow.add(reload).padLeft(24f) ;
 		page.add(tabRow).left().padBottom(8f).row() ;
 
-		shown = page.add((VisTable) null).left().top() ;
+		// A carriage's rows are taller than the window (r214): they scroll, by the wheel or the bar.
+		// No flick - a drag in a field selects its text - and a field Tab reaches is brought into view.
+		shown = new ScrollPane(null, VisUI.getSkin(), "list") ;
+		shown.setScrollingDisabled(true, false) ;
+		shown.setFadeScrollBars(false) ;
+		shown.setFlickScroll(false) ;
+		shown.addListener(new FocusListener()
+		{
+			@Override
+			public void keyboardFocusChanged(FocusEvent event, Actor actor, boolean focused)
+			{
+				if(focused && actor != shown)
+				{
+					Vector2 at = actor.localToAscendantCoordinates(shown.getActor(), new Vector2()) ;
+					shown.scrollTo(at.x, at.y, actor.getWidth(), actor.getHeight()) ;
+				}
+			}
+		}) ;
+		page.add(shown).left().top().expandY().fillY() ;
 		page.row() ;
 		status = label("", GVars_Font.labelStyle_Second) ;
 		page.add(status).left().padTop(10f).row() ;
@@ -204,7 +224,7 @@ public class Vue_LineLab extends AVue_Model
 		rows.row().padTop(3f) ;
 	}
 
-	/** As many lines as the text wraps to in the field, up to three: carriage 1 must fit at 720. */
+	/** As many lines as the text wraps to in the field, up to three: the list scrolls (r214), but a row stays one glance. */
 	private int linesFor(String text)
 	{
 		measure.setText(fieldStyle.font, text, Color.WHITE, FIELD_WIDTH - 12f, Align.left, true) ;
@@ -275,6 +295,9 @@ public class Vue_LineLab extends AVue_Model
 			tab.setProgrammaticChangeEvents(true) ;
 		}
 		shown.setActor(carriages.get(n - 1)) ;
+		shown.layout() ;
+		shown.setScrollY(0f) ;
+		shown.updateVisualScroll() ;
 	}
 
 	/** Read straight from the .wa, not through GVars_Game: nothing of the game is started. */
