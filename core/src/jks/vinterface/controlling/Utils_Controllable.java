@@ -151,14 +151,4 @@ public class Utils_Controllable
 		return buttonMap.get(cursorPos.x).get(cursorPos.y);
 	}
 	
-	private static void moveControleFairy()
-	{
-		
-	}
-	
-	private static void checkForYCompatibility() 
-	{
-		// TODO Auto-generated method stub
-	}
-	
 }

@@ -16,7 +16,7 @@ import jks.vinterface.GVars_UI;
  * the Retour sign has none at all.
  *
  * Follows its widget every frame, since the widgets slide in. The 2019 code meant a fairy
- * sprite to fly to the selected button (ControleFairy, never finished); this is the same
+ * sprite to fly to the selected button (ControleFairy, never finished, removed in r192); this is the same
  * idea, drawn with the skin's own white and VisUI's blue.
  */
 public class FocusMarker extends Actor
