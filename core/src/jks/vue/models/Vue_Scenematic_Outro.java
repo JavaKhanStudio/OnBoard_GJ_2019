@@ -4,41 +4,20 @@ import jks.tools.Utils_Debug;
 
 import static jks.index.Index_Interface.*;
 
-import java.util.ArrayList;
-
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.InputMultiplexer;
-import com.badlogic.gdx.controllers.Controllers;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.math.Matrix4;
-import com.kotcrab.vis.ui.widget.VisImage;
 
 import jks.camera.GVars_Camera;
-import jks.input.IKM_Game_Keyboard;
-import jks.input.IKM_Game_XBoxController;
-import jks.sounds.Enum_Music;
-import jks.sounds.GVars_AudioManager;
 import jks.vars.GVars_Heart;
-import jks.vinterface.GVars_UI;
 import jks.vinterface.font.GVars_Font;
 import jks.vinterface.font.Index_Fonts.Enum_Fonts;
-import jks.vue.AVue_Model;
 import jks.vue.models.game.GVars_Game;
 
-public class Vue_Scenematic_Outro extends AVue_Model
+public class Vue_Scenematic_Outro extends AVue_Scenematic
 {
-	
-	public Texture page_1 ;
-	public Texture page_2 ;
-	public Texture page_3 ;
-	
-	public Texture currentpage ;
-	
-	ArrayList<Texture> imageSequence ;
-	
-	int currentIndex = 0; 
 	
 	/**
 	 * True once the pictures are done and the card is what is on screen (r60). The card stays
@@ -56,15 +35,7 @@ public class Vue_Scenematic_Outro extends AVue_Model
 	@Override
 	public void init() 
 	{
-		resize(0,0) ; 
-		GVars_Heart.inCinematic = true ; 
-		
-		Gdx.input.setInputProcessor(new InputMultiplexer(GVars_UI.mainUi, new IKM_Game_Keyboard()));
-		Controllers.clearListeners();
-		Controllers.addListener(new IKM_Game_XBoxController()) ; 
-		
-		imageSequence = new ArrayList<Texture>() ; 
-		GVars_AudioManager.PlayMusic(Enum_Music.GAME_INTRO);
+		startScenematic() ; 
 		
 		// The pages cross-fade through whatever is behind them, and the carriage left the clear
 		// colour white - which is what the end of the game looked like (r60). Black, like the
@@ -94,75 +65,41 @@ public class Vue_Scenematic_Outro extends AVue_Model
 	
 
 	@Override
-	public void destroy() 
-	{}
-
-	@Override
-	public void restart() 
-	{}
-
-	
-	
-	@Override
-	public void update(float delta) 
+	protected void clicked()
 	{
-		GVars_UI.mainUi.act(delta);
-		
-		if(inDescent)
+		// The card only takes input once it is fully up: a click that came during its
+		// fade in, left over from the pictures, would otherwise skip it unread (r78).
+		if(!closing || currentAlpha >= 1)
+			inDescent = true ;
+	}
+	
+	@Override
+	protected void fadedOut()
+	{
+		if( imageSequence.size() > 0)
 		{
-			if(GVars_Heart.inCinematic_Click)
-			{
-				GVars_Heart.inCinematic_Click = false ; 
-			}
+			currentIndex ++ ; 
+			currentpage = imageSequence.get(0) ;
 			
-			currentAlpha -= (1/fadeOutXSec) * delta ; 
 			
-			if(currentAlpha < 0)
-			{
-				if( imageSequence.size() > 0)
-				{
-					currentIndex ++ ; 
-					currentpage = imageSequence.get(0) ;
-					
-					
-					imageSequence.remove(0) ; 
-					inDescent = false ; 
-				}
-				else if(!closing)
-				{
-					// The last picture is gone. Nothing used to replace it and the screen stayed
-					// blank for good (r60); the closing words come up in its place instead.
-					closing = true ; 
-					currentpage = null ; 
-					inDescent = false ; 
-				}
-				else
-				{
-					// And the words are gone too. Back to the menu with a whole run put away,
-					// so the next Jouer starts in the first carriage with its items back.
-					GVars_Game.resetForNewRun() ; 
-					GVars_Heart.changeVue(new Vue_StartScreen(), true) ; 
-				}
-			}
-			
+			imageSequence.remove(0) ; 
+			inDescent = false ; 
+		}
+		else if(!closing)
+		{
+			// The last picture is gone. Nothing used to replace it and the screen stayed
+			// blank for good (r60); the closing words come up in its place instead.
+			closing = true ; 
+			currentpage = null ; 
+			inDescent = false ; 
 		}
 		else
 		{
-			currentAlpha += (1/fadeInXSec) * delta ; 
-			
-			if(currentAlpha > 1)
-			{currentAlpha = 1 ;}
-			
-			if(GVars_Heart.inCinematic_Click)
-			{
-				// The card only takes input once it is fully up: a click that came during its
-				// fade in, left over from the pictures, would otherwise skip it unread (r78).
-				if(!closing || currentAlpha >= 1)
-					inDescent = true ;
-				GVars_Heart.inCinematic_Click = false ; 
-			}
+			// And the words are gone too. Back to the menu with a whole run put away,
+			// so the next Jouer starts in the first carriage with its items back.
+			GVars_Game.resetForNewRun() ; 
+			GVars_Heart.changeVue(new Vue_StartScreen(), true) ; 
 		}
-			
 	}
 	
 	/** The pictures are done and the closing card is what is on screen (r60). */
@@ -171,11 +108,7 @@ public class Vue_Scenematic_Outro extends AVue_Model
 		return closing ; 
 	}
 	
-	boolean inDescent = false ; 
-	float fadeInXSec = 2; 
-	float fadeOutXSec = 1; 
 	float smokeSpeed ; 
-	float currentAlpha ; 
 
 	@Override
 	public void render() 
@@ -235,13 +168,5 @@ public class Vue_Scenematic_Outro extends AVue_Model
 	{
 		
 	}
-	
-	
-	@Override
-	public void resize(int x, int y) 
-	{
-	}
-	
-	
 	
 }

@@ -5,31 +5,15 @@ import static jks.index.Index_Interface.*;
 import java.util.ArrayList;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.InputMultiplexer;
-import com.badlogic.gdx.controllers.Controllers;
 import com.badlogic.gdx.graphics.Texture;
 import com.kotcrab.vis.ui.widget.VisImage;
 
 import jks.camera.GVars_Camera;
-import jks.input.IKM_Game_Keyboard;
-import jks.input.IKM_Game_XBoxController;
-import jks.sounds.Enum_Music;
-import jks.sounds.GVars_AudioManager;
 import jks.vars.GVars_Heart;
-import jks.vinterface.GVars_UI;
-import jks.vue.AVue_Model;
 import jks.vue.GVars_Steam;
 
-public class Vue_Scenematic_Intro extends AVue_Model
+public class Vue_Scenematic_Intro extends AVue_Scenematic
 {
-	
-	public Texture page_1 ;
-	public Texture page_2 ;
-	public Texture page_3 ;
-	
-	public Texture currentpage ;
-	
-	ArrayList<Texture> imageSequence ;
 	
 	/**
 	 * The splash logos used to play alone on black before the story (Vue_Preloading); since
@@ -58,21 +42,11 @@ public class Vue_Scenematic_Intro extends AVue_Model
 	
 	VisImage showingPage ; 
 	
-	int currentIndex = 0; 
-	
 	@Override
 	public void init() 
 	{
-		resize(0,0) ; 
-		GVars_Heart.inCinematic = true ; 
+		startScenematic() ; 
 		GVars_Heart.inCinematic_Click = false ; 
-		
-		Gdx.input.setInputProcessor(new InputMultiplexer(GVars_UI.mainUi, new IKM_Game_Keyboard()));
-		Controllers.clearListeners();
-		Controllers.addListener(new IKM_Game_XBoxController()) ; 
-		
-		imageSequence = new ArrayList<Texture>() ; 
-		GVars_AudioManager.PlayMusic(Enum_Music.GAME_INTRO);
 		
 		page_1 = manager.get(introPage_1, Texture.class) ;
 		page_2 = manager.get(introPage_2, Texture.class) ;
@@ -95,66 +69,32 @@ public class Vue_Scenematic_Intro extends AVue_Model
 	
 
 	@Override
-	public void destroy() 
-	{}
-
-	@Override
-	public void restart() 
-	{}
-
-	
-	
-	@Override
-	public void update(float delta) 
+	protected void whileUp(float delta)
 	{
-		GVars_UI.mainUi.act(delta);
-		
-		if(inDescent)
-		{
-			if(GVars_Heart.inCinematic_Click)
-			{
-				GVars_Heart.inCinematic_Click = false ; 
-			}
-			
-			currentAlpha -= (1/fadeOutXSec) * delta ; 
-			
-			if(currentAlpha < 0)
-			{
-				currentIndex ++ ; 
-				currentpage = imageSequence.get(0) ;
-				imageSequence.remove(0) ; 
-				currentLogo = logoSequence.remove(0) ; 
-				logoAlpha = 0 ; 
-				inDescent = false ; 
-			}
-			
-		}
-		else
-		{
-			currentAlpha += (1/fadeInXSec) * delta ; 
-			
-			if(currentAlpha > 1)
-			{currentAlpha = 1 ;}
-			
-			if(currentAlpha == 1)
-				logoAlpha = Math.min(1, logoAlpha + delta / LOGO_FADE_IN) ; 
-			
-			if(GVars_Heart.inCinematic_Click)
-			{
-				GVars_Heart.inCinematic_Click = false ; 
-				// The last page does not fade: steam rises over it, and lifts off the menu, lit already.
-				if(imageSequence.isEmpty())
-					GVars_Steam.through(() -> GVars_Heart.changeVue(new Vue_StartScreen().alreadyUp(),true)) ;
-				else
-					inDescent = true ;
-			}
-		}
+		if(currentAlpha == 1)
+			logoAlpha = Math.min(1, logoAlpha + delta / LOGO_FADE_IN) ; 
 	}
 	
-	boolean inDescent = false ; 
-	float fadeInXSec = 2; 
-	float fadeOutXSec = 1; 
-	public float currentAlpha ; 
+	@Override
+	protected void clicked()
+	{
+		// The last page does not fade: steam rises over it, and lifts off the menu, lit already.
+		if(imageSequence.isEmpty())
+			GVars_Steam.through(() -> GVars_Heart.changeVue(new Vue_StartScreen().alreadyUp(),true)) ;
+		else
+			inDescent = true ;
+	}
+	
+	@Override
+	protected void fadedOut()
+	{
+		currentIndex ++ ; 
+		currentpage = imageSequence.get(0) ;
+		imageSequence.remove(0) ; 
+		currentLogo = logoSequence.remove(0) ; 
+		logoAlpha = 0 ; 
+		inDescent = false ; 
+	}
 
 	@Override
 	public void render() 
@@ -179,13 +119,5 @@ public class Vue_Scenematic_Intro extends AVue_Model
 		
 		GVars_Camera.staticBatch.end() ;
 	}
-
-	
-	@Override
-	public void resize(int x, int y) 
-	{
-	}
-	
-	
 	
 }
