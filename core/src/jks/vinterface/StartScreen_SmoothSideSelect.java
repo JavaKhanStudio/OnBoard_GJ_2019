@@ -294,6 +294,10 @@ public class StartScreen_SmoothSideSelect extends Table implements ReplayAction,
 	 
 	
 	public SequenceAction buildSelectSequence(int positionX, int positionY)
+	{return buildSlideSequence(positionX, positionY) ;}
+	
+	/** The one move an entry makes, out to the side on select and back on deselect. */
+	private SequenceAction buildSlideSequence(int positionX, int positionY)
 	{
 		MoveToAction action1 = new MoveToAction();
 	    action1.setPosition(positionX, positionY);
@@ -314,16 +318,7 @@ public class StartScreen_SmoothSideSelect extends Table implements ReplayAction,
 	}
 	
 	public SequenceAction buildDeselectSequence(int positionX, int positionY)
-	{
-		MoveToAction action1 = new MoveToAction();
-		action1.setPosition(positionX, positionY);
-	    action1.setDuration(baseSpeed);
-	    
-	    SequenceAction sequence = new SequenceAction();
-	    sequence.addAction(action1);
-	    
-	    return sequence ; 
-	}
+	{return buildSlideSequence(positionX, positionY) ;}
 
 	@Override
 	public ArrayList<ArrayList<Actor>> mapInterface() 

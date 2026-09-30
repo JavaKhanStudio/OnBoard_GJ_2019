@@ -7,7 +7,6 @@ import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
-import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.Align;
 import com.kotcrab.vis.ui.widget.VisLabel;
 import com.kotcrab.vis.ui.widget.VisTable;
@@ -18,7 +17,6 @@ import jks.tools.Vector2Int;
 import jks.vinterface.GVars_UI;
 import jks.vinterface.Utils_TexturesAcess;
 import jks.vinterface.font.GVars_Font;
-import jks.vue.Utils_View;
 
 /**
  * The credits screen.
@@ -42,19 +40,7 @@ public class OverlayCredits extends OverlayModel
 		backway = ref ;
 		this.setLayoutEnabled(false) ;
 
-		retour = new ImageButton(
-			Utils_TexturesAcess.buildDrawingRegionTexture(Index_Interface.button_Return),
-			Utils_TexturesAcess.buildDrawingRegionTexture(Index_Interface.button_Return)) ;
-		retour.addListener(new ChangeListener()
-		{
-			@Override
-			public void changed(ChangeEvent event, Actor actor)
-			{
-				Utils_View.removeCurrentOverlay() ;
-				Utils_View.removeFilter() ;
-				backway.enterScene(0) ;
-			}
-		}) ;
+		retour = buildReturnSign(backway) ;
 
 		mainTable = buildContent() ;
 		mainTable.setTouchable(Touchable.childrenOnly) ;
@@ -124,14 +110,6 @@ public class OverlayCredits extends OverlayModel
 		retour.getImageCell().size(buttonWidth, buttonHeight) ;
 		retour.setPosition(decalSideX / 2f, (Gdx.graphics.getHeight() - buttonHeight) / 2f) ;
 	}
-
-	@Override
-	public void destroy()
-	{this.remove() ;}
-
-	@Override
-	public boolean disableMainClickAction()
-	{return true ;}
 
 	@Override
 	public ArrayList<ArrayList<Actor>> mapInterface()

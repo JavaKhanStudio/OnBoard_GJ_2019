@@ -8,7 +8,6 @@ import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.actions.MoveToAction;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
-import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 
 import jks.index.Index_Interface;
 import jks.tools.Vector2Int;
@@ -16,8 +15,6 @@ import jks.vinterface.GVars_UI;
 import jks.vinterface.Block_Resolution;
 import jks.vinterface.Block_Sound;
 import jks.vinterface.Utils_Board;
-import jks.vinterface.Utils_TexturesAcess;
-import jks.vue.Utils_View;
 
 public class OverlayOptions extends OverlayModel
 {
@@ -42,18 +39,7 @@ public class OverlayOptions extends OverlayModel
 		backgroundColor.a = 0.7f ;
 			
 		// The return sign, as on the credits: this was the Settings button art.
-		retour = new ImageButton(Utils_TexturesAcess.buildDrawingRegionTexture(Index_Interface.button_Return),
-				Utils_TexturesAcess.buildDrawingRegionTexture(Index_Interface.button_Return));
-		retour.addListener(new ChangeListener()
-		{
-			@Override
-			public void changed(ChangeEvent event, Actor actor)
-			{
-				Utils_View.removeCurrentOverlay() ;
-				Utils_View.removeFilter() ;
-				backway.enterScene(0);
-			}
-		}) ;
+		retour = buildReturnSign(backway) ;
 		
 		graphicBloc = new Block_Resolution(); 
 		graphicBloc.setTouchable(Touchable.childrenOnly);
@@ -113,14 +99,6 @@ public class OverlayOptions extends OverlayModel
 			
 		this.setBounds(0, 0, screenWidth, screenHeight);
 	}
-
-	@Override
-	public void destroy() 
-	{this.remove() ;}
-
-	@Override
-	public boolean disableMainClickAction() 
-	{return true;}
 
 	@Override
 	public ArrayList<ArrayList<Actor>> mapInterface() 

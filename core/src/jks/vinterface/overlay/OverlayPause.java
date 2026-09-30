@@ -114,14 +114,6 @@ public class OverlayPause extends OverlayModel
 	}
 
 	@Override
-	public void destroy() 
-	{this.remove() ;}
-
-	@Override
-	public boolean disableMainClickAction() 
-	{return true;}
-
-	@Override
 	public ArrayList<ArrayList<Actor>> mapInterface() 
 	{
 		ArrayList<ArrayList<Actor>> returningList = new ArrayList<ArrayList<Actor>>(); 

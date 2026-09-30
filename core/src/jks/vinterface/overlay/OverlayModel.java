@@ -4,13 +4,17 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
+import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
+import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 
 import jks.index.Index_Interface;
 import jks.vinterface.Utils_TexturesAcess;
 import jks.vinterface.controlling.Controllable_Interface;
+import jks.vue.Utils_View;
 
 public abstract class OverlayModel extends Table implements Controllable_Interface
 {
@@ -35,7 +39,32 @@ public abstract class OverlayModel extends Table implements Controllable_Interfa
 	
 	public abstract void resize() ; 
 	
-	public abstract void destroy() ;
-	public abstract boolean disableMainClickAction() ;
+	public void destroy()
+	{this.remove() ;}
+	
+	public boolean disableMainClickAction()
+	{return true ;}
+	
+	/**
+	 * The return sign of the credits and the options: closes the overlay and its filter and
+	 * sends the start menu back in. Unsized and unplaced; each overlay lays it out in resize().
+	 */
+	protected static ImageButton buildReturnSign(final ReplayAction backway)
+	{
+		ImageButton retour = new ImageButton(
+			Utils_TexturesAcess.buildDrawingRegionTexture(Index_Interface.button_Return),
+			Utils_TexturesAcess.buildDrawingRegionTexture(Index_Interface.button_Return)) ;
+		retour.addListener(new ChangeListener()
+		{
+			@Override
+			public void changed(ChangeEvent event, Actor actor)
+			{
+				Utils_View.removeCurrentOverlay() ;
+				Utils_View.removeFilter() ;
+				backway.enterScene(0) ;
+			}
+		}) ;
+		return retour ;
+	}
 	
 }
