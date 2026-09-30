@@ -42,7 +42,7 @@ class LevelFadeTest
 
 	private static GameHarness harness;
 
-	private static final List<String> seen = new ArrayList<>();
+	private static final Checks seen = new Checks();
 	private static final List<double[]> darkness = new ArrayList<>();
 	private static volatile Throwable error;
 	private static volatile boolean finished;
@@ -86,10 +86,10 @@ class LevelFadeTest
 				{
 					triggered[0] = true;
 					GVars_Game.nextLevel();
-					record("nextLevel starts a fade", GVars_Fade.isFading());
-					record("and leaves the carriage in place until black", GVars_Game.currentLevelInt == 1);
+					seen.record("nextLevel starts a fade", GVars_Fade.isFading());
+					seen.record("and leaves the carriage in place until black", GVars_Game.currentLevelInt == 1);
 					GVars_Game.nextLevel();
-					record("a second nextLevel during the fade is ignored", GVars_Game.currentLevelInt == 1);
+					seen.record("a second nextLevel during the fade is ignored", GVars_Game.currentLevelInt == 1);
 				}
 				else if (!probed[0] && t >= 0.5)
 				{
@@ -99,19 +99,19 @@ class LevelFadeTest
 					int x = (int)screen.x, y = Gdx.graphics.getHeight() - (int)screen.y;
 					Gdx.input.getInputProcessor().touchDown(x, y, 0, Buttons.LEFT);
 					Gdx.input.getInputProcessor().touchUp(x, y, 0, Buttons.LEFT);
-					record("a click during the fade picks nothing", GVars_Game.playerInventory.isEmpty());
+					seen.record("a click during the fade picks nothing", GVars_Game.playerInventory.isEmpty());
 					Gdx.input.getInputProcessor().keyDown(Keys.RIGHT);
-					record("a key during the fade does not walk Ross", !GVars_Inputs.rightPressed);
+					seen.record("a key during the fade does not walk Ross", !GVars_Inputs.rightPressed);
 					Gdx.input.getInputProcessor().keyDown(Keys.ESCAPE);
-					record("nor pause", !GVars_Heart.isPaused);
+					seen.record("nor pause", !GVars_Heart.isPaused);
 				}
 				else if (!finished && t >= GRABS[GRABS.length - 1])
 				{
-					record("the next carriage is in", GVars_Game.currentLevelInt == 2
+					seen.record("the next carriage is in", GVars_Game.currentLevelInt == 2
 						&& "wa2".equals(GVars_Game.currentLevel.path_meta));
-					record("the fade is over", !GVars_Fade.isFading());
+					seen.record("the fade is over", !GVars_Fade.isFading());
 					Gdx.input.getInputProcessor().keyDown(Keys.RIGHT);
-					record("and the keys are back", GVars_Inputs.rightPressed);
+					seen.record("and the keys are back", GVars_Inputs.rightPressed);
 					Gdx.input.getInputProcessor().keyUp(Keys.RIGHT);
 					finished = true;
 				}
@@ -130,11 +130,6 @@ class LevelFadeTest
 		for (GameItem item : GVars_Game.currentLevel.listItems)
 			if (item.pickable) return item;
 		throw new AssertionError("no pickable item in level " + GVars_Game.currentLevelInt);
-	}
-
-	private static void record(String step, boolean ok)
-	{
-		seen.add((ok ? "ok   " : "FAIL ") + step);
 	}
 
 	/** Mean of R+G+B over the thumbnail, 0 to 765. */

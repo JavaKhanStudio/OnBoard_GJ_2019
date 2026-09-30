@@ -5,8 +5,6 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -40,7 +38,7 @@ class ItemLabTest
 
 	private static GameHarness harness;
 
-	private static final List<String> seen = new ArrayList<>();
+	private static final Checks seen = new Checks();
 	private static volatile Throwable error;
 	private static volatile boolean finished;
 
@@ -66,17 +64,17 @@ class ItemLabTest
 				if (!pressed[0] && harness.gameSeconds >= 1.5)
 				{
 					Actor lab = GVars_UI.mainUi.getRoot().findActor("itemOutlineLab");
-					record("the lab's panel is over the carriage", lab != null);
-					record("in carriage 4", "wa4".equals(GVars_Game.currentLevel.path_meta));
-					record("nothing is outlined before asking", !ItemOutline.lightAll);
+					seen.record("the lab's panel is over the carriage", lab != null);
+					seen.record("in carriage 4", "wa4".equals(GVars_Game.currentLevel.path_meta));
+					seen.record("nothing is outlined before asking", !ItemOutline.lightAll);
 
 					VisTextButton every = find((Group) lab, VisTextButton.class);
 					every.toggle();
-					record("Every item outlines them all", ItemOutline.lightAll);
+					seen.record("Every item outlines them all", ItemOutline.lightAll);
 
 					VisSlider width = find((Group) lab, VisSlider.class);
 					width.setValue(4f);
-					record("the first slider sets the width", ItemOutline.width == 4f);
+					seen.record("the first slider sets the width", ItemOutline.width == 4f);
 					pressed[0] = true;
 				}
 				else if (pressed[0] && !finished && harness.gameSeconds >= 2.5)
@@ -106,11 +104,6 @@ class ItemLabTest
 		for (Actor child : group.getChildren())
 			if (type.isInstance(child)) return type.cast(child);
 		throw new AssertionError("no " + type.getSimpleName() + " in the lab");
-	}
-
-	private static void record(String step, boolean ok)
-	{
-		seen.add((ok ? "ok   " : "FAIL ") + step);
 	}
 
 	@Test

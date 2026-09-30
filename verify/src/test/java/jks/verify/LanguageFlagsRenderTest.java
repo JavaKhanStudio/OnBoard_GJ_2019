@@ -8,7 +8,6 @@ import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.jupiter.api.AfterAll;
@@ -50,11 +49,9 @@ class LanguageFlagsRenderTest
 	private static Path config;
 	private static String previousConfig;
 
-	private static final List<String> seen = new ArrayList<>();
-	private static volatile Throwable error;
+	private static final Checks seen = new Checks();
+	private static Steps steps;
 	private static volatile boolean finished;
-
-	private interface Step { void run() throws Exception; }
 
 	@BeforeAll
 	void clickTheEnglishFlag() throws Exception
@@ -72,48 +69,34 @@ class LanguageFlagsRenderTest
 		gl.setTitle("On Board - language flags verification");
 		gl.useVsync(false);
 
-		List<Step> steps = new ArrayList<>();
+		steps = new Steps(2.5, 1.2);
 		steps.add(() -> {
 			Frames.write(GameHarness.grab(), new File(OUTPUT, "language-fr-menu.png"));
-			record("the menu starts in French", Index_Text.getLanguage().equals("fr") && labelSays("Jouer"));
-			record("both flags are on the menu", find("flag.fr") != null && find("flag.en") != null);
-			record("the French flag is the one lit", find("flag.fr").getColor().a > find("flag.en").getColor().a);
+			seen.record("the menu starts in French", Index_Text.getLanguage().equals("fr") && labelSays("Jouer"));
+			seen.record("both flags are on the menu", find("flag.fr") != null && find("flag.en") != null);
+			seen.record("the French flag is the one lit", find("flag.fr").getColor().a > find("flag.en").getColor().a);
 			click(find("flag.en"));
 		});
 		steps.add(() -> {
-			record("a click on the English flag reads English", Index_Text.getLanguage().equals("en"));
-			record("the menu letters itself again", labelSays("Play") && labelSays("Quit") && !labelSays("Jouer"));
-			record("the English flag is the one lit now", find("flag.en").getColor().a > find("flag.fr").getColor().a);
+			seen.record("a click on the English flag reads English", Index_Text.getLanguage().equals("en"));
+			seen.record("the menu letters itself again", labelSays("Play") && labelSays("Quit") && !labelSays("Jouer"));
+			seen.record("the English flag is the one lit now", find("flag.en").getColor().a > find("flag.fr").getColor().a);
 			String saved = Files.exists(config) ? Files.readString(config, StandardCharsets.UTF_8) : "";
-			record("the pick is kept in the config", saved.replaceAll("\\s", "").contains("\"language\":\"en\""));
+			seen.record("the pick is kept in the config", saved.replaceAll("\\s", "").contains("\"language\":\"en\""));
 			Frames.write(GameHarness.grab(), new File(OUTPUT, "language-en-menu.png"));
 			press(Keys.DOWN); press(Keys.DOWN); press(Keys.ENTER);
 		});
 		steps.add(() -> {
-			record("Options opened", GVars_Heart.vue.overlay instanceof OverlayOptions);
-			record("and its words are English", labelSays("Graphics") && labelSays("Resolution"));
-			record("the flags are not over the Options", !find("languageFlags").isVisible() || find("languageFlags").getColor().a < 0.05f);
+			seen.record("Options opened", GVars_Heart.vue.overlay instanceof OverlayOptions);
+			seen.record("and its words are English", labelSays("Graphics") && labelSays("Resolution"));
+			seen.record("the flags are not over the Options", !find("languageFlags").isVisible() || find("languageFlags").getColor().a < 0.05f);
 			Frames.write(GameHarness.grab(), new File(OUTPUT, "language-en-options.png"));
 			finished = true;
 		});
 
-		int[] next = {0};
-		double[] due = {2.5};
 		harness = new GameHarness(new Main_Application(), Integer.MAX_VALUE, Integer.MAX_VALUE);
-		harness.exitAfterSeconds = 2.5 + steps.size() * 1.2 + 0.5;
-		harness.frameHook = frame ->
-		{
-			if (error != null || next[0] >= steps.size() || harness.gameSeconds < due[0]) return;
-			try
-			{
-				steps.get(next[0]++).run();
-				due[0] = harness.gameSeconds + 1.2;
-			}
-			catch (Throwable t)
-			{
-				error = t;
-			}
-		};
+		harness.exitAfterSeconds = steps.seconds() + 0.5;
+		steps.drive(harness);
 
 		new Lwjgl3Application(harness, gl);
 	}
@@ -124,11 +107,6 @@ class LanguageFlagsRenderTest
 		if (previousConfig == null) System.clearProperty("onboard.config");
 		else System.setProperty("onboard.config", previousConfig);
 		Files.deleteIfExists(config);
-	}
-
-	private static void record(String what, boolean ok)
-	{
-		seen.add((ok ? "ok   " : "FAIL ") + what);
 	}
 
 	private static InputProcessor processor()
@@ -179,7 +157,7 @@ class LanguageFlagsRenderTest
 	void englishIsPicked()
 	{
 		assertNull(harness.error, harness.error == null ? null : "the game threw: " + harness.error);
-		assertNull(error, error == null ? null : "a step threw: " + error);
+		assertNull(steps.error, steps.error == null ? null : "a step threw: " + steps.error);
 		String report = String.join("\n", seen);
 		System.out.println(report);
 		assertTrue(finished, "the steps did not all run:\n" + report);

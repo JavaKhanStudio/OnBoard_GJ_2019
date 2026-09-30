@@ -4,9 +4,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
@@ -32,7 +29,7 @@ class StartLevelTest
 {
 	private static GameHarness harness;
 
-	private static final List<String> seen = new ArrayList<>();
+	private static final Checks seen = new Checks();
 	private static volatile Throwable error;
 	private static volatile boolean finished;
 
@@ -57,15 +54,15 @@ class StartLevelTest
 			{
 				if (!moved[0] && harness.gameSeconds >= 1.5)
 				{
-					record("the game view is up", GVars_Heart.vue instanceof Vue_Game);
-					record("it counts from carriage 3", GVars_Game.currentLevelInt == 3);
-					record("carriage 3 is the one loaded", "wa3".equals(GVars_Game.currentLevel.path_meta));
+					seen.record("the game view is up", GVars_Heart.vue instanceof Vue_Game);
+					seen.record("it counts from carriage 3", GVars_Game.currentLevelInt == 3);
+					seen.record("carriage 3 is the one loaded", "wa3".equals(GVars_Game.currentLevel.path_meta));
 					GVars_Game.nextLevel();
 					moved[0] = true;
 				}
 				else if (moved[0] && !finished && harness.gameSeconds >= 3.0)
 				{
-					record("the next one after it is 4", GVars_Game.currentLevelInt == 4
+					seen.record("the next one after it is 4", GVars_Game.currentLevelInt == 4
 						&& "wa4".equals(GVars_Game.currentLevel.path_meta));
 					finished = true;
 				}
@@ -83,11 +80,6 @@ class StartLevelTest
 	void restore()
 	{
 		Main_Application.startLevel = 1;
-	}
-
-	private static void record(String step, boolean ok)
-	{
-		seen.add((ok ? "ok   " : "FAIL ") + step);
 	}
 
 	@Test

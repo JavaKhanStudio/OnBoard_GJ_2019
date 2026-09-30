@@ -6,8 +6,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -53,7 +51,7 @@ class ClosureRenderTest
 
 	private static GameHarness harness;
 
-	private static final List<String> seen = new ArrayList<>();
+	private static final Checks seen = new Checks();
 	private static volatile Throwable error;
 	private static volatile boolean finished;
 
@@ -89,7 +87,7 @@ class ClosureRenderTest
 							// What a played run leaves behind in the cached carriage.
 							for (GameItem item : GVars_Game.currentLevel.listItems)
 								picked().setBoolean(item, true);
-							record("carriage 1 has items to take", !GVars_Game.currentLevel.listItems.isEmpty());
+							seen.record("carriage 1 has items to take", !GVars_Game.currentLevel.listItems.isEmpty());
 						}
 						GVars_Game.currentLevelInt = GVars_Game.LEVEL_COUNT;
 						GVars_Game.karma = leaving[0] ? GVars_Game.LEVEL_COUNT : 1;
@@ -117,9 +115,9 @@ class ClosureRenderTest
 						String name = leaving[0] ? "closure-leave" : "closure-stay";
 						BufferedImage card = GameHarness.grab();
 						Frames.write(card, new File(OUTPUT, name + ".png"));
-						record(name + ": the card is on black, not white", corner(card) < 16);
-						record(name + ": the card has words on it", brightPixels(card) > 2000);
-						record(name + ": still on the ending", GVars_Heart.vue instanceof Vue_Scenematic_Outro);
+						seen.record(name + ": the card is on black, not white", corner(card) < 16);
+						seen.record(name + ": the card has words on it", brightPixels(card) > 2000);
+						seen.record(name + ": still on the ending", GVars_Heart.vue instanceof Vue_Scenematic_Outro);
 						phase[0] = 3;
 						mark[0] = now;
 						break;
@@ -127,13 +125,13 @@ class ClosureRenderTest
 					case 3:
 						if (GVars_Heart.vue instanceof Vue_StartScreen)
 						{
-							record((leaving[0] ? "leave" : "stay") + ": the card waited for input", false);
+							seen.record((leaving[0] ? "leave" : "stay") + ": the card waited for input", false);
 							finished = true;
 							Gdx.app.exit();
 						}
 						else if (now - mark[0] > CARD_LINGERS)
 						{
-							record((leaving[0] ? "leave" : "stay") + ": the card waited for input", true);
+							seen.record((leaving[0] ? "leave" : "stay") + ": the card waited for input", true);
 							GVars_Heart.inCinematic_Click = true;
 							phase[0] = 4;
 							mark[0] = now;
@@ -144,14 +142,14 @@ class ClosureRenderTest
 						if (GVars_Heart.vue instanceof Vue_StartScreen)
 						{
 							String end = leaving[0] ? "leave" : "stay";
-							record(end + ": a click takes the ending back to the start screen", true);
-							record(end + ": the run is reset", GVars_Game.karma == 0 && GVars_Game.currentLevelInt == 1
+							seen.record(end + ": a click takes the ending back to the start screen", true);
+							seen.record(end + ": the run is reset", GVars_Game.karma == 0 && GVars_Game.currentLevelInt == 1
 								&& GVars_Game.playerInventory.isEmpty());
 							boolean anyPicked = false;
 							for (var level : GVars_Game.preloadedlevel.values())
 								for (GameItem item : level.listItems)
 									anyPicked |= item.isPicked();
-							record(end + ": the cached carriages have their items back", !anyPicked);
+							seen.record(end + ": the cached carriages have their items back", !anyPicked);
 
 							if (leaving[0])
 							{
@@ -166,7 +164,7 @@ class ClosureRenderTest
 						}
 						else if (now - mark[0] > 5)
 						{
-							record("the card handed back to the start screen within 5 s of the click", false);
+							seen.record("the card handed back to the start screen within 5 s of the click", false);
 							finished = true;
 							Gdx.app.exit();
 						}
@@ -210,11 +208,6 @@ class ClosureRenderTest
 			for (int x = 0; x < image.getWidth(); x += 1)
 				if ((image.getRGB(x, y) & 0xFF) > 128) count++;
 		return count;
-	}
-
-	private static void record(String step, boolean ok)
-	{
-		seen.add((ok ? "ok   " : "FAIL ") + step);
 	}
 
 	@Test

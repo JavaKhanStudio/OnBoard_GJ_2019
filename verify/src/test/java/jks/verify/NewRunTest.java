@@ -6,9 +6,6 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
@@ -44,11 +41,9 @@ class NewRunTest
 	private static final String BAG = "sac.png";
 
 	private static GameHarness harness;
-	private static volatile Throwable error;
+	private static Steps steps;
 	private static volatile boolean bagTaken, finished, inGame, bagBack, sameCarriage;
 	private static volatile int levelBeforeMenu = -1, levelAfter = -1, karmaAfter = -1, carriedAfter = -1;
-
-	private interface Step { void run() throws Exception; }
 
 	@BeforeAll
 	void playTwice()
@@ -61,7 +56,7 @@ class NewRunTest
 		gl.setTitle("On Board - new run verification");
 		gl.useVsync(false);
 
-		List<Step> steps = new ArrayList<>();
+		steps = new Steps(1.5, 1.2);
 		steps.add(() ->
 		{
 			GameItem bag = item(BAG);
@@ -98,23 +93,9 @@ class NewRunTest
 			finished = true;
 		});
 
-		int[] next = {0};
-		double[] due = {1.5};
 		harness = new GameHarness(new Main_Application(), Integer.MAX_VALUE, Integer.MAX_VALUE);
-		harness.exitAfterSeconds = 1.5 + steps.size() * 1.2 + 0.5;
-		harness.frameHook = frame ->
-		{
-			if (error != null || next[0] >= steps.size() || harness.gameSeconds < due[0]) return;
-			try
-			{
-				steps.get(next[0]++).run();
-			}
-			catch (Throwable t)
-			{
-				error = t;
-			}
-			due[0] = harness.gameSeconds + 1.2;
-		};
+		harness.exitAfterSeconds = steps.seconds() + 0.5;
+		steps.drive(harness);
 
 		new Lwjgl3Application(harness, gl);
 	}
@@ -137,7 +118,7 @@ class NewRunTest
 	void jouerStartsAfresh()
 	{
 		assertNull(harness.error, harness.error == null ? null : "the game threw: " + harness.error);
-		assertNull(error, error == null ? null : "a step threw: " + error);
+		assertNull(steps.error, steps.error == null ? null : "a step threw: " + steps.error);
 		assertTrue(bagTaken, "clicking the bag in carriage 1 did not take it");
 		assertEquals(2, levelBeforeMenu, "the first game never reached carriage 2");
 		assertTrue(finished, "the second game was never checked");

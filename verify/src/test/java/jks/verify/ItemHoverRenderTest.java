@@ -10,8 +10,6 @@ import java.io.File;
 import java.io.IOException;
 
 import javax.imageio.ImageIO;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
@@ -52,13 +50,11 @@ class ItemHoverRenderTest
 
 	private static GameHarness harness;
 
-	private static final List<String> seen = new ArrayList<>();
+	private static final Checks seen = new Checks();
 	private static volatile BufferedImage resting, lit;
 	private static volatile int[] itemOnScreen;
-	private static volatile Throwable error;
+	private static Steps steps;
 	private static volatile boolean finished;
-
-	private interface Step { void run() throws Exception; }
 
 	@BeforeAll
 	void hoverAnItem()
@@ -72,34 +68,34 @@ class ItemHoverRenderTest
 		gl.setTitle("On Board - item hover verification");
 		gl.useVsync(false);
 
-		List<Step> steps = new ArrayList<>();
+		steps = new Steps(2.0, 0.5);
 		steps.add(() -> {
 			GameItem item = item();
-			record("nothing is lit before the mouse moves", !item.isHovered());
+			seen.record("nothing is lit before the mouse moves", !item.isHovered());
 			resting = GameHarness.grab();
 			Frames.write(resting, new File(OUTPUT, "hover-resting.png"));
 			int[] centre = screenCentre(item);
 			Gdx.input.getInputProcessor().mouseMoved(centre[0], centre[1]);
 		});
 		steps.add(() -> {
-			record("the item under the mouse is lit", item().isHovered());
+			seen.record("the item under the mouse is lit", item().isHovered());
 			lit = GameHarness.grab();
 			Frames.write(lit, new File(OUTPUT, "hover-item.png"));
 			Gdx.input.getInputProcessor().mouseMoved(640, 20);
 		});
 		steps.add(() -> {
-			record("it goes out when the mouse leaves it", !item().isHovered());
+			seen.record("it goes out when the mouse leaves it", !item().isHovered());
 			int[] centre = screenCentre(item());
 			Gdx.input.getInputProcessor().mouseMoved(centre[0], centre[1]);
 			press(Keys.ESCAPE);
 		});
 		steps.add(() -> {
-			record("nothing is lit under the pause screen", !item().isHovered());
+			seen.record("nothing is lit under the pause screen", !item().isHovered());
 			Frames.write(GameHarness.grab(), new File(OUTPUT, "hover-paused.png"));
 			press(Keys.ESCAPE);
 		});
 		steps.add(() -> {
-			record("and it lights again on resuming", item().isHovered());
+			seen.record("and it lights again on resuming", item().isHovered());
 			// The pause sign takes a click before the carriage does, so it must not show a
 			// lit item through it either.
 			Actor button = GVars_UI.mainUi.getRoot().findActor("pauseButton");
@@ -113,28 +109,14 @@ class ItemHoverRenderTest
 			item.setPosition(item.posX, item.posY);
 		});
 		steps.add(() -> {
-			record("an item under the pause sign stays unlit", !item().isHovered());
+			seen.record("an item under the pause sign stays unlit", !item().isHovered());
 			finished = true;
 		});
 
-		int[] next = {0};
-		double[] due = {2.0};
 		harness = new GameHarness(new Main_Application(), Integer.MAX_VALUE, Integer.MAX_VALUE);
-		harness.exitAfterSeconds = 2.0 + steps.size() * 0.5 + 0.4;
+		harness.exitAfterSeconds = steps.seconds() + 0.4;
 		harness.captureAfterSeconds = harness.exitAfterSeconds - 0.1;
-		harness.frameHook = frame ->
-		{
-			if (error != null || next[0] >= steps.size() || harness.gameSeconds < due[0]) return;
-			try
-			{
-				steps.get(next[0]++).run();
-			}
-			catch (Throwable t)
-			{
-				error = t;
-			}
-			due[0] = harness.gameSeconds + 0.5;
-		};
+		steps.drive(harness);
 
 		new Lwjgl3Application(harness, gl);
 	}
@@ -163,11 +145,6 @@ class ItemHoverRenderTest
 		Gdx.input.getInputProcessor().keyUp(key);
 	}
 
-	private static void record(String step, boolean ok)
-	{
-		seen.add((ok ? "ok   " : "FAIL ") + step);
-	}
-
 	private static int yellowness(int p)
 	{
 		return (((p >> 16) & 0xFF) + ((p >> 8) & 0xFF)) / 2 - (p & 0xFF);
@@ -183,10 +160,10 @@ class ItemHoverRenderTest
 	void lightsUnderTheMouse()
 	{
 		if (harness.error != null) harness.error.printStackTrace();
-		if (error != null) error.printStackTrace();
+		if (steps.error != null) steps.error.printStackTrace();
 		String report = String.join("\n", seen);
 		assertNull(harness.error, harness.error == null ? null : "the game threw: " + harness.error + "\n" + report);
-		assertNull(error, error == null ? null : "a step threw: " + error + "\n" + report);
+		assertNull(steps.error, steps.error == null ? null : "a step threw: " + steps.error + "\n" + report);
 		assertTrue(finished, "not every step ran:\n" + report);
 		for (String line : seen)
 			assertTrue(line.startsWith("ok"), report);

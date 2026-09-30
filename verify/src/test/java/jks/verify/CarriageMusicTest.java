@@ -7,8 +7,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.nio.file.Files;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -56,8 +54,8 @@ class CarriageMusicTest
 
 	private static GameHarness harness;
 
-	private static final List<String> seen = new ArrayList<>();
-	private static volatile Throwable error;
+	private static final Checks seen = new Checks();
+	private static Steps steps;
 	private static volatile boolean finished;
 	private static AudioCapture capture;
 	private static double firstStepSeconds = 1.5;
@@ -72,15 +70,6 @@ class CarriageMusicTest
 
 	/** Whether this run had wa2_ideal in lab-assets/: the report says which path it proved. */
 	static volatile boolean idealHere;
-
-	private interface Step { void run() throws Exception; }
-
-	/** A step, and how long to wait after it before the next. */
-	private static final class Timed
-	{
-		final Step step; final double wait;
-		Timed(double wait, Step step) { this.step = step; this.wait = wait; }
-	}
 
 	@BeforeAll
 	void switchTheMusicInTheCarriages() throws Exception
@@ -103,72 +92,55 @@ class CarriageMusicTest
 		gl.useVsync(false);
 
 		float[] carried = {0};
-		List<Timed> steps = new ArrayList<>();
+		steps = new Steps(firstStepSeconds, 0);
 		// The plain run: no lab, the shipped music.
-		steps.add(new Timed(1.5, () -> {
+		steps.add(1.5, () -> {
 			record("a plain run has no music switch", panel() == null);
 			record("carriage 1 plays its aged song", playing().equals("wa1_modulated.ogg"));
 			record("the entrance crossfade from the menu's song is over", !GVars_AudioManager.isCrossfading());
 			carried[0] = position();
 			carriageChangeSeconds = (System.nanoTime() - deviceOpenNanos) / 1e9;
 			GVars_Game.nextLevel();
-		}));
+		});
 		// Black comes at GVars_Fade.OUT_SECONDS; half a crossfade later:
-		steps.add(new Timed(1.0, () -> {
+		steps.add(1.0, () -> {
 			record("carriage 2 plays its own aged song", playing().equals("wa2_modulated.ogg"));
 			record("with carriage 1's still fading out under it", GVars_AudioManager.isCrossfading());
 			record("from the same bar (" + carried[0] + " s, then " + position() + " s)", position() > carried[0] + 1f);
-		}));
-		steps.add(new Timed(0.6, () -> {
+		});
+		steps.add(0.6, () -> {
 			record("the crossfade is over", !GVars_AudioManager.isCrossfading());
 			record("and carriage 2's song plays alone", playing().equals("wa2_modulated.ogg"));
 			CarriageMusicSwitch.open();
-		}));
+		});
 		// The lab, over carriage 2.
-		steps.add(new Timed(0.6, () -> {
+		steps.add(0.6, () -> {
 			record("the lab's switch is over the carriage", panel() != null);
 			idealHere = GVars_AudioManager.idealFile(2) != null;
 			record("Ideal is dark exactly when wa2_ideal is not in lab-assets", button("Ideal").isDisabled() == !idealHere);
 			Frames.write(GameHarness.grab(), new File(OUTPUT, "carriage-music-switch.png"));
 			carried[0] = position();
 			click("Main");
-		}));
-		steps.add(new Timed(0.6, () -> {
+		});
+		steps.add(0.6, () -> {
 			record("Main is intro.mp3", playing().equals("intro.mp3"));
 			record("going on from the same bar (" + position() + " s)", position() > carried[0]);
 			click("Ideal");
-		}));
-		steps.add(new Timed(0.6, () -> {
+		});
+		steps.add(0.6, () -> {
 			record("Ideal plays wa2's own track, or a dark Ideal leaves the main song on",
 				playing().equals(idealHere ? GVars_AudioManager.idealFile(2).name() : "intro.mp3"));
 			click("Modulated");
-		}));
-		steps.add(new Timed(0.6, () -> {
+		});
+		steps.add(0.6, () -> {
 			record("Modulated is carriage 2's aged song again", playing().equals("wa2_modulated.ogg"));
 			record("the carriage track is what is asked for", GVars_AudioManager.currentMusic() == Enum_Music.CARRIAGE_2);
 			finished = true;
-		}));
+		});
 
-		int[] next = {0};
-		double[] due = {firstStepSeconds};
-		double total = firstStepSeconds;
-		for (Timed step : steps) total += step.wait;
 		harness = new GameHarness(new Main_Application(), Integer.MAX_VALUE, Integer.MAX_VALUE);
-		harness.exitAfterSeconds = total;
-		harness.frameHook = frame ->
-		{
-			if (error != null || next[0] >= steps.size() || harness.gameSeconds < due[0]) return;
-			Timed step = steps.get(next[0]++);
-			try
-			{
-				step.step.run();
-			}
-			catch (Throwable t)
-			{
-				error = t;
-			}
-			due[0] = harness.gameSeconds + step.wait;
-		};
+		harness.exitAfterSeconds = steps.seconds();
+		steps.drive(harness);
 
 		// The application opens the audio device first, before the window and the game's loading.
 		deviceOpenNanos = System.nanoTime();
@@ -218,7 +190,7 @@ class CarriageMusicTest
 
 	private static void record(String step, boolean ok)
 	{
-		seen.add((ok ? "ok   " : "FAIL ") + step + (ok ? "" : "  [playing " + playing() + "]"));
+		seen.record(step + (ok ? "" : "  [playing " + playing() + "]"), ok);
 	}
 
 	@Test
@@ -226,11 +198,11 @@ class CarriageMusicTest
 	void theSwitchChangesTheMusic()
 	{
 		if (harness.error != null) harness.error.printStackTrace();
-		if (error != null) error.printStackTrace();
+		if (steps.error != null) steps.error.printStackTrace();
 		String report = "lab-assets: wa2 ideal " + (idealHere ? "here" : "absent") + "\n" + String.join("\n", seen);
 		System.out.println(report);
 		assertNull(harness.error, harness.error == null ? null : "the game threw: " + harness.error + "\n" + report);
-		assertNull(error, error == null ? null : "a step threw: " + error + "\n" + report);
+		assertNull(steps.error, steps.error == null ? null : "a step threw: " + steps.error + "\n" + report);
 		assertTrue(finished, "not every step ran:\n" + report);
 		for (String line : seen)
 			assertTrue(line.startsWith("ok"), report);

@@ -47,7 +47,7 @@ class ItemOutlineKindRenderTest
 	private static GameHarness harness;
 	private static final BufferedImage[][] shots = new BufferedImage[CARRIAGES][2];
 	private static final BufferedImage[] unlit = new BufferedImage[CARRIAGES];
-	private static volatile Throwable error;
+	private static Steps steps;
 
 	@BeforeAll
 	void walkEveryCarriageLit()
@@ -59,61 +59,35 @@ class ItemOutlineKindRenderTest
 		gl.setTitle("On Board - item outline kinds");
 		gl.useVsync(false);
 
-		int[] step = {0};
-		int[] carriage = {0};
-		double[] due = {1.5};
+		steps = new Steps(1.5, 0);
+		for (int carriage = 0; carriage < CARRIAGES; carriage++)
+		{
+			int c = carriage;
+			// At the left end, unlit, then lit on the next frame.
+			steps.add(0, () -> {
+				ItemOutline.lightAll = false;
+				unlit[c] = GameHarness.grab();
+				ItemOutline.lightAll = true;
+			});
+			steps.add(0, () -> {
+				shots[c][0] = GameHarness.grab();
+				GVars_Inputs.rightPressed = true;
+			});
+			// Until the view's right edge is on the end of the carriage.
+			steps.addWhen(() -> viewRight() >= WagonLevel.WIDTH - 1, 15, 0.5, () -> {
+				GVars_Inputs.rightPressed = false;
+			});
+			steps.add(SETTLE, () -> {
+				shots[c][1] = GameHarness.grab();
+				ItemOutline.lightAll = false;
+				if (c + 1 == CARRIAGES) Gdx.app.exit();
+				else GVars_Game.nextLevel();
+			});
+		}
 
 		harness = new GameHarness(new Main_Application(), Integer.MAX_VALUE, Integer.MAX_VALUE);
 		harness.exitAfterSeconds = 120;
-		harness.frameHook = frame ->
-		{
-			if (error != null) return;
-			try
-			{
-				if (harness.gameSeconds < due[0]) return;
-				int c = carriage[0];
-				switch (step[0])
-				{
-					case 0 :   // at the left end, unlit, then lit on the next frame
-						ItemOutline.lightAll = false;
-						unlit[c] = GameHarness.grab();
-						ItemOutline.lightAll = true;
-						step[0] = 1;
-						break;
-					case 1 :
-						shots[c][0] = GameHarness.grab();
-						GVars_Inputs.rightPressed = true;
-						step[0] = 2;
-						break;
-					case 2 :   // until the view's right edge is on the end of the carriage
-						if (viewRight() < WagonLevel.WIDTH - 1 && harness.gameSeconds < due[0] + 15) return;
-						GVars_Inputs.rightPressed = false;
-						due[0] = harness.gameSeconds + 0.5;
-						step[0] = 3;
-						break;
-					case 3 :
-						shots[c][1] = GameHarness.grab();
-						ItemOutline.lightAll = false;
-						if (c + 1 == CARRIAGES)
-						{
-							step[0] = 4;
-							Gdx.app.exit();
-							break;
-						}
-						carriage[0] = c + 1;
-						GVars_Game.nextLevel();
-						due[0] = harness.gameSeconds + SETTLE;
-						step[0] = 0;
-						break;
-					default :
-						break;
-				}
-			}
-			catch (Throwable t)
-			{
-				if (error == null) error = t;
-			}
-		};
+		steps.drive(harness);
 
 		new Lwjgl3Application(harness, gl);
 	}
@@ -128,7 +102,7 @@ class ItemOutlineKindRenderTest
 	void everyCarriageLit() throws Exception
 	{
 		assertNull(harness.error, harness.error == null ? null : "the game threw: " + harness.error);
-		assertNull(error, error == null ? null : "a step threw: " + error);
+		assertNull(steps.error, steps.error == null ? null : "a step threw: " + steps.error);
 
 		int w = 640, h = 360;
 		BufferedImage sheet = new BufferedImage(w * 2, h * CARRIAGES, BufferedImage.TYPE_INT_RGB);

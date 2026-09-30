@@ -42,7 +42,7 @@ class LevelWalkTest
 	private static GameHarness harness;
 
 	private static final List<BufferedImage> frames = new ArrayList<>();
-	private static volatile Throwable error;
+	private static Steps steps;
 	/** The renderers the first carriage drew with, and whether every later one used the same (r69). */
 	private static Object firstBatch, firstShapes;
 	private static volatile boolean sameRenderers = true;
@@ -57,15 +57,9 @@ class LevelWalkTest
 		gl.setTitle("On Board - level walk verification");
 		gl.useVsync(false);
 
-		double[] due = {SECONDS_PER_LEVEL};
-		harness = new GameHarness(new Main_Application(), Integer.MAX_VALUE, Integer.MAX_VALUE);
-		harness.exitAfterSeconds = SECONDS_PER_LEVEL * LAST_LEVEL + 0.2;
-		harness.captureAfterSeconds = harness.exitAfterSeconds - 0.1;
-		harness.frameHook = frame ->
-		{
-			if (error != null || frames.size() >= LAST_LEVEL || harness.gameSeconds < due[0]) return;
-			try
-			{
+		steps = new Steps(SECONDS_PER_LEVEL, SECONDS_PER_LEVEL);
+		for (int level = 1; level <= LAST_LEVEL; level++)
+			steps.add(() -> {
 				if (firstBatch == null)
 				{
 					firstBatch = GVars_Camera.staticBatch;
@@ -76,13 +70,11 @@ class LevelWalkTest
 				frames.add(GameHarness.grab());
 				if (GVars_Game.currentLevelInt < LAST_LEVEL)
 					GVars_Game.nextLevel();
-			}
-			catch (Throwable t)
-			{
-				error = t;
-			}
-			due[0] = harness.gameSeconds + SECONDS_PER_LEVEL;
-		};
+			});
+		harness = new GameHarness(new Main_Application(), Integer.MAX_VALUE, Integer.MAX_VALUE);
+		harness.exitAfterSeconds = SECONDS_PER_LEVEL * LAST_LEVEL + 0.2;
+		harness.captureAfterSeconds = harness.exitAfterSeconds - 0.1;
+		steps.drive(harness);
 
 		new Lwjgl3Application(harness, gl);
 	}
@@ -92,10 +84,10 @@ class LevelWalkTest
 	void everyLevelLoadsAndDraws() throws Exception
 	{
 		if (harness.error != null) harness.error.printStackTrace();
-		if (error != null) error.printStackTrace();
+		if (steps.error != null) steps.error.printStackTrace();
 		String reached = "reached level " + GVars_Game.currentLevelInt + " of " + LAST_LEVEL;
 		// The step's error first: a level that failed to load goes on to throw every frame after.
-		assertNull(error, error == null ? null : "moving to the next level threw: " + error + " - " + reached);
+		assertNull(steps.error, steps.error == null ? null : "moving to the next level threw: " + steps.error + " - " + reached);
 		assertNull(harness.error, harness.error == null ? null : "the game threw: " + harness.error + " - " + reached);
 		assertEquals(LAST_LEVEL, frames.size(), "captured " + frames.size() + " levels - " + reached);
 		// A new SpriteBatch and ShapeRenderer per carriage, never disposed, is what r69 took out.

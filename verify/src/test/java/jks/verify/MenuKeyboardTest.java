@@ -7,8 +7,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -58,11 +56,9 @@ class MenuKeyboardTest
 	private static String previousConfig;
 
 	/** What each step saw, in order. A failed step names itself. */
-	private static final List<String> seen = new ArrayList<>();
-	private static volatile Throwable error;
+	private static final Checks seen = new Checks();
+	private static Steps steps;
 	private static volatile boolean finished;
-
-	private interface Step { void run() throws Exception; }
 
 	@BeforeAll
 	void driveTheMenus() throws Exception
@@ -81,129 +77,115 @@ class MenuKeyboardTest
 
 		// Each step runs once the one before it has had this long on the game's clock, so
 		// the slide-in animations have somewhere to go and the frames show the real thing.
-		List<Step> steps = new ArrayList<>();
+		steps = new Steps(1.8, 0.8);
 		steps.add(() -> {
-			record("hidden before any key", !GVars_UI.focusShown);
+			seen.record("hidden before any key", !GVars_UI.focusShown);
 			press(Keys.DOWN);
-			record("first key only shows the focus", GVars_UI.focusShown && focusedIs(0, 0));
+			seen.record("first key only shows the focus", GVars_UI.focusShown && focusedIs(0, 0));
 		});
 		steps.add(() -> {
 			press(Keys.DOWN);
-			record("down moves to Options", focusedIs(0, 1));
+			seen.record("down moves to Options", focusedIs(0, 1));
 		});
 		steps.add(() -> {
 			Frames.write(GameHarness.grab(), new File(OUTPUT, "menu-keyboard-start.png"));
 			press(Keys.ENTER);
-			record("enter opens the options", GVars_Heart.vue.overlay instanceof OverlayOptions);
-			record("options start on the resolution box", focusedIs(1, 0));
+			seen.record("enter opens the options", GVars_Heart.vue.overlay instanceof OverlayOptions);
+			seen.record("options start on the resolution box", focusedIs(1, 0));
 		});
 		steps.add(() -> {
 			press(Keys.DOWN); press(Keys.DOWN);
-			record("down reaches full screen", focusedIs(1, 2));
+			seen.record("down reaches full screen", focusedIs(1, 2));
 			// Full screen is the third row; the sound board's third row is the effects slider (r39).
 			press(Keys.RIGHT);
-			record("right crosses to the effects slider", focused() instanceof Slider);
+			seen.record("right crosses to the effects slider", focused() instanceof Slider);
 			float before = ((Slider)focused()).getValue();
 			press(Keys.LEFT);
-			record("left turns the effects down a step", ((Slider)focused()).getValue() < before);
+			seen.record("left turns the effects down a step", ((Slider)focused()).getValue() < before);
 			press(Keys.UP);
-			record("up reaches the volume slider", focused() instanceof Slider);
+			seen.record("up reaches the volume slider", focused() instanceof Slider);
 			before = ((Slider)focused()).getValue();
 			press(Keys.LEFT);
-			record("left turns the volume down a step", ((Slider)focused()).getValue() < before);
+			seen.record("left turns the volume down a step", ((Slider)focused()).getValue() < before);
 			press(Keys.UP);
 			Button mute = (Button)focused();
 			press(Keys.ENTER);
-			record("enter ticks the mute box", mute.isChecked());
+			seen.record("enter ticks the mute box", mute.isChecked());
 			press(Keys.ENTER);
-			record("enter again unticks it", !mute.isChecked());
+			seen.record("enter again unticks it", !mute.isChecked());
 			press(Keys.LEFT); press(Keys.DOWN); press(Keys.DOWN); press(Keys.DOWN); press(Keys.DOWN);
-			record("down reaches mipmaps", focusedIs(1, 4));
+			seen.record("down reaches mipmaps", focusedIs(1, 4));
 		});
 		steps.add(() -> {
 			Frames.write(GameHarness.grab(), new File(OUTPUT, "menu-keyboard-options.png"));
 			press(Keys.ESCAPE);
-			record("escape leaves the options", GVars_Heart.vue.overlay == null);
-			record("and hands the keys back to the menu",
+			seen.record("escape leaves the options", GVars_Heart.vue.overlay == null);
+			seen.record("and hands the keys back to the menu",
 				GVars_UI.currentControllable instanceof StartScreen_SmoothSideSelect && focusedIs(0, 0));
 		});
 		steps.add(() -> {
 			press(Keys.DOWN); press(Keys.DOWN);
 			press(Keys.ENTER);
-			record("enter on Credits opens them", GVars_Heart.vue.overlay instanceof OverlayCredits);
+			seen.record("enter on Credits opens them", GVars_Heart.vue.overlay instanceof OverlayCredits);
 		});
 		steps.add(() -> {
 			Frames.write(GameHarness.grab(), new File(OUTPUT, "menu-keyboard-credits.png"));
 			press(Keys.ENTER);
-			record("enter on the return sign closes the credits", GVars_Heart.vue.overlay == null);
+			seen.record("enter on the return sign closes the credits", GVars_Heart.vue.overlay == null);
 		});
 		// The language flags (r162) are columns of their own right of the entries (r170).
 		steps.add(() -> {
 			press(Keys.RIGHT);
-			record("right reaches the French flag", focusedIs(1, 0) && "flag.fr".equals(focused().getName()));
+			seen.record("right reaches the French flag", focusedIs(1, 0) && "flag.fr".equals(focused().getName()));
 			press(Keys.RIGHT);
-			record("right again reaches the English flag", focusedIs(2, 0) && "flag.en".equals(focused().getName()));
+			seen.record("right again reaches the English flag", focusedIs(2, 0) && "flag.en".equals(focused().getName()));
 		});
 		steps.add(() -> {
 			Frames.write(GameHarness.grab(), new File(OUTPUT, "menu-keyboard-flag.png"));
 			press(Keys.ENTER);
-			record("enter on it plays in English", "en".equals(Index_Text.getLanguage()));
-			record("and the menu reads English", menuSays("Play") && !menuSays("Jouer"));
+			seen.record("enter on it plays in English", "en".equals(Index_Text.getLanguage()));
+			seen.record("and the menu reads English", menuSays("Play") && !menuSays("Jouer"));
 		});
 		steps.add(() -> {
 			Frames.write(GameHarness.grab(), new File(OUTPUT, "menu-keyboard-english.png"));
 			press(Keys.LEFT);
 			press(Keys.ENTER);
-			record("left and enter on the French flag play in French again",
+			seen.record("left and enter on the French flag play in French again",
 				"fr".equals(Index_Text.getLanguage()) && menuSays("Jouer"));
 			press(Keys.LEFT);
-			record("left goes back to the entries", focusedIs(0, 0));
+			seen.record("left goes back to the entries", focusedIs(0, 0));
 		});
 		steps.add(() -> {
 			processor().mouseMoved(20, 20);
-			record("moving the mouse puts the focus away", !GVars_UI.focusShown);
+			seen.record("moving the mouse puts the focus away", !GVars_UI.focusShown);
 			press(Keys.ENTER);
-			record("so enter shows it again rather than starting the game",
+			seen.record("so enter shows it again rather than starting the game",
 				GVars_UI.focusShown && !(GVars_Heart.vue instanceof Vue_Game));
 			press(Keys.ENTER);
-			record("and the next enter on Jouer fades the menu out", GVars_Fade.isFading());
+			seen.record("and the next enter on Jouer fades the menu out", GVars_Fade.isFading());
 			press(Keys.ENTER);
 		});
 		// A second to black, where the game view takes over.
 		steps.add(() -> {});
 		steps.add(() -> {
 			Frames.write(GameHarness.grab(), new File(OUTPUT, "menu-keyboard-fading-in.png"));
-			record("the game view took over at black", GVars_Heart.vue instanceof Vue_Game);
-			record("the game has no menu driving the keys", GVars_UI.currentControllable == null);
+			seen.record("the game view took over at black", GVars_Heart.vue instanceof Vue_Game);
+			seen.record("the game has no menu driving the keys", GVars_UI.currentControllable == null);
 		});
 		// The first carriage fades in for two seconds, and the keys wait for it.
 		steps.add(() -> {});
 		steps.add(() -> {
-			record("the fade is over", !GVars_Fade.isFading());
+			seen.record("the fade is over", !GVars_Fade.isFading());
 			processor().keyDown(Keys.RIGHT);
-			record("right walks Ross again in the game", GVars_Inputs.rightPressed);
+			seen.record("right walks Ross again in the game", GVars_Inputs.rightPressed);
 			processor().keyUp(Keys.RIGHT);
 			finished = true;
 		});
 
-		int[] next = {0};
-		double[] due = {1.8};
 		harness = new GameHarness(new Main_Application(), Integer.MAX_VALUE, Integer.MAX_VALUE);
-		harness.exitAfterSeconds = 1.8 + steps.size() * 0.8 + 0.5;
+		harness.exitAfterSeconds = steps.seconds() + 0.5;
 		harness.captureAfterSeconds = harness.exitAfterSeconds - 0.1;
-		harness.frameHook = frame ->
-		{
-			if (error != null || next[0] >= steps.size() || harness.gameSeconds < due[0]) return;
-			try
-			{
-				steps.get(next[0]++).run();
-			}
-			catch (Throwable t)
-			{
-				error = t;
-			}
-			due[0] = harness.gameSeconds + 0.8;
-		};
+		steps.drive(harness);
 
 		new Lwjgl3Application(harness, gl);
 	}
@@ -253,20 +235,15 @@ class MenuKeyboardTest
 		return GVars_UI.cursorPos != null && GVars_UI.cursorPos.x == column && GVars_UI.cursorPos.y == row;
 	}
 
-	private static void record(String step, boolean ok)
-	{
-		seen.add((ok ? "ok   " : "FAIL ") + step);
-	}
-
 	@Test
 	@DisplayName("the whole menu can be driven from the keyboard")
 	void menusFromTheKeyboard()
 	{
 		if (harness.error != null) harness.error.printStackTrace();
-		if (error != null) error.printStackTrace();
+		if (steps.error != null) steps.error.printStackTrace();
 		String report = String.join("\n", seen);
 		assertNull(harness.error, harness.error == null ? null : "the game threw: " + harness.error + "\n" + report);
-		assertNull(error, error == null ? null : "a step threw: " + error + "\n" + report);
+		assertNull(steps.error, steps.error == null ? null : "a step threw: " + steps.error + "\n" + report);
 		assertTrue(finished, "not every step ran:\n" + report);
 		for (String line : seen)
 			assertTrue(line.startsWith("ok"), report);

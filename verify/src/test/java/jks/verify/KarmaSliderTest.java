@@ -5,8 +5,6 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -42,11 +40,9 @@ class KarmaSliderTest
 
 	private static GameHarness harness;
 
-	private static final List<String> seen = new ArrayList<>();
-	private static volatile Throwable error;
+	private static final Checks seen = new Checks();
+	private static Steps steps;
 	private static volatile boolean finished;
-
-	private interface Step { void run() throws Exception; }
 
 	@BeforeAll
 	void leaveFromCarriageFour()
@@ -60,12 +56,12 @@ class KarmaSliderTest
 		gl.setTitle("On Board - karma slider verification");
 		gl.useVsync(false);
 
-		List<Step> steps = new ArrayList<>();
+		steps = new Steps(1.5, 0.6);
 		steps.add(() -> {
-			record("the slider is under the carriage", panel() != null);
-			record("a carriage-4 start has no karma", GVars_Game.karma == 0 && slider().getValue() == 0);
+			seen.record("the slider is under the carriage", panel() != null);
+			seen.record("a carriage-4 start has no karma", GVars_Game.karma == 0 && slider().getValue() == 0);
 			slider().setValue(3);
-			record("the slider sets the karma", GVars_Game.karma == 3 && GVars_Game.leavingEnding());
+			seen.record("the slider sets the karma", GVars_Game.karma == 3 && GVars_Game.leavingEnding());
 		});
 		steps.add(() -> {
 			Frames.write(GameHarness.grab(), new File(OUTPUT, "karma-slider.png"));
@@ -73,9 +69,9 @@ class KarmaSliderTest
 			GVars_Game.karma = 1;
 		});
 		steps.add(() -> {
-			record("karma earned in play moves the slider", slider().getValue() == 1);
+			seen.record("karma earned in play moves the slider", slider().getValue() == 1);
 			slider().setValue(2);
-			record("2 is still the staying ending", !GVars_Game.leavingEnding());
+			seen.record("2 is still the staying ending", !GVars_Game.leavingEnding());
 			slider().setValue(3);
 			GVars_Game.nextLevel();
 		});
@@ -83,29 +79,15 @@ class KarmaSliderTest
 		steps.add(() -> {});
 		steps.add(() -> {});
 		steps.add(() -> {
-			record("carriage 4 leads to the outro", GVars_Heart.vue instanceof Vue_Scenematic_Outro);
+			seen.record("carriage 4 leads to the outro", GVars_Heart.vue instanceof Vue_Scenematic_Outro);
 			Texture leave = Index_Interface.manager.get(Index_Interface.outroPage_leave, Texture.class);
-			record("and the outro takes the leaving ending", ((Vue_Scenematic_Outro) GVars_Heart.vue).page_2 == leave);
+			seen.record("and the outro takes the leaving ending", ((Vue_Scenematic_Outro) GVars_Heart.vue).page_2 == leave);
 			finished = true;
 		});
 
-		int[] next = {0};
-		double[] due = {1.5};
 		harness = new GameHarness(new Main_Application(), Integer.MAX_VALUE, Integer.MAX_VALUE);
-		harness.exitAfterSeconds = 1.5 + steps.size() * 0.6 + 0.4;
-		harness.frameHook = frame ->
-		{
-			if (error != null || next[0] >= steps.size() || harness.gameSeconds < due[0]) return;
-			try
-			{
-				steps.get(next[0]++).run();
-			}
-			catch (Throwable t)
-			{
-				error = t;
-			}
-			due[0] = harness.gameSeconds + 0.6;
-		};
+		harness.exitAfterSeconds = steps.seconds() + 0.4;
+		steps.drive(harness);
 
 		new Lwjgl3Application(harness, gl);
 	}
@@ -129,20 +111,15 @@ class KarmaSliderTest
 		throw new AssertionError("no slider in the karma panel");
 	}
 
-	private static void record(String step, boolean ok)
-	{
-		seen.add((ok ? "ok   " : "FAIL ") + step);
-	}
-
 	@Test
 	@DisplayName("the karma slider sets the karma, follows it, and the outro takes the ending it gives")
 	void sliderDecidesTheEnding()
 	{
 		if (harness.error != null) harness.error.printStackTrace();
-		if (error != null) error.printStackTrace();
+		if (steps.error != null) steps.error.printStackTrace();
 		String report = String.join("\n", seen);
 		assertNull(harness.error, harness.error == null ? null : "the game threw: " + harness.error + "\n" + report);
-		assertNull(error, error == null ? null : "a step threw: " + error + "\n" + report);
+		assertNull(steps.error, steps.error == null ? null : "a step threw: " + steps.error + "\n" + report);
 		assertTrue(finished, "not every step ran:\n" + report);
 		for (String line : seen)
 			assertTrue(line.startsWith("ok"), report);
