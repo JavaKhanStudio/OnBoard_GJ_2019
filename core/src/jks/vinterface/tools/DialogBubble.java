@@ -40,10 +40,19 @@ public class DialogBubble extends VisTable
 
 	public DialogBubble(DialogSize size)
 	{
+		build(size, "") ; 
+		textWhenVisible = "" ; 
+	
+		this.setColor(1, 1, 1, 0);
+		resize() ; 
+	}
+	
+	/** The cloud and the label typed in it, as both constructors make them. */
+	private void build(DialogSize size, String text)
+	{
 		this.setLayoutEnabled(false);
 		dialogSize = size ; 
-		textWhenVisible = "" ; 
-		typing = new TypingLabel("", GVars_Font.buildTextraFont(fontFor(size))) ; 
+		typing = new TypingLabel(text, GVars_Font.buildTextraFont(fontFor(size))) ; 
 		typing.setWrap(true);
 		typing.setAlignment(Align.center);
 		
@@ -52,9 +61,6 @@ public class DialogBubble extends VisTable
 		
 		this.add(bubbleBackground) ;
 		this.add(typing) ; 
-	
-		this.setColor(1, 1, 1, 0);
-		resize() ; 
 	}
 	
 	/**
@@ -154,21 +160,7 @@ public class DialogBubble extends VisTable
 	
 	public DialogBubble(String text, DialogSize size, boolean onePage)
 	{
-		this.setLayoutEnabled(false);
-		dialogSize = size ; 
-
-		typing = new TypingLabel(typingSpeed + text, GVars_Font.buildTextraFont(fontFor(size))) ; 
-		typing.setWrap(true);
-		typing.setAlignment(Align.center);
-		
-		
-		Texture texture = Index_Interface.manager.get(Index_Interface.bubbleThink) ; 
-		bubbleBackground = new VisImage(Utils_TexturesAcess.buildDrawingRegionTexture(texture)) ;
-		
-		
-		this.add(bubbleBackground) ;
-		this.add(typing) ; 
-	
+		build(size, typingSpeed + text) ; 
 		resize() ; 
 	}
 	
