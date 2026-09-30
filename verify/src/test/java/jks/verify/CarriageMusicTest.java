@@ -61,6 +61,8 @@ class CarriageMusicTest
 	private static double firstStepSeconds = 1.5;
 	/** When nextLevel was called, and so when the fade to carriage 2 began, in capture seconds. */
 	private static volatile double carriageChangeSeconds = -1;
+	/** When the first step ran, after the entrance crossfade, in capture seconds. */
+	private static volatile double firstStepCaptureSeconds = -1;
 	/**
 	 * When the audio device opened, and so the capture's first sample. The capture runs on the
 	 * wall clock from there; harness.gameSeconds does not count the loading (its first delta is
@@ -95,6 +97,7 @@ class CarriageMusicTest
 		steps = new Steps(firstStepSeconds, 0);
 		// The plain run: no lab, the shipped music.
 		steps.add(1.5, () -> {
+			firstStepCaptureSeconds = (System.nanoTime() - deviceOpenNanos) / 1e9;
 			record("a plain run has no music switch", panel() == null);
 			record("carriage 1 plays its aged song", playing().equals("wa1_modulated.ogg"));
 			record("the entrance crossfade from the menu's song is over", !GVars_AudioManager.isCrossfading());
@@ -221,9 +224,16 @@ class CarriageMusicTest
 		File file = AudioCapture.configuredFile();
 		if (file == null) return; // to the speakers: nothing to read back
 		assertNotNull(capture, "nothing was written to " + file);
-		// From just after the first switch to the end: 50 ms windows, none of them silent.
+		// From the first note to the end: 50 ms windows, none of them silent. The capture starts
+		// when the audio device opens, before the game has loaded, so its first note comes at a
+		// different point in it each run (1.8 to 1.9 s here, r207): the game's clock cannot say
+		// where. The music must have started by the first step, which checks the entrance is over.
 		double[] levels = capture.rms(0.05);
-		int from = (int) ((firstStepSeconds + 0.2) / 0.05), to = levels.length - 8;
+		int from = 0, to = levels.length - 8;
+		while (from < to && levels[from] < 1e-4) from++;
+		assertTrue(firstStepCaptureSeconds > 0, "the first step never ran");
+		assertTrue(from * 0.05 < firstStepCaptureSeconds, "no music by the first step, at " + firstStepCaptureSeconds
+			+ " s of the capture: the first note is at " + from * 0.05 + " s");
 		StringBuilder profile = new StringBuilder();
 		int silent = 0;
 		for (int i = from; i < to; i++)
