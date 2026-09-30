@@ -220,7 +220,9 @@ class FootstepTest
 		if (harness.capture != null) Frames.write(harness.capture, new File(OUTPUT, "footsteps.png"));
 
 		// The walk on his own ends in the longest silence of the run: Ross standing, then walking
-		// at zero volume. Before it, back to the rails, each burst is one step.
+		// at zero volume. Before it, back to the rails, each burst is one step. A step rings for
+		// about 0.2 s and they come 0.24 s apart (r177), so the gap between two is a dip below
+		// '#', not always a '.': a step starts wherever the sound comes back up to '#'.
 		String profile = profile(capture);
 		int quiet = profile.indexOf(".".repeat((int) (1.2 / WINDOW)), Math.max(0, profile.indexOf('#')));
 		assertTrue(quiet > 0, "no silence while Ross stood: " + profile);
@@ -229,9 +231,9 @@ class FootstepTest
 		int i = quiet - 1;
 		while (i >= 0)
 		{
-			while (i >= 0 && profile.charAt(i) == '.') i--;
+			while (i >= 0 && profile.charAt(i) != '#') i--;
 			int end = i;
-			while (i >= 0 && profile.charAt(i) != '.') i--;
+			while (i >= 0 && profile.charAt(i) == '#') i--;
 			if (end < 0 || (end - i) * WINDOW > 0.4) break;   // the rails, or the start of the file
 			onsets.add(0, i + 1);
 		}
