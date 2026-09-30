@@ -13,7 +13,8 @@
 // localStorage or not read back from it, the carriage does not open, or the loop runs under 20 fps.
 // And when the tab is resized, the game must fill it at 16:9, centred, drawn at the canvas's own
 // size and not scaled by CSS (r179, D3): 6_fit_<w>x<h>.png, landscape and portrait. On a devicePixelRatio 2
-// tab the canvas must hold twice the CSS pixels and still run at 20+ fps (r184): 7_dpr1/2.png.
+// tab the canvas must hold twice the CSS pixels (r184) and run within 80% of a ratio-1 tab of the same
+// pixels (r206), and at 10+ fps: 7_dpr1/2.png.
 import puppeteer from 'puppeteer-core';
 import { writeFileSync } from 'node:fs';
 
@@ -179,24 +180,34 @@ try {
 	await fit(page, 420, 900, 'portrait_start');
 
 	// 8. A high-DPI screen (r184, D3): a carriage opened on a devicePixelRatio 2 tab has twice the canvas
-	// pixels, so the art is not upscaled by the browser, and still runs at 20+ fps with 4x the fill.
+	// pixels, so the art is not upscaled by the browser, and the ratio costs nothing beyond those pixels.
 	// 7_dpr1.png and 7_dpr2.png are the same carriage at ratio 1 and 2, for a crop compared side by side.
 	await page.setViewport({ width: 1280, height: 720, deviceScaleFactor: 1 });
 	await open(page, '?start=game&level=1');
 	await waitVue(page, 'Vue_Game', 20000).catch(() => {});
 	await sleep(2000);
 	await page.screenshot({ path: `${out}/7_dpr1.png` });
-	await page.setViewport({ width: 1280, height: 720, deviceScaleFactor: 2 });
-	await open(page, '?start=game&level=1');
-	await waitVue(page, 'Vue_Game', 20000).catch(() => {});
-	await sleep(2000);
-	// Over 5 s: SwiftShader fills 4x the pixels in software, near 20 fps (a 2560x1440 tab at ratio 1 is the
-	// same, tools/browser-gate/fps_probe.mjs); a GPU does not notice
-	report.fpsDpr2 = await fps(page, 5);
+	// Its frame rate is held against a ratio-1 tab of the same 2560x1440 pixels, not a fixed 20 fps (r206):
+	// SwiftShader fills in software, so both run at 17-22 fps with the machine's load, while a 640x360@2
+	// tab runs as fast as a 1280x720 one (tools/browser-gate/fps_probe.mjs). A fixed floor measured the
+	// renderer and the load; this measures what the ratio adds. Taken dpr2, 1x, 1x, dpr2 so a load that
+	// rises or falls during the step weighs on both alike.
+	const carriage = async (dpr) => {
+		await page.setViewport({ width: 2560 / dpr, height: 1440 / dpr, deviceScaleFactor: dpr });
+		await open(page, '?start=game&level=1');
+		await waitVue(page, 'Vue_Game', 20000).catch(() => {});
+		await sleep(2000);
+		return fps(page, 4);
+	};
+	const dpr2 = [await carriage(2)], same = [await carriage(1), await carriage(1)];
+	dpr2.push(await carriage(2));
+	report.fpsDpr2 = Math.round((dpr2[0] + dpr2[1]) / 2);
+	report.fps2560x1440 = Math.round((same[0] + same[1]) / 2);
 	await page.screenshot({ path: `${out}/7_dpr2.png` });
 	await fit(page, 1280, 720, 'dpr2', 2);
-	say(`carriage 1 at devicePixelRatio 2: ${report.fpsDpr2} fps`);
-	if (report.fpsDpr2 < 20) fail(`${report.fpsDpr2} fps at devicePixelRatio 2`);
+	say(`carriage 1 at devicePixelRatio 2: ${report.fpsDpr2} fps (${dpr2.join(', ')}); a 2560x1440 tab at 1: ${report.fps2560x1440} fps (${same.join(', ')})`);
+	if (report.fpsDpr2 < 0.8 * report.fps2560x1440) fail(`${report.fpsDpr2} fps at devicePixelRatio 2, against ${report.fps2560x1440} for the same pixels at 1`);
+	if (report.fpsDpr2 < 10) fail(`${report.fpsDpr2} fps at devicePixelRatio 2: under 10, the game is not drawing, whatever the load`);
 	// Resized under it, the canvas keeps the ratio
 	await fit(page, 1000, 800, 'dpr2_tall', 2);
 	await page.setViewport({ width: 1280, height: 720, deviceScaleFactor: 1 });

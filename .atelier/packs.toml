@@ -441,15 +441,18 @@ It fails unless the game opens on the intro, clicks reach the start screen, musi
 French letters have glyphs, the config survives a reload (localStorage) and carriage 1 opens
 at 20+ fps, and unless a resized tab (landscape and portrait) gets the largest 16:9 canvas it
 holds, centred, drawn at that size, and unless a devicePixelRatio 2 tab gets twice the canvas
-pixels at 20+ fps. Renders (6_fit_*.png, 7_dpr1/2.png) and gate.json in html/build/gate/.
+pixels at 80%+ of the fps of a 2560x1440 ratio-1 tab (and 10+). Renders (6_fit_*.png, 7_dpr1/2.png) and gate.json in html/build/gate/.
 THE CANVAS FOLLOWS THE TAB AT 16:9 (r179): HtmlLauncher.refit on every window resize, the config
 kept FIXED-size on purpose. GwtApplicationConfiguration(true) fills any shape, and the game's
 ScreenViewport stage would lay the menus out in portrait (D3). index.html only centres the
 canvas on black: sizing it in CSS scales its pixels instead.
 THE CANVAS HAS THE SCREEN'S PIXELS (r184): usePhysicalPixels, so config and setWindowedMode take
 DEVICE pixels (HtmlLauncher.canvasWidth) and libGDX sets the CSS size back to the box's. Game size
-is 2x the CSS size on a Retina screen. SwiftShader fills that at ~21 fps, the same as a ratio-1
-tab of equal pixels (tools/browser-gate/fps_probe.mjs <url> 1280x720@2 2560x1440): fill, not DPR.
+is 2x the CSS size on a Retina screen. SwiftShader fills that at 17-22 fps with the machine's
+load, the same as a ratio-1 tab of equal pixels (tools/browser-gate/fps_probe.mjs <url> 1280x720@2
+2560x1440): fill, not DPR. So the gate holds ratio 2 against that tab, never a fixed 20 fps (r206),
+and the canvas is NOT capped under the device's pixels: a GPU fills 2560x1440 easily, and a capped
+canvas is upscaled by the browser (D3).
   tools/play_web.sh              builds it and serves it on 127.0.0.1:8795 until killed
 The board's second Play option, "Play it in the browser" ([viewers.web], r156), runs it and
 opens a tab ON SIMON'S DESK: never open that viewer or `atelier tools open play_web` from a
