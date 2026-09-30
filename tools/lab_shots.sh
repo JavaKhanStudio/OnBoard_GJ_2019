@@ -4,6 +4,7 @@
 #   tools/lab_shots.sh                     # every surface -> build/lab_shots/<Name>_<s>.png
 #   ONLY="Credits SoundLab" tools/lab_shots.sh
 #   AT="12 20" tools/lab_shots.sh          # the moments to grab, in seconds after the game starts
+#   W=1280 H=720 tools/lab_shots.sh        # another window size (default 1600x900)
 #
 # WHY: a surface that no longer opens is a Labs button that lies, and a Gradle task that
 # ended 0 is not a screen that rendered. The labs upkeep (r188) needs to SEE each one.
@@ -21,7 +22,7 @@
 set -uo pipefail
 ROOT=$(cd "$(dirname "$(readlink -f "$0")")/.." && pwd)
 OUT=$(mkdir -p "$ROOT/build/lab_shots" && readlink -f "$ROOT/build/lab_shots")
-W=1600 H=900
+W=${W:-1600} H=${H:-900}
 read -ra MOMENTS <<<"${AT:-10 18}"
 
 for tool in gamescope gamescopectl atelier python3; do
@@ -50,11 +51,21 @@ while IFS='|' read -r name flags; do
 	[[ -n ${ONLY:-} && " $ONLY " != *" $name "* ]] && continue
 	rm -f "$OUT/${name}"_*.png
 	log="$OUT/$name.log"
+	# The game opens its window at the config's size, not gamescope's: give it one of W x H,
+	# a copy, so nothing a lab saves reaches desktop/config either.
+	config=$(mktemp)
+	python3 - "$ROOT/desktop/config" "$config" "$W" "$H" <<'PY'
+import json, os, sys
+src, dst, w, h = sys.argv[1:]
+cfg = json.load(open(src)) if os.path.exists(src) else {}
+cfg.update(width=int(w), height=int(h), isFullScreen=False)
+json.dump(cfg, open(dst, "w"), indent=2)
+PY
 	inside=$(mktemp)
 	cat >"$inside" <<EOF
 #!/usr/bin/env bash
 cd "$ROOT"
-ONBOARD_INSIDE_CAGE=1 ONBOARD_OFFSCREEN=1 ./gradlew --console=plain :desktop:runGame $flags >"$log" 2>&1 &
+ONBOARD_INSIDE_CAGE=1 ONBOARD_OFFSCREEN=1 ./gradlew --console=plain :desktop:runGame $flags -Donboard.config=$config >"$log" 2>&1 &
 game=\$!
 for _ in \$(seq 300); do grep -q '> Task :desktop:runGame' "$log" 2>/dev/null && break; kill -0 \$game 2>/dev/null || break; sleep 1; done
 prev=0
@@ -67,7 +78,7 @@ kill \$game 2>/dev/null; wait \$game 2>/dev/null
 EOF
 	chmod +x "$inside"
 	timeout $((MOMENTS[-1] + 360)) gamescope --backend headless -W $W -H $H -w $W -h $H -- "$inside" >/dev/null 2>&1
-	rm -f "$inside"
+	rm -f "$inside" "$config"
 	shots=$(ls "$OUT/${name}"_*.png 2>/dev/null | wc -l)
 	echo "$name: $shots of ${#MOMENTS[@]} frames ($flags)"
 done <<<"$surfaces"

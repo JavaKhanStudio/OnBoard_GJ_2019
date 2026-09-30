@@ -52,7 +52,13 @@ public class Vue_SoundLab extends AVue_Model
 {
 	/** Name, detail, Play, Stop, Use, and a filler that keeps the buttons beside the detail. */
 	private static final int COLUMNS = 6 ;
-	private static final float NAME_WIDTH = 330f, DETAIL_WIDTH = 390f ;
+	/**
+	 * The name and detail columns at a 1600-wide window. The font is sized from the window's
+	 * width (GVars_Font), so the columns are too: fixed pixels let the detail run under the
+	 * buttons in a wider window (r209).
+	 */
+	private static final float NAME_AT_1600 = 330f, DETAIL_AT_1600 = 450f ;
+	private float nameWidth, detailWidth ;
 
 	private VisLabel nowPlaying, effectsPlaying ;
 	private Cell<VisTable> candidates ;
@@ -71,6 +77,8 @@ public class Vue_SoundLab extends AVue_Model
 	public void init()
 	{
 		toRender = new ArrayList<>() ;
+		nameWidth = NAME_AT_1600 * Gdx.graphics.getWidth() / 1600f ;
+		detailWidth = DETAIL_AT_1600 * Gdx.graphics.getWidth() / 1600f ;
 		GVars_AudioManager.StopMusic() ;
 		Gdx.input.setInputProcessor(GVars_UI.mainUi) ;
 
@@ -156,8 +164,8 @@ public class Vue_SoundLab extends AVue_Model
 		}) ;
 
 		// Fixed widths, so the effect rows - a table of their own per tab - line up with these.
-		page.add(label(shown(track.name()), GVars_Font.labelStyle_Second)).left().width(NAME_WIDTH) ;
-		page.add(label(describe(file), GVars_Font.labelStyle_Second)).left().width(DETAIL_WIDTH) ;
+		page.add(label(shown(track.name()), GVars_Font.labelStyle_Second)).left().width(nameWidth) ;
+		page.add(label(describe(file), GVars_Font.labelStyle_Second)).left().width(detailWidth) ;
 		page.add(play).padRight(8f) ;
 		page.add(stop) ;
 		page.add() ;
@@ -195,10 +203,10 @@ public class Vue_SoundLab extends AVue_Model
 
 		FileHandle ideal = GVars_AudioManager.idealFile(carriage) ;
 		String detail = "modulated" + describeSize(GVars_AudioManager.carriageFile(carriage, Enum_Music.CarriageVariant.MODULATED))
-			+ "   ideal" + (ideal == null ? "  not made yet" : describeSize(ideal)) ;
+			+ "   ideal" + (ideal == null ? "  none yet" : describeSize(ideal)) ;
 
-		page.add(label(CARRIAGES[carriage - 1], GVars_Font.labelStyle_Second)).left().width(NAME_WIDTH) ;
-		page.add(label(detail, GVars_Font.labelStyle_Second)).left().width(DETAIL_WIDTH) ;
+		page.add(label(CARRIAGES[carriage - 1], GVars_Font.labelStyle_Second)).left().width(nameWidth) ;
+		page.add(label(detail, GVars_Font.labelStyle_Second)).left().width(detailWidth) ;
 		page.add(buttons).colspan(COLUMNS - 2).left().row() ;
 	}
 
@@ -246,9 +254,9 @@ public class Vue_SoundLab extends AVue_Model
 		VisLabel mark = label("", GVars_Font.labelStyle_Second) ;
 		marks.put(candidate, mark) ;
 
-		table.add(label(candidate.label, GVars_Font.labelStyle_Second)).left().width(NAME_WIDTH) ;
+		table.add(label(candidate.label, GVars_Font.labelStyle_Second)).left().width(nameWidth) ;
 		// The enum name, not the path: the file names have underscores, which this font cannot draw.
-		table.add(label(shown(candidate.name()) + describeSize(Gdx.files.internal(candidate.path)), GVars_Font.labelStyle_Second)).left().width(DETAIL_WIDTH) ;
+		table.add(label(shown(candidate.name()) + describeSize(Gdx.files.internal(candidate.path)), GVars_Font.labelStyle_Second)).left().width(detailWidth) ;
 		table.add(play).padRight(8f) ;
 		table.add(stop).padRight(8f) ;
 		table.add(use).padRight(12f) ;
