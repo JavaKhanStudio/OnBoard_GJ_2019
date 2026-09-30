@@ -23,10 +23,13 @@ import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
 import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.Group;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.Slider;
 
 import jks.amain.Main_Application;
+import jks.index.Index_Text;
 import jks.input.GVars_Inputs;
 import jks.vars.GVars_Heart;
 import jks.vinterface.GVars_UI;
@@ -134,6 +137,28 @@ class MenuKeyboardTest
 			press(Keys.ENTER);
 			record("enter on the return sign closes the credits", GVars_Heart.vue.overlay == null);
 		});
+		// The language flags (r162) are columns of their own right of the entries (r170).
+		steps.add(() -> {
+			press(Keys.RIGHT);
+			record("right reaches the French flag", focusedIs(1, 0) && "flag.fr".equals(focused().getName()));
+			press(Keys.RIGHT);
+			record("right again reaches the English flag", focusedIs(2, 0) && "flag.en".equals(focused().getName()));
+		});
+		steps.add(() -> {
+			Frames.write(GameHarness.grab(), new File(OUTPUT, "menu-keyboard-flag.png"));
+			press(Keys.ENTER);
+			record("enter on it plays in English", "en".equals(Index_Text.getLanguage()));
+			record("and the menu reads English", menuSays("Play") && !menuSays("Jouer"));
+		});
+		steps.add(() -> {
+			Frames.write(GameHarness.grab(), new File(OUTPUT, "menu-keyboard-english.png"));
+			press(Keys.LEFT);
+			press(Keys.ENTER);
+			record("left and enter on the French flag play in French again",
+				"fr".equals(Index_Text.getLanguage()) && menuSays("Jouer"));
+			press(Keys.LEFT);
+			record("left goes back to the entries", focusedIs(0, 0));
+		});
 		steps.add(() -> {
 			processor().mouseMoved(20, 20);
 			record("moving the mouse puts the focus away", !GVars_UI.focusShown);
@@ -207,6 +232,22 @@ class MenuKeyboardTest
 		return Utils_Controllable.getFocused();
 	}
 
+	/** Whether one of the start menu's entries is lettered this word. */
+	private static boolean menuSays(String word)
+	{
+		return says(GVars_UI.mainUi.getRoot(), word);
+	}
+
+	private static boolean says(Actor actor, String word)
+	{
+		if (actor instanceof Label && word.contentEquals(((Label)actor).getText()))
+			return true;
+		if (actor instanceof Group)
+			for (Actor child : ((Group)actor).getChildren())
+				if (says(child, word)) return true;
+		return false;
+	}
+
 	private static boolean focusedIs(int column, int row)
 	{
 		return GVars_UI.cursorPos != null && GVars_UI.cursorPos.x == column && GVars_UI.cursorPos.y == row;
@@ -229,6 +270,6 @@ class MenuKeyboardTest
 		assertTrue(finished, "not every step ran:\n" + report);
 		for (String line : seen)
 			assertTrue(line.startsWith("ok"), report);
-		assertEquals(24, seen.size(), report);
+		assertEquals(30, seen.size(), report);
 	}
 }

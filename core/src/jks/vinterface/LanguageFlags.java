@@ -4,10 +4,10 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
-import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 
 import jks.amain.Utils_Config;
 import jks.index.Index_Interface;
@@ -44,15 +44,23 @@ public class LanguageFlags extends Table
 				continue ;
 			ImageButton flag = new ImageButton(Utils_TexturesAcess.buildDrawingRegionTexture(flagPath(code))) ;
 			flag.setName("flag." + code) ;
-			flag.addListener(new ClickListener()
+			// A ChangeListener, not a ClickListener: Enter on a focused flag toggles it, which
+			// fires a change and no click (r170).
+			flag.addListener(new ChangeListener()
 			{
 				@Override
-				public void clicked(InputEvent event, float x, float y)
+				public void changed(ChangeEvent event, Actor actor)
 				{choose(code) ;}
 			}) ;
 			flags.put(code, flag) ;
 		}
 		resize() ;
+	}
+
+	/** The flags, in CODES order, for the start menu's keyboard map (r170). */
+	public java.util.Collection<ImageButton> buttons()
+	{
+		return flags.values() ;
 	}
 
 	public static String flagPath(String code)

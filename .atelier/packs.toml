@@ -173,6 +173,7 @@ cloud (fitCloud, x1.15 steps up to x1.33), never shrinks the letters. BubbleLine
 types every line of the four carriages at 1280x720, fails on one that does not fit, and writes
 build/frames/bubble-lines-<language>-<n>.png, every language (r162): read those after any change to a line, the font or the cloud.
 Keep a line to about 90 characters; {WAVE} is halved at runtime (GENTLE_WAVE).
+THE KEYBOARD reaches only what a screen's mapInterface() lists (columns of rows; left/right cross columns). The start menu's language flags are columns of their own right of the entries (r170). Enter toggle()s a Button, which fires a ChangeListener and NO click: a ClickListener widget is dead to the keyboard. highlightsItself(Actor) says which widgets light up by themselves; the rest get FocusMarker's blue outline. MenuKeyboardTest drives it all. No menu is pad-driven (r11: Simon ruled the pad out).
 VisUI is loaded here with libGDX's STOCK skin, not VisUI's own, so a widget style that
 uiskin.json does not declare will not resolve.
 An ImageButton left alone draws its drawable at natural size — give it a size and its

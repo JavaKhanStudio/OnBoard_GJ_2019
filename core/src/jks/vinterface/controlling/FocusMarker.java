@@ -35,7 +35,7 @@ public class FocusMarker extends Actor
 	{
 		Actor target = Utils_Controllable.getFocused() ;
 		if(!GVars_UI.focusShown || target == null || target.getStage() == null || !target.isVisible()
-				|| GVars_UI.currentControllable == null || GVars_UI.currentControllable.highlightsItself())
+				|| GVars_UI.currentControllable == null || GVars_UI.currentControllable.highlightsItself(target))
 			return ;
 
 		if(white == null)

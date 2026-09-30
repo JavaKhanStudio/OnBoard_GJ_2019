@@ -331,11 +331,29 @@ public class StartScreen_SmoothSideSelect extends Table implements ReplayAction,
 		return selectableOptionsMapped;
 	}
 	
+	/**
+	 * A widget beside the entries the keyboard can reach, one column of its own to their right:
+	 * the language flags (r170). The right arrow walks from the entries to each in turn.
+	 */
+	public void addColumn(Actor actor)
+	{
+		ArrayList<Actor> column = new ArrayList<>() ;
+		column.add(actor) ;
+		selectableOptionsMapped.add(column) ;
+	}
+
 	/** The entries slide out and light up on hover, and the keyboard focus uses that. */
 	@Override
 	public boolean highlightsItself()
 	{
 		return true ;
+	}
+
+	/** A flag has no hover of its own, so the focus outline goes round it. */
+	@Override
+	public boolean highlightsItself(Actor focused)
+	{
+		return selectableOptionsX.contains(focused) ;
 	}
 }
 

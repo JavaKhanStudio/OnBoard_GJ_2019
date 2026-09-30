@@ -33,5 +33,9 @@ public interface Controllable_Interface
 	public default boolean highlightsItself()
 	{return false ;}
 
+	/** The same, for the one widget the keyboard is on, when a screen mixes both kinds. */
+	public default boolean highlightsItself(Actor focused)
+	{return highlightsItself() ;}
+
 	public Controllable_Interface currentControllable = null;
 }

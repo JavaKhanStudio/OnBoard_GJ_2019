@@ -67,6 +67,8 @@ public class Vue_StartScreen extends AVue_Model
 		flags = new LanguageFlags(smoothSideSelect::relabel) ; 
 		GVars_UI.mainUi.addActor(flags);
 		smoothSideSelect.alongside = flags ; 
+		for(com.badlogic.gdx.scenes.scene2d.ui.ImageButton flag : flags.buttons())
+			smoothSideSelect.addColumn(flag) ;
 		incrementOnce = new TextButton("increment Once +",GVars_UI.baseSkin) ; 
 		GVars_Font.resize();
 
