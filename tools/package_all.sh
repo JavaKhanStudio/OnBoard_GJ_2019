@@ -65,7 +65,7 @@ for line in "${TARGETS[@]}"; do
 		|| { echo "package_all: $task never ran checkDistNatives" >&2; exit 1; }
 	[[ -f "$TREE/dist/$zip" ]] || { echo "package_all: $task made no dist/$zip" >&2; exit 1; }
 
-	rm -rf "$STAGE/On Board" "$STAGE/$zip"
+	rm -rf "${STAGE:?}/On Board" "${STAGE:?}/$zip"
 	mkdir "$STAGE/On Board"
 	unzip -q "$TREE/dist/$zip" -d "$STAGE/On Board"
 	echo "On Board $VERSION" >"$STAGE/On Board/VERSION.txt"

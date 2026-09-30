@@ -20,6 +20,6 @@ sleep 1
 kill \$chrome 2>/dev/null; wait \$chrome 2>/dev/null
 EOF
 chmod +x "$work/inside.sh"
-timeout 40 gamescope --backend headless -W $W -H $H -w $W -h $H -- "$work/inside.sh" >/dev/null 2>&1 || true
+timeout 40 gamescope --backend headless -W "$W" -H "$H" -w "$W" -h "$H" -- "$work/inside.sh" >/dev/null 2>&1 || true
 [ -f "$out" ] || { echo "tab_shot: no screenshot" >&2; cat "$work/chrome.log" >&2; exit 1; }
 echo "tab_shot: $out"

@@ -20,7 +20,7 @@
 #
 #   ATELIER_CHECKOUT=$PWD tools/publish_gate.sh      # by hand, from a worktree
 set -uo pipefail
-cd "$(dirname "$(readlink -f "$0")")/.."
+cd "$(dirname "$(readlink -f "$0")")/.." || exit 2
 : "${ATELIER_CHECKOUT:?the real checkout this worktree was made from}"
 
 STEPS=(

@@ -50,11 +50,12 @@ cp "$ROOT/desktop/config" "$WORK/config.template"
 for scene in "${SCENES[@]}"; do
 	IFS='|' read -r name flags moments <<<"$scene"
 	read -ra ts <<<"$moments"
+	read -ra flagv <<<"$flags"
 	[[ -n ${ONLY:-} && " $ONLY " != *" $name "* ]] && continue
 	rm -f "$OUT/${name}"_*.png
 	sed -e "s/\"width\" : [0-9]*/\"width\" : $W/" -e "s/\"height\" : [0-9]*/\"height\" : $H/" \
 		-e 's/"isFullScreen" : true/"isFullScreen" : false/' "$WORK/config.template" >"$GAME/config"
-	python3 - "$GAME/app/onboard.json" "$WORK/onboard.json" $flags <<'PY'
+	python3 - "$GAME/app/onboard.json" "$WORK/onboard.json" "${flagv[@]}" <<'PY'
 import json, sys
 dst, src, flags = sys.argv[1], sys.argv[2], sys.argv[3:]
 cfg = json.load(open(src))
@@ -77,5 +78,5 @@ EOF
 	chmod +x "$WORK/inside.sh"
 	ALSOFT_DRIVERS=null timeout $((ts[-1] + 40)) \
 		gamescope --backend headless -W $W -H $H -w $W -h $H -- "$WORK/inside.sh" >/dev/null 2>&1
-	echo "  $name: $(ls "$OUT/${name}"_*.png 2>/dev/null | wc -l) of ${#ts[@]} shots"
+	echo "  $name: $(find "$OUT" -maxdepth 1 -name "${name}_*.png" | wc -l) of ${#ts[@]} shots"
 done
