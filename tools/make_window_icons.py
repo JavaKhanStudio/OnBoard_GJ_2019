@@ -12,9 +12,8 @@ closest size for each use, so a handful of small ones beats one large one scaled
 import os
 import sys
 
-from PIL import Image
-
 from make_icns import square
+from PIL import Image
 
 SIZES = [16, 32, 48, 128]
 

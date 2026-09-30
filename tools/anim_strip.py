@@ -12,12 +12,14 @@ all frames of each row at 1/8 opacity: a clean walk-in-place is one figure with 
     python3 tools/anim_strip.py desktop/assets/game/anim/ado.atlas out.png
 """
 import sys
+
 from PIL import Image, ImageDraw
 
 
 def read_atlas(path):
     """The regions of a single-page libGDX atlas: name, xy, size, orig, offset, index."""
-    lines = [l.rstrip("\n") for l in open(path)]
+    with open(path) as f:
+        lines = [l.rstrip("\n") for l in f]
     lines = [l for l in lines if l.strip()]
     page, regions, cur = lines[0], [], None
     for l in lines[1:]:

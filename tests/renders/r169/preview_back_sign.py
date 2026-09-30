@@ -5,6 +5,7 @@ from the painted letters. The arrow is kept. Not used by the game.
     python3 tests/renders/r169/preview_back_sign.py <out.png>
 """
 import sys
+
 import numpy as np
 from PIL import Image, ImageDraw, ImageFilter, ImageFont
 

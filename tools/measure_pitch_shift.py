@@ -55,7 +55,7 @@ def main():
 	paths = sys.argv[1:] or sorted(glob.glob(os.path.join(ROOT, "desktop", "assets", "musics", "wagons", "wa*_modulated.ogg")))
 	reference = log_spectrum(mono(SOURCE))
 	for path in paths:
-		print("{}  {:+.1f} semitones".format(os.path.relpath(path, ROOT), shift(reference, log_spectrum(mono(path)))))
+		print(f"{os.path.relpath(path, ROOT)}  {shift(reference, log_spectrum(mono(path))):+.1f} semitones")
 
 
 if __name__ == "__main__":

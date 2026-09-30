@@ -121,7 +121,7 @@ def clacks(length, rng, speed=16.7, joint=18.3, bogie=14.0, axle=2.6):
 	n = int(length * RATE)
 	out = np.zeros(n)
 	period = joint / speed
-	joints = int(round(length / period))
+	joints = round(length / period)
 	period = length / joints
 	hit_length = int(0.12 * RATE)
 	t = np.arange(hit_length) / RATE
@@ -148,7 +148,7 @@ def write(name, samples):
 		w.writeframes((np.clip(samples, -1, 1) * 32767).astype(np.int16).tobytes())
 	target = os.path.join(OUT, name + ".ogg")
 	subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", wav, "-c:a", "libvorbis", "-q:a", "4", "-map_metadata", "-1", target], check=True)
-	print("%-28s %5.1f s  %4d KB" % (name + ".ogg", len(samples) / RATE, os.path.getsize(target) // 1024))
+	print(f"{name + '.ogg':<28} {len(samples) / RATE:5.1f} s  {os.path.getsize(target) // 1024:4d} KB")
 
 
 RAILS_DB = -20.0

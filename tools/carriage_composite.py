@@ -18,7 +18,7 @@ WORLD_HEIGHT, BAR = 900, 100
 
 
 def composite(level, width):
-    with open(os.path.join(WAGONS, "wa%d.wa" % level), encoding="utf-8") as f:
+    with open(os.path.join(WAGONS, f"wa{level}.wa"), encoding="utf-8") as f:
         data = json.load(f)
     art_dir = os.path.join(WAGONS, data["path_meta"])
     w = round(width)
@@ -41,7 +41,7 @@ def main():
     a = p.parse_args()
     os.makedirs(a.out, exist_ok=True)
     for level in range(1, 5):
-        path = os.path.join(a.out, "carriage%d.png" % level)
+        path = os.path.join(a.out, f"carriage{level}.png")
         composite(level, a.width).save(path)
         print(path)
 

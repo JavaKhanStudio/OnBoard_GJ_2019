@@ -44,18 +44,18 @@ RATE = 44100
 
 # semitones, tempo ratio, ffmpeg EQ chain, reverb (seconds, wet), level in dB against the source
 RECIPES = {
-	1: dict(semitones=+1, tempo=1.04,
-		eq="highpass=f=140,treble=g=3:f=5000,bass=g=-2:f=200",
-		reverb=(0.8, 0.10), gain=0.0),
-	2: dict(semitones=0, tempo=1.00,
-		eq="bass=g=1.5:f=180,treble=g=-1:f=7000,extrastereo=m=1.3",
-		reverb=(1.2, 0.12), gain=0.0),
-	3: dict(semitones=-2, tempo=0.94,
-		eq="lowpass=f=6500,treble=g=-3:f=3500,equalizer=f=400:t=q:w=1:g=1.5",
-		reverb=(2.4, 0.24), gain=-1.0),
-	4: dict(semitones=-3, tempo=0.86,
-		eq="highpass=f=180,lowpass=f=3000,equalizer=f=1200:t=q:w=1:g=2,vibrato=f=0.45:d=0.04",
-		reverb=(4.0, 0.38), gain=-3.0),
+	1: {"semitones": +1, "tempo": 1.04,
+		"eq": "highpass=f=140,treble=g=3:f=5000,bass=g=-2:f=200",
+		"reverb": (0.8, 0.10), "gain": 0.0},
+	2: {"semitones": 0, "tempo": 1.00,
+		"eq": "bass=g=1.5:f=180,treble=g=-1:f=7000,extrastereo=m=1.3",
+		"reverb": (1.2, 0.12), "gain": 0.0},
+	3: {"semitones": -2, "tempo": 0.94,
+		"eq": "lowpass=f=6500,treble=g=-3:f=3500,equalizer=f=400:t=q:w=1:g=1.5",
+		"reverb": (2.4, 0.24), "gain": -1.0},
+	4: {"semitones": -3, "tempo": 0.86,
+		"eq": "highpass=f=180,lowpass=f=3000,equalizer=f=1200:t=q:w=1:g=2,vibrato=f=0.45:d=0.04",
+		"reverb": (4.0, 0.38), "gain": -3.0},
 }
 
 
@@ -105,7 +105,7 @@ def rms(samples):
 
 def main():
 	os.makedirs(OUT, exist_ok=True)
-	source = render(dict(semitones=0, tempo=1.0, eq="anull"))
+	source = render({"semitones": 0, "tempo": 1.0, "eq": "anull"})
 	rng = np.random.default_rng(94)
 	only = {int(a) for a in sys.argv[1:]} or set(RECIPES)
 	for carriage, recipe in RECIPES.items():
@@ -120,10 +120,10 @@ def main():
 		peak = np.max(np.abs(samples))
 		if peak > 0.97:
 			samples *= 0.97 / peak
-		path = os.path.join(OUT, "wa{}_modulated.ogg".format(carriage))
+		path = os.path.join(OUT, f"wa{carriage}_modulated.ogg")
 		subprocess.run(["ffmpeg", "-v", "error", "-y", "-f", "f32le", "-ar", str(RATE), "-ac", "2", "-i", "-",
 			"-c:a", "libvorbis", "-q:a", "4", path], check=True, input=samples.astype(np.float32).tobytes())
-		print("{}  {:.1f} s  {} KB".format(os.path.relpath(path, ROOT), len(samples) / RATE, os.path.getsize(path) // 1024))
+		print(f"{os.path.relpath(path, ROOT)}  {len(samples) / RATE:.1f} s  {os.path.getsize(path) // 1024} KB")
 
 
 if __name__ == "__main__":

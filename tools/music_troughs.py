@@ -3,7 +3,10 @@
 loudest within NEAR windows on both sides. CarriageMusicTest.HOLE_DB must sit above this, or the
 song's own phrase endings read as a hole at the carriage change. Needs ffmpeg and numpy.
 Usage: tools/music_troughs.py [file ...]  (default: the aged carriage songs and intro.mp3)"""
-import glob, subprocess, sys
+import glob
+import subprocess
+import sys
+
 import numpy as np
 
 NEAR = 10
