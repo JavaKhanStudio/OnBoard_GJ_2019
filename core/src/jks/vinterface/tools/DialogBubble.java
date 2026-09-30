@@ -288,12 +288,13 @@ public class DialogBubble extends VisTable
 	float scale = 1f ; 
 	
 	/**
-	 * The cloud is stretched wider than it is tall (r121). Its letters were made bigger, and a
-	 * cloud grown the same in both directions would run off the top of the screen above
-	 * Ross, so the longer lines go into the width instead.
+	 * The cloud's side, in base sizes. r121 stretched it 1.6 wide and 1.2 tall so the longer
+	 * lines went into the width; the painting is square, and it is drawn square now (d14, D3).
+	 * 1.4, not 1.6: there is little room above Ross, and setBubblePosition slides a taller cloud
+	 * down to keep it on the screen - at 1.6 its tail pointed at the post box beside him, not
+	 * at him. A line wraps a little narrower, and fitCloud grows the cloud for the longest.
 	 */
-	private static final float WIDE = 1.6f ; 
-	private static final float TALL = 1.2f ; 
+	private static final float SIDE = 1.4f ; 
 	
 	float size ; 
 	float width ; 
@@ -356,8 +357,8 @@ public class DialogBubble extends VisTable
 	private void layoutCloud()
 	{
 		float size = baseSize * scale ; 
-		width = size * WIDE ; 
-		height = size * TALL ; 
+		width = size * SIDE ; 
+		height = size * SIDE ; 
 		
 		this.setSize(width,height);
 		typing.setSize(width * (BODY_RIGHT - BODY_LEFT), height * (BODY_BOTTOM - BODY_TOP));
