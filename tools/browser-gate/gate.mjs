@@ -12,7 +12,8 @@
 // start screen, no music plays, a French letter has no glyph, the config is not kept in
 // localStorage or not read back from it, the carriage does not open, or the loop runs under 20 fps.
 // And when the tab is resized, the game must fill it at 16:9, centred, drawn at the canvas's own
-// size and not scaled by CSS (r179, D3): 6_fit_<w>x<h>.png, landscape and portrait.
+// size and not scaled by CSS (r179, D3): 6_fit_<w>x<h>.png, landscape and portrait. On a devicePixelRatio 2
+// tab the canvas must hold twice the CSS pixels and still run at 20+ fps (r184): 7_dpr1/2.png.
 import puppeteer from 'puppeteer-core';
 import { writeFileSync } from 'node:fs';
 
@@ -59,29 +60,32 @@ async function open(page, query) {
 	return Date.now() - t0;
 }
 
-// The canvas in a tab of this size: the largest 16:9 box it holds, centred, its pixels not scaled by CSS,
-// and the game drawing at that size. Shot as 6_fit_<name>.png.
-async function fit(page, width, height, name) {
-	await page.setViewport({ width, height });
+// The canvas in a tab of this size: the largest 16:9 box it holds, centred, holding the screen's own pixels
+// (dpr of them to a CSS pixel, r184) and shown at the box's CSS size, and the game drawing at the canvas's size.
+// Shot as 6_fit_<name>.png.
+async function fit(page, width, height, name, dpr = 1) {
+	await page.setViewport({ width, height, deviceScaleFactor: dpr });
 	await sleep(1500);
 	const got = await probe(page, () => {
 		const c = document.querySelector('canvas'), r = c.getBoundingClientRect();
-		return { w: c.width, h: c.height, cssW: r.width, cssH: r.height, left: r.left, top: r.top, game: window.onboard.size() };
+		return { w: c.width, h: c.height, cssW: r.width, cssH: r.height, left: r.left, top: r.top, game: window.onboard.size(), dpr: devicePixelRatio };
 	});
-	const w = Math.min(width, Math.floor(height * 16 / 9)), h = Math.floor(w * 9 / 16);
-	report.fit[`${width}x${height}`] = got;
+	const box = Math.min(width, Math.floor(height * 16 / 9));
+	const w = Math.floor(box * dpr), h = Math.floor(w * 9 / 16);
+	const tab = `${width}x${height}${dpr === 1 ? '' : '@' + dpr}`;
+	report.fit[tab] = got;
 	await page.screenshot({ path: `${out}/6_fit_${name}.png` });
-	say(`tab ${width}x${height}: canvas ${got.w}x${got.h} at ${Math.round(got.left)},${Math.round(got.top)}, game ${got.game}`);
-	if (got.w !== w || got.h !== h) fail(`tab ${width}x${height}: canvas ${got.w}x${got.h}, not the ${w}x${h} that fills it at 16:9`);
-	if (got.cssW !== got.w || got.cssH !== got.h) fail(`tab ${width}x${height}: CSS shows the ${got.w}x${got.h} canvas at ${got.cssW}x${got.cssH}`);
-	if (Math.abs(got.left - (width - w) / 2) > 1 || Math.abs(got.top - (height - h) / 2) > 1) fail(`tab ${width}x${height}: canvas not centred (${got.left},${got.top})`);
-	if (got.game !== `${w}x${h}`) fail(`tab ${width}x${height}: the game draws at ${got.game}, not ${w}x${h}`);
+	say(`tab ${tab}: canvas ${got.w}x${got.h} shown ${got.cssW}x${got.cssH} at ${Math.round(got.left)},${Math.round(got.top)}, game ${got.game}`);
+	if (got.w !== w || got.h !== h) fail(`tab ${tab}: canvas ${got.w}x${got.h}, not the ${w}x${h} that fills it at 16:9`);
+	if (Math.abs(got.cssW * dpr - got.w) > 1 || Math.abs(got.cssH * dpr - got.h) > 1) fail(`tab ${tab}: CSS shows the ${got.w}x${got.h} canvas at ${got.cssW}x${got.cssH}, not ${1 / dpr} of it`);
+	if (Math.abs(got.left - (width - got.cssW) / 2) > 1 || Math.abs(got.top - (height - got.cssH) / 2) > 1) fail(`tab ${tab}: canvas not centred (${got.left},${got.top})`);
+	if (got.game !== `${w}x${h}`) fail(`tab ${tab}: the game draws at ${got.game}, not ${w}x${h}`);
 }
 
-async function fps(page) {
+async function fps(page, seconds = 3) {
 	const f0 = await probe(page, () => window.onboard.frames());
-	await sleep(3000);
-	return Math.round(((await probe(page, () => window.onboard.frames())) - f0) / 3);
+	await sleep(seconds * 1000);
+	return Math.round(((await probe(page, () => window.onboard.frames())) - f0) / seconds);
 }
 
 try {
@@ -173,7 +177,29 @@ try {
 	await open(page, '?start=start_screen');
 	await sleep(2500);
 	await fit(page, 420, 900, 'portrait_start');
-	await page.setViewport({ width: 1280, height: 720 });
+
+	// 8. A high-DPI screen (r184, D3): a carriage opened on a devicePixelRatio 2 tab has twice the canvas
+	// pixels, so the art is not upscaled by the browser, and still runs at 20+ fps with 4x the fill.
+	// 7_dpr1.png and 7_dpr2.png are the same carriage at ratio 1 and 2, for a crop compared side by side.
+	await page.setViewport({ width: 1280, height: 720, deviceScaleFactor: 1 });
+	await open(page, '?start=game&level=1');
+	await waitVue(page, 'Vue_Game', 20000).catch(() => {});
+	await sleep(2000);
+	await page.screenshot({ path: `${out}/7_dpr1.png` });
+	await page.setViewport({ width: 1280, height: 720, deviceScaleFactor: 2 });
+	await open(page, '?start=game&level=1');
+	await waitVue(page, 'Vue_Game', 20000).catch(() => {});
+	await sleep(2000);
+	// Over 5 s: SwiftShader fills 4x the pixels in software, near 20 fps (a 2560x1440 tab at ratio 1 is the
+	// same, tools/browser-gate/fps_probe.mjs); a GPU does not notice
+	report.fpsDpr2 = await fps(page, 5);
+	await page.screenshot({ path: `${out}/7_dpr2.png` });
+	await fit(page, 1280, 720, 'dpr2', 2);
+	say(`carriage 1 at devicePixelRatio 2: ${report.fpsDpr2} fps`);
+	if (report.fpsDpr2 < 20) fail(`${report.fpsDpr2} fps at devicePixelRatio 2`);
+	// Resized under it, the canvas keeps the ratio
+	await fit(page, 1000, 800, 'dpr2_tall', 2);
+	await page.setViewport({ width: 1280, height: 720, deviceScaleFactor: 1 });
 
 	const errors = report.console.filter((l) => l.startsWith('pageerror') || l.startsWith('error'));
 	if (errors.length) say(`console errors (not fatal):\n  ${errors.join('\n  ')}`);

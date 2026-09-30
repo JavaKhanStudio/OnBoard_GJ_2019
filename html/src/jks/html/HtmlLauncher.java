@@ -9,6 +9,7 @@ import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.backends.gwt.GwtApplication;
 import com.badlogic.gdx.backends.gwt.GwtApplicationConfiguration;
+import com.badlogic.gdx.backends.gwt.GwtGraphics;
 import com.badlogic.gdx.backends.gwt.preloader.Preloader.PreloaderCallback;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.BitmapFont.Glyph;
@@ -39,6 +40,11 @@ import jks.vars.GVars_Heart;
  * resizable form would fill the tab at any shape, and the game's screen-pixel stage would lay the menus
  * out in a portrait tab. So the config stays a fixed size, and a resize handler of ours moves it.
  *
+ * The canvas has the screen's own pixels (r184, D3): on a devicePixelRatio 2 screen a 1440x810 box is a
+ * 2880x1620 canvas, which libGDX's GwtGraphics.setCanvasSize shows at 1440x810 CSS pixels. At CSS pixels
+ * the browser would upscale it, blurring the art. The ratio is read again on every resize: zooming the page
+ * or moving the window to another screen changes it.
+ *
  * It also sets window.onboard, what tools/browser-gate/gate.mjs reads: frames(), vue(), size(), music(), volume()
  * and missingGlyphs(text).
  */
@@ -48,7 +54,7 @@ public class HtmlLauncher extends GwtApplication
 	public GwtApplicationConfiguration getConfig()
 	{
 		// The menus and the carriages are laid out for 16:9, the desktop's only shape
-		return new GwtApplicationConfiguration(fitWidth(), fitHeight());
+		return new GwtApplicationConfiguration(canvasWidth(), canvasHeight(), true);
 	}
 
 	/** The widest 16:9 canvas the tab holds, in CSS pixels. */
@@ -57,6 +63,13 @@ public class HtmlLauncher extends GwtApplication
 
 	static int fitHeight()
 	{return fitWidth() * 9 / 16;}
+
+	/** That box in the screen's pixels: what the canvas holds and the game draws at. */
+	static int canvasWidth()
+	{return (int) (fitWidth() * GwtGraphics.getNativeScreenDensity());}
+
+	static int canvasHeight()
+	{return canvasWidth() * 9 / 16;}
 
 	/** Refits the canvas to the tab: the game's loop sees the new size and calls resize(), as a desktop window does. */
 	private void refit()
@@ -67,7 +80,7 @@ public class HtmlLauncher extends GwtApplication
 		getRootPanel().setPixelSize(width, height);
 		// Before the preloader ends there is no canvas yet: the panel alone is resized
 		if(Gdx.graphics != null)
-			Gdx.graphics.setWindowedMode(width, height);
+			Gdx.graphics.setWindowedMode(canvasWidth(), canvasHeight());
 	}
 
 	// The loading screen shows the game's logo, not libGDX's (r165): html:war copies it beside index.html
@@ -138,7 +151,7 @@ public class HtmlLauncher extends GwtApplication
 		return name.substring(name.lastIndexOf('.') + 1);
 	}
 
-	/** The size the game draws at, "1280x720": the gate checks it follows the canvas when the tab is resized. */
+	/** The size the game draws at, "1280x720" (twice the CSS size on a ratio 2 screen): the gate checks it follows the canvas when the tab is resized. */
 	static String size()
 	{return Gdx.graphics == null ? "" : Gdx.graphics.getWidth() + "x" + Gdx.graphics.getHeight();}
 
