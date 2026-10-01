@@ -53,11 +53,11 @@ wa1.cage.after1	Carriage 1, cage already used with sac (choice 1), then clefCage
 wa1.cage.after2	Carriage 1, cage already used with clefCage (choice 2), then sac tried on it - bubble by Ross for a few seconds (r160)	Il est déjà loin. \nJ'espère qu'il trouvera à manger...	It's long gone. \nI hope it finds something to eat...
 # Ross says these when the item is clicked (r74) - edit them in the line lab:
 #   ./gradlew :desktop:runGame -Donboard.start=line_lab
-wa1.cubeM.click	Carriage 1, cubeM.png clicked, bubble by Ross for a few seconds	Il manque un cube ici. Le creux a juste la bonne forme.	A cube is missing here. The hollow is just the right shape.
-wa1.cage.click	Carriage 1, cage.png clicked, bubble by Ross for a few seconds	Un petit oiseau tout bleu. Il me regarde comme s'il avait faim.	A little blue bird. It looks at me like it's hungry.
-wa1.clefCage.click	Carriage 1, clefCage.png clicked, bubble by Ross for a few seconds	Une toute petite clé. Elle n'ouvre sûrement pas une porte...	A tiny little key. It surely doesn't open a door...
+wa1.cubeM.click	Carriage 1, cubeM.png clicked, bubble by Ross for a few seconds	C'était quoi mon nom déjà ?	What was my name again?
+wa1.cage.click	Carriage 1, cage.png clicked, bubble by Ross for a few seconds	Le pauvre, seul dans cette {WAVE}cage{ENDWAVE}. Il me regarde comme s'il avait {WAVE}faim{ENDWAVE}.	Poor thing, all alone in this {WAVE}cage{ENDWAVE}. It looks at me like it's {WAVE}hungry{ENDWAVE}.
+wa1.clefCage.click	Carriage 1, clefCage.png clicked, bubble by Ross for a few seconds	Une toute petite clé. Elle ouvre sûrement une toute petite porte...	A tiny little key. It surely opens a tiny little door...
 wa1.sac.click	Carriage 1, sac.png clicked, bubble by Ross for a few seconds	Des graines ! Pas pour moi, mais quelqu'un en voudra peut-être.	Seeds! Not for me, but someone might want them.
-wa1.cube.click	Carriage 1, cube.png clicked, bubble by Ross for a few seconds	Un cube avec un zéro dessus. Il doit bien aller quelque part.	A cube with a zero on it. It must go somewhere.
+wa1.cube.click	Carriage 1, cube.png clicked, bubble by Ross for a few seconds	R{WAVE}o{ENDWAVE}ss, c'est comme ça qu'on m'avait surnommé à l'école.	R{WAVE}o{ENDWAVE}ss, that's what they called me at school.
 wa1.baluchon.click	Carriage 1, baluchon.png clicked, bubble by Ross for a few seconds	Mon baluchon ! Tout ce que j'ai tient là-dedans.	My bundle! Everything I own fits in there.
 
 # == Carriage 2 ============================================================
