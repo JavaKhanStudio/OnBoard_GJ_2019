@@ -44,11 +44,11 @@ credits.made_with	Credits, last line	Réalisé avec libGDX	Made with libGDX
 
 # == Carriage 1 ============================================================
 # Ross thinks these in the bubble while the mouse is on a piece of the key.
-wa1.hint1	Carriage 1, thought bubble on key piece 1	Je vais enfin partir d'ici! Mais où est mon bagage ? 	I'm finally leaving this place! But where's my bag?
-wa1.hint2	Carriage 1, thought bubble on key piece 2	Nom de non, qui à laissé trainer tous ces cubes ?	Good grief, who left all these cubes lying around?
+wa1.hint1	Carriage 1, thought bubble on key piece 1	Je vais enfin partir d'ici! Mais où est mon bagage ? 	I'm finally leaving this place! But where's my bag?
+wa1.hint2	Carriage 1, thought bubble on key piece 2	Nom de non, qui à laissé trainer tous ces cubes ?	Good grief, who left all these cubes lying around?
 wa1.hint3	Carriage 1, thought bubble on key piece 3	Ce pauvre petit oiseau a l'air affamé dans sa cage dorée. \nSi seulement je pouvais l'aider...	This poor little bird looks starved in its golden cage. \nIf only I could help it...
-wa1.cage.message1	Carriage 1, cage used with sac (choice 1), bubble by Ross for a few seconds	Voilà qui devrait remplir son estomac ! \nMais s’il était {WAVE}libre{ENDWAVE}... non ?	That should fill its tummy! \nBut if it were {WAVE}free{ENDWAVE}... right?
-wa1.cage.message2	Carriage 1, cage used with clefCage (choice 2), bubble by Ross for a few seconds	Libre comme l’air ! \nMais trouvera-t-il de la {WAVE}nourriture{ENDWAVE} avant de tomber dans les pommes ?	Free as a bird! \nBut will it find any {WAVE}food{ENDWAVE} before it faints?
+wa1.cage.message1	Carriage 1, cage used with sac (choice 1), bubble by Ross for a few seconds	Voilà qui devrait remplir son estomac ! \nMais s’il était {WAVE}libre{ENDWAVE}... non ?	That should fill its tummy! \nBut if it were {WAVE}free{ENDWAVE}... right?
+wa1.cage.message2	Carriage 1, cage used with clefCage (choice 2), bubble by Ross for a few seconds	Libre comme l’air ! \nMais trouvera-t-il de la {WAVE}nourriture{ENDWAVE} avant de tomber dans les pommes ?	Free as a bird! \nBut will it find any {WAVE}food{ENDWAVE} before it faints?
 wa1.cage.after1	Carriage 1, cage already used with sac (choice 1), then clefCage tried on it - bubble by Ross for a few seconds (r160)	Il picore, tout content. \nLa cage restera fermée.	It's pecking away, happy as can be. \nThe cage stays shut.
 wa1.cage.after2	Carriage 1, cage already used with clefCage (choice 2), then sac tried on it - bubble by Ross for a few seconds (r160)	Il est déjà loin. \nJ'espère qu'il trouvera à manger...	It's long gone. \nI hope it finds something to eat...
 # Ross says these when the item is clicked (r74) - edit them in the line lab:
@@ -56,15 +56,15 @@ wa1.cage.after2	Carriage 1, cage already used with clefCage (choice 2), then sac
 wa1.cubeM.click	Carriage 1, cubeM.png clicked, bubble by Ross for a few seconds	C'était quoi mon nom déjà ?	What was my name again?
 wa1.cage.click	Carriage 1, cage.png clicked, bubble by Ross for a few seconds	Le pauvre, seul dans cette {WAVE}cage{ENDWAVE}. Il me regarde comme s'il avait {WAVE}faim{ENDWAVE}.	Poor thing, all alone in this {WAVE}cage{ENDWAVE}. It looks at me like it's {WAVE}hungry{ENDWAVE}.
 wa1.clefCage.click	Carriage 1, clefCage.png clicked, bubble by Ross for a few seconds	Une toute petite clé. Elle ouvre sûrement une toute petite porte...	A tiny little key. It surely opens a tiny little door...
-wa1.sac.click	Carriage 1, sac.png clicked, bubble by Ross for a few seconds	Des graines ! Pas pour moi, mais quelqu'un en voudra peut-être.	Seeds! Not for me, but someone might want them.
+wa1.sac.click	Carriage 1, sac.png clicked, bubble by Ross for a few seconds	Des graines ! Pas pour moi, mais quelqu'un en voudra peut-être.	Seeds! Not for me, but someone might want them.
 wa1.cube.click	Carriage 1, cube.png clicked, bubble by Ross for a few seconds	R{WAVE}o{ENDWAVE}ss, c'est comme ça qu'on m'avait surnommé à l'école.	R{WAVE}o{ENDWAVE}ss, that's what they called me at school.
-wa1.baluchon.click	Carriage 1, baluchon.png clicked, bubble by Ross for a few seconds	Mon baluchon ! Tout ce que j'ai tient là-dedans.	My bundle! Everything I own fits in there.
+wa1.baluchon.click	Carriage 1, baluchon.png clicked, bubble by Ross for a few seconds	Mon baluchon ! Tout ce que j'ai tient là-dedans.	My bundle! Everything I own fits in there.
 
 # == Carriage 2 ============================================================
 # Ross thinks these in the bubble while the mouse is on a piece of the key.
 wa2.hint1	Carriage 2, thought bubble on key piece 1	Je me suis toujours demandé ce qu'ils avaient écrit dans ce foutu rapport	I always wondered what they wrote in that damn report
 wa2.hint2	Carriage 2, thought bubble on key piece 2	Cette mauvaise habitude m'a toujours fait cracher mes poumons. \nJe devrais m'en débarrasser.	This bad habit has always made me cough my lungs out. \nI should get rid of it.
-wa2.hint3	Carriage 2, thought bubble on key piece 3	Le paternel a l'air presque gentil, sur ce tableau. \nIl mériterait des retouches !	The old man looks almost kind in this painting. \nIt could use some touching up!
+wa2.hint3	Carriage 2, thought bubble on key piece 3	Le paternel a l'air presque gentil, sur ce tableau. \nIl mériterait des retouches !	The old man looks almost kind in this painting. \nIt could use some touching up!
 wa2.tableau.message1	Carriage 2, tableau used with crayon (choice 1), bubble by Ross for a few seconds	Des cornes, une moustache... le voilà presque drôle. \nMais il est toujours {WAVE}là{ENDWAVE}, à me juger.	Horns, a moustache... he's almost funny now. \nBut he's still {WAVE}there{ENDWAVE}, judging me.
 wa2.tableau.message2	Carriage 2, tableau used with couteauSocle (choice 2), bubble by Ross for a few seconds	Un coup de son propre couteau, et il ne me juge plus. \nÇa ne se {WAVE}recoud{ENDWAVE} pas...	One stroke of his own knife, and he judges me no more. \nThat can't be {WAVE}sewn{ENDWAVE} back...
 wa2.tableau.after1	Carriage 2, tableau already used with crayon (choice 1), then couteauSocle tried on it - bubble by Ross for a few seconds (r160)	Il a déjà ses cornes et sa moustache. \nÇa lui suffira.	He's got his horns and his moustache already. \nThat'll do.
@@ -72,7 +72,7 @@ wa2.tableau.after2	Carriage 2, tableau already used with couteauSocle (choice 2)
 # Ross says these when the item is clicked (r74) - edit them in the line lab:
 #   ./gradlew :desktop:runGame -Donboard.start=line_lab
 wa2.tableau.click	Carriage 2, tableau.png clicked, bubble by Ross for a few seconds	Le paternel, en uniforme. Même en peinture, il me juge.	The old man, in uniform. Even in paint, he judges me.
-wa2.clope.click	Carriage 2, clope.png clicked, bubble by Ross for a few seconds	Mes clopes. Une dernière, pour la route ?	My smokes. One last one, for the road?
+wa2.clope.click	Carriage 2, clope.png clicked, bubble by Ross for a few seconds	Mes clopes. Une dernière, pour la route ?	My smokes. One last one, for the road?
 wa2.couteauSocle.click	Carriage 2, couteauSocle.png clicked, bubble by Ross for a few seconds	Le couteau de collection du vieux. « Pas touche », qu'il disait.	The old man's collector knife. "Hands off", he used to say.
 wa2.crayon.click	Carriage 2, crayon.png clicked, bubble by Ross for a few seconds	Des crayons de couleur. De quoi égayer n'importe quelle tronche.	Coloured pencils. Enough to brighten up any mug.
 wa2.poubelle.click	Carriage 2, poubelle.png clicked, bubble by Ross for a few seconds	Une poubelle. C'est là que finissent les mauvaises habitudes.	A bin. That's where bad habits end up.
@@ -117,7 +117,7 @@ wa4.papier.click	Carriage 4, papier.png clicked, bubble by Ross for a few second
 
 # == Ending ================================================================
 # The card the story closes on (ClosureMessage), drawn in GeosansLight.
-ending.opening1	Ending card, line 1, both endings	La cage, le portrait, le mur, la bouteille :	The cage, the portrait, the wall, the bottle:
+ending.opening1	Ending card, line 1, both endings	La cage, le portrait, le mur, la bouteille :	The cage, the portrait, the wall, the bottle:
 ending.opening2	Ending card, line 2, both endings	quatre fois l'occasion d'ouvrir.	four chances to open up.
 ending.tally.never	Ending card, line 3, karma 0	Ross ne l'a jamais prise.	Ross never took it.
 ending.tally.some	Ending card, line 3, karma 1 to 3 - {0} is the count below	Ross l'a prise {0} fois sur quatre.	Ross took it {0} out of four.
