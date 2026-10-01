@@ -34,7 +34,7 @@ const browser = await puppeteer.launch(firefox ? {
 	browser: 'firefox',
 	executablePath: process.env.FIREFOX || '/usr/bin/firefox',
 	// Headless Firefox has no WebGL on this machine, so gate.sh runs it in a window inside cage (offscreen)
-	headless: !process.env.ONBOARD_INSIDE_CAGE,
+	headless: !process.env.ATELIER_INSIDE_CAGE,
 	// Silent (volume scale 0, the page's audio still plays) and allowed to start music unprompted
 	extraPrefsFirefox: { 'media.volume_scale': '0.0', 'media.autoplay.default': 0, 'webgl.force-enabled': true },
 	defaultViewport: { width: 1280, height: 720 },

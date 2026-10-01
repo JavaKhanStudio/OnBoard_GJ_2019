@@ -177,15 +177,21 @@ localStorage, and Options offers no window size, frame rate or full screen. The 
 The GL tests each open a real window to get a GPU surface. The build runs them inside
 [`cage`](https://www.hjdskes.nl/projects/cage/), a headless wlroots compositor, so they get
 their own invisible display instead of five windows opening on top of whatever you were
-doing. GPU rendering is preserved. Set `ONBOARD_NO_OFFSCREEN=1` when you want to watch.
-Without cage installed they open on your screen, as they always did.
+doing. GPU rendering is preserved. Set `ATELIER_NO_OFFSCREEN=1` when you want to watch.
+Without cage installed they open on your screen, as they always did; a board agent's run
+stops with an error instead.
 
 `:desktop:runGame` and `:editor:runEditor` go offscreen the same way when a board agent runs
 them (`ATELIER_AGENT` is set), since nobody is watching those windows. When you run them,
-or click the board's "Play it" buttons, they open on your screen; `ONBOARD_OFFSCREEN=1`
+or click the board's "Play it" buttons, they open on your screen; `ATELIER_OFFSCREEN=1`
 sends them offscreen anyway. The mechanism is in `gradle/offscreen.gradle`. Anything that
 opens a window without going through Gradle, such as a packaged build or a fat jar, still
 needs the wrapper: `tools/offscreen.sh <command>`.
+
+Two checks keep it that way. Every `JavaExec` calls `rootProject.offscreen(it, ...)` or, when it
+opens no window, `rootProject.headless(it)`; the build stops on one that does neither.
+`tools/offscreen-lint.sh` fails a `tools/*.sh` that runs java or a browser outside cage, unless
+the script carries a `# on-screen: <why>` line; the publish gate runs it first.
 
 To see what a run shows rather than trust that it exited 0, `tools/lab_shots.sh` opens every
 surface on the board's Labs screen (the carriages, the sound, line and item labs, the
@@ -197,7 +203,7 @@ a WAV file instead of your speakers: `verify/build/audio/test.wav` for the GL te
 `desktop/build/audio/runGame.wav` for an agent's run. That uses OpenAL Soft's WAV writer,
 which LWJGL ships, so it works with or without cage and on every OS. MusicTest reads its
 file back to check the music really came out, and that muting silenced it. The files are
-overwritten on each run, at about 10 MB a minute of play. `ONBOARD_NO_OFFSCREEN=1` brings the
+overwritten on each run, at about 10 MB a minute of play. `ATELIER_NO_OFFSCREEN=1` brings the
 speakers back along with the windows. `tools/offscreen.sh` discards the sound
 (`ALSOFT_DRIVERS=null`).
 

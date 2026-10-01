@@ -11,7 +11,8 @@
 # WHY A SECOND XWAYLAND: cage's own XWayland is rootless, and a grab of its root window
 # (import, ffmpeg x11grab) comes out black: the GL window is never drawn into it. Started
 # by hand, Xwayland is not rootless - it is one full-size window inside cage whose root the
-# game draws onto - so x11grab of :9 sees the game. Nothing reaches the screen or speakers.
+# game draws onto - so x11grab of it sees the game. Nothing reaches the screen or speakers.
+# tools/nested-x.sh starts it on a free display: a fixed :9 collided when two runs overlapped.
 #
 # Only the Linux zip runs on this machine. The Windows and macOS zips are the same jar
 # built by the same configuration; running this proves nothing about their launchers.
@@ -35,24 +36,20 @@ rm -f "$OUT"/shot_*.png "$OUT/game.log"
 
 cat >"$WORK/inside.sh" <<EOF
 #!/usr/bin/env bash
-Xwayland :9 -geometry 1600x900 -noreset >"$OUT/xwayland.log" 2>&1 &
-xw=\$!
-sleep 2
 cd "$WORK/On Board"
-DISPLAY=:9 WAYLAND_DISPLAY= ./onboard >"$OUT/game.log" 2>&1 &
+WAYLAND_DISPLAY= ./onboard >"$OUT/game.log" 2>&1 &
 game=\$!
 prev=0
 for t in ${MOMENTS[*]}; do
 	sleep \$((t - prev)); prev=\$t
-	ffmpeg -loglevel error -y -f x11grab -i :9 -frames:v 1 "$OUT/shot_\$t.png"
+	ffmpeg -loglevel error -y -f x11grab -i "\$DISPLAY" -frames:v 1 "$OUT/shot_\$t.png"
 done
 kill -0 \$game 2>/dev/null && echo "smoke_package: alive at \${prev}s" >>"$OUT/game.log"
 kill \$game 2>/dev/null; wait \$game 2>/dev/null
-kill \$xw
 EOF
 chmod +x "$WORK/inside.sh"
 last=${MOMENTS[-1]}
-WLR_BACKENDS=headless ALSOFT_DRIVERS=null timeout $((last + 40)) cage -- "$WORK/inside.sh" >/dev/null 2>&1
+WLR_BACKENDS=headless ALSOFT_DRIVERS=null timeout $((last + 40)) cage -- "$ROOT/tools/nested-x.sh" 1600x900 "$WORK/inside.sh" >/dev/null 2>&1
 
 status=0
 grep -q "alive at" "$OUT/game.log" || { echo "smoke_package: the game was gone before ${last}s:" >&2; tail -20 "$OUT/game.log" >&2; status=1; }

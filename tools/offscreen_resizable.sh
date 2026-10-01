@@ -25,7 +25,7 @@ display=":$(( 40 + RANDOM % 50 ))"
 Xwayland "$display" -geometry 1600x900 >/dev/null 2>&1 &
 xwayland=$!
 for _ in $(seq 50); do [[ -e "/tmp/.X11-unix/X${display#:}" ]] && break; sleep 0.1; done
-env -u WAYLAND_DISPLAY DISPLAY="$display" ONBOARD_INSIDE_CAGE=1 "$@"
+env -u WAYLAND_DISPLAY DISPLAY="$display" ATELIER_INSIDE_CAGE=1 "$@"
 status=$?
 kill "$xwayland" 2>/dev/null
 exit $status

@@ -32,7 +32,7 @@ public class AudioCapture
 	/** The capture Gradle set up for this JVM, or null when the sound went to the speakers. */
 	public static File configuredFile()
 	{
-		String path = System.getenv("ONBOARD_AUDIO_CAPTURE");
+		String path = System.getenv("ATELIER_AUDIO_CAPTURE");
 		return path == null ? null : new File(path);
 	}
 

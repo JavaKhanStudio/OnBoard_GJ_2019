@@ -19,7 +19,7 @@
 #
 # Headless as itch_shots.sh is, and for its reason (cage's output is fixed at 1280x720):
 # gamescope --backend headless at the game's 1600x900, gamescopectl saves the frame.
-# ONBOARD_INSIDE_CAGE=1 keeps gradle/offscreen.gradle from starting a cage of its own, and
+# ATELIER_INSIDE_CAGE=1 keeps gradle/offscreen.gradle from starting a cage of its own, and
 # the sound goes to build/audio/runGame.wav as it does for any agent run. Moments are timed
 # from Gradle's "> Task :desktop:runGame" line, so a slow build does not eat them.
 set -uo pipefail
@@ -70,7 +70,7 @@ PY
 	cat >"$inside" <<EOF
 #!/usr/bin/env bash
 cd "$ROOT"
-ONBOARD_INSIDE_CAGE=1 ONBOARD_OFFSCREEN=1 ./gradlew --console=plain :desktop:runGame $flags -Donboard.config=$config >"$log" 2>&1 &
+ATELIER_INSIDE_CAGE=1 ATELIER_OFFSCREEN=1 ./gradlew --console=plain :desktop:runGame $flags -Donboard.config=$config >"$log" 2>&1 &
 game=\$!
 for _ in \$(seq 300); do grep -q '> Task :desktop:runGame' "$log" 2>/dev/null && break; kill -0 \$game 2>/dev/null || break; sleep 1; done
 prev=0

@@ -242,7 +242,7 @@ class MusicTest
 	{
 		File file = AudioCapture.configuredFile();
 		Assumptions.assumeTrue(file != null,
-			"the sound went to the speakers (ONBOARD_NO_OFFSCREEN=1), so there is nothing to read back");
+			"the sound went to the speakers (ATELIER_NO_OFFSCREEN=1), so there is nothing to read back");
 		Assumptions.assumeTrue(audioAvailable, "no audio device on this machine");
 		assertNull(captureError, captureError == null ? null : "could not read the capture: " + captureError);
 		assertNotNull(capture, "nothing was written to " + file + ": OpenAL Soft did not open its WAV device");

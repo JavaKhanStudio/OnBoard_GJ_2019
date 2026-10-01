@@ -6,8 +6,8 @@
 # with ATELIER_CHECKOUT naming the real checkout. Exit 0 and that commit goes
 # out; anything else and a Publish pass is queued with this script's last lines.
 #
-# It is the check every Publish pass ran by hand, the gate the #build, #flow and
-# #level packs name: `./gradlew build` — compile every module and run the fast
+# It is the offscreen lint, then the check every Publish pass ran by hand, the gate the
+# #build, #flow and #level packs name: `./gradlew build` — compile every module and run the fast
 # tests, no display needed. The GL tests (-PwithGl) boot the real game in cage
 # and stay a session's job.
 #
@@ -30,6 +30,13 @@ STEPS=(
 echo "gate: $(git rev-parse --short HEAD), ${#STEPS[@]} steps"
 LOG=$(mktemp)
 trap 'rm -f "$LOG"' EXIT
+# No script may open a window outside cage (the run-offscreen skill's lint, atelier r1186).
+if ! tools/offscreen-lint.sh > "$LOG" 2>&1; then
+  cat "$LOG"
+  echo "  FAIL offscreen-lint"
+  exit 1
+fi
+echo "  ok   offscreen-lint"
 for step in "${STEPS[@]}"; do
   start=$SECONDS
   if $step > "$LOG" 2>&1; then
