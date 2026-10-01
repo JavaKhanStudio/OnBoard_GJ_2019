@@ -20,6 +20,8 @@ import org.junit.jupiter.api.TestInstance;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
+import com.github.tommyettinger.textra.Layout;
+import com.github.tommyettinger.textra.Line;
 import com.github.tommyettinger.textra.TypingLabel;
 
 import jks.amain.Main_Application;
@@ -163,6 +165,7 @@ class BubbleLinesRenderTest
 		float needed = typing.getPrefHeight(), room = typing.getHeight();
 		System.out.println("r163 " + key + ": " + text.length() + " chars, text "
 			+ Math.round(needed) + " px tall in " + Math.round(room) + ", cloud " + Math.round(bubble.cloudBox()[2]) + " wide");
+		System.out.println("r182 " + key + " | cloud " + Math.round(bubble.cloudBox()[2]) + " | " + wrapped(typing));
 		if (needed > room + 1)
 			overflowing.add(key + " (" + Math.round(needed) + " px in " + Math.round(room) + ")");
 
@@ -198,6 +201,29 @@ class BubbleLinesRenderTest
 		sheets++;
 		crops.clear();
 		cropKeys.clear();
+	}
+
+	/**
+	 * The line as the label broke it, its rows joined by " / ": what atelier's Lines page is
+	 * held against (r182, tests/renders/r182/lines_vs_game.py reads it).
+	 */
+	private static String wrapped(TypingLabel typing) throws Exception
+	{
+		Field field = TypingLabel.class.getDeclaredField("workingLayout");
+		field.setAccessible(true);
+		Layout layout = (Layout) field.get(typing);
+		StringBuilder rows = new StringBuilder();
+		for (int i = 0; i < layout.lines(); i++)
+		{
+			Line line = layout.getLine(i);
+			if (i > 0) rows.append(" / ");
+			for (int g = 0; g < line.glyphs.size; g++)
+			{
+				char c = (char) line.glyphs.get(g);
+				if (c != '\n') rows.append(c);
+			}
+		}
+		return rows.toString();
 	}
 
 	private static TypingLabel typing(DialogBubble bubble) throws Exception
