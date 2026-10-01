@@ -5,7 +5,6 @@
 # Chrome (fresh profile: no cached favicon, muted) in gamescope's headless backend, the way
 # tools/itch_shots.sh shoots the game, and saves what the top of the window shows. Nothing reaches
 # Simon's screen or speakers (D6).
-# on-screen: no, gamescope --backend headless holds the window; offscreen-lint knows only cage (atelier r1186)
 set -euo pipefail
 url="$1"; out="$(readlink -f "$2")"
 W=${W:-1000}; H=${H:-400}
