@@ -32,10 +32,17 @@ public class GVars_Font
 	 * apostrophe of "s’il" and the "…" of the hints drew as nothing. This adds the punctuation
 	 * French writing uses. GeosansLight and Mansalva have all of it (TextGlyphTest checks each
 	 * against the text table); OptimusPrinceps has none of it and simply skips it (d8).
-	 * Not the narrow no-break space (U+202F): neither face has one.
+	 * The no-break spaces are not asked for here: see NO_BREAK_SPACES.
 	 */
 	public static final String CHARACTERS = FreeTypeFontGenerator.DEFAULT_CHARS 
 			+ "\u2019\u2018\u201C\u201D\u2026\u00AB\u00BB\u2013\u2014\u0153\u0152" ; 
+	
+	/**
+	 * French puts a no-break space before ? ! : and inside « » (r221), so a "?" is never left
+	 * alone on a bubble's last line. GeosansLight has no U+00A0 and neither face has the narrow
+	 * U+202F, so a face missing one draws it as its own space: see {@link #drawNoBreakSpaces}.
+	 */
+	public static final String NO_BREAK_SPACES = "\u00A0\u202F" ;
 	
 	public static BitmapFont font_Title ; 
 	public static BitmapFont font_MainMenu ; 
@@ -116,19 +123,58 @@ public class GVars_Font
 		lastBuiltWidth = Gdx.graphics.getWidth() ;
 		
 		parameter.size = (int) (Gdx.graphics.getWidth()/fontMainTitleSizeDivide) ;
-		font_MainMenu = generator_Titles.generateFont(parameter);
+		font_MainMenu = generate(generator_Titles);
 		
 		parameter.size = (int) (Gdx.graphics.getWidth()/fontTitleSizeDivide) ;
-		font_Title = generator_Titles.generateFont(parameter);
+		font_Title = generate(generator_Titles);
 		
 		parameter.size = (int) (Gdx.graphics.getWidth()/fontBasicSizeDivide) ;
-		font_Second = generator_Seconds.generateFont(parameter);
-		fontont_SelectBox = generator_Seconds.generateFont(parameter);
+		font_Second = generate(generator_Seconds);
+		fontont_SelectBox = generate(generator_Seconds);
 		
 		labelStyle_ScreenTitle.font = font_MainMenu ; 
 		labelStyle_OptionsTitle.font = font_Title ; 
 		labelStyle_Second.font = font_Second ; 
 		labelStyle_BigStuff.font = font_MainMenu ; 
+	}
+	
+	private static BitmapFont generate(FreeTypeFontGenerator generator)
+	{
+		BitmapFont font = generator.generateFont(parameter) ;
+		drawNoBreakSpaces(font.getData()) ;
+		return font ;
+	}
+	
+	/**
+	 * Gives each no-break space the face lacks the space's glyph: same advance, nothing drawn.
+	 * Without it FreeType leaves no glyph and the space vanishes ("déjà?"). TextraTypist only
+	 * breaks a line at real whitespace, so the copy still holds the "?" to its word.
+	 */
+	public static void drawNoBreakSpaces(BitmapFont.BitmapFontData data)
+	{
+		BitmapFont.Glyph space = data.getGlyph(' ') ;
+		if(space == null)
+			return ;
+		for(char c : NO_BREAK_SPACES.toCharArray())
+		{
+			if(data.getGlyph(c) != null)
+				continue ;
+			BitmapFont.Glyph glyph = new BitmapFont.Glyph() ;
+			glyph.id = c ;
+			glyph.srcX = space.srcX ;
+			glyph.srcY = space.srcY ;
+			glyph.width = space.width ;
+			glyph.height = space.height ;
+			glyph.u = space.u ;
+			glyph.v = space.v ;
+			glyph.u2 = space.u2 ;
+			glyph.v2 = space.v2 ;
+			glyph.xoffset = space.xoffset ;
+			glyph.yoffset = space.yoffset ;
+			glyph.xadvance = space.xadvance ;
+			glyph.page = space.page ;
+			data.setGlyph(c, glyph) ;
+		}
 	}
 	
 	private static void retireMenuFonts()
@@ -195,7 +241,7 @@ public class GVars_Font
 				parameter = new FreeTypeFontParameter();
 				parameter.characters = CHARACTERS ; 
 				parameter.size = (int) (Gdx.graphics.getWidth()/font.basedSizeDevide) ;
-				bitmapFont = fontGenerator.generateFont(parameter) ;
+				bitmapFont = generate(fontGenerator) ;
 				activeFont.put(font, bitmapFont) ; 
 			}
 			

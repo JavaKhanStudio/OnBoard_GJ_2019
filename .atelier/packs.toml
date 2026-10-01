@@ -188,6 +188,9 @@ from its screen's resize(). The resolution change is the only resize a player ca
 there. Run them through tools/offscreen_resizable.sh.
 FreeType only rasterises the characters it is asked for, and a missing glyph does not
 throw — it leaves a hole. Check accented text ("Bédard", "Réalisé", "Fumée") renders.
+French writes a no-break space (U+00A0, U+202F) before ? ! : — keep it in the table. A face
+without one gets the space's glyph from GVars_Font.drawNoBreakSpaces (r221): generate every
+font through GVars_Font.generate(), never a bare generateFont.
 THE TITLE FACE CANNOT SPELL FRENCH. ui/fonts/OptimusPrinceps.ttf — behind
 labelStyle_ScreenTitle, so the start menu, the credits heading and the options block titles —
 has no é è à â ç, and its É does not draw either: "Crédits" renders "Cr¨dits" (doubt d8).
