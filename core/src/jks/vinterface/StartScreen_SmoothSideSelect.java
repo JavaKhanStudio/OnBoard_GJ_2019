@@ -229,6 +229,23 @@ public class StartScreen_SmoothSideSelect extends Table implements ReplayAction,
 		table.setBounds(positionX, positionY, sizeX, sizeY);
 	}
 
+	/**
+	 * Lays the entries out again for a new window size (r238): parked off the left edge, or,
+	 * when the menu is in, in their column where enterScene leaves them.
+	 */
+	public void relayout(boolean menuIn)
+	{
+		resize() ;
+		if(!menuIn)
+			return ;
+		for(int a = 0 ; a < buttonContainerList.size() ; a++)
+		{
+			Table buttonTable = buttonContainerList.get(a) ;
+			buttonTable.clearActions() ;
+			buttonTable.setPosition(decalX, topPosY - (sizeY * a) - (decalY * a)) ;
+		}
+	}
+
 	/** Shown with the entries and hidden with them: the language flags (r162), not over Options or Credits. */
 	public Actor alongside ; 
 	

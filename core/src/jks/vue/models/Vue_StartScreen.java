@@ -129,13 +129,20 @@ public class Vue_StartScreen extends AVue_Model
 	@Override
 	public void resize(int x, int y) 
 	{
+		// The fonts first (r238): the options boards copy GVars_Font's fonts in their resize(),
+		// so an overlay resized before them kept the old width's letters - a tab enlarged with
+		// the options open read in tiny print on big boards.
+		GVars_Font.resize() ;
 		super.resize(x,y) ; 
 		// A label keeps the glyphs of the font it was given, so the menu fonts GVars_Font
-		// rasterised for the new width only reach it through setStyle (r117). The entries are
-		// placed again by enterScene, when the options hand the menu back.
-		GVars_Font.resize() ;
+		// rasterised for the new width only reach it through setStyle (r117).
 		GVars_UI.massResize(null) ;
 		if(flags != null)
 			flags.resize() ;
+		// The entries placed for the new width too: parked off the left edge under the options
+		// or the credits, in their column otherwise. Parked at the old width, the bigger
+		// letters showed past the edge (r238).
+		if(smoothSideSelect != null)
+			smoothSideSelect.relayout(overlay == null) ;
 	}
 }
