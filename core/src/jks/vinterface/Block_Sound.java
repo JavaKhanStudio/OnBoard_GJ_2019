@@ -105,7 +105,7 @@ public class Block_Sound extends VisTable
 		row() ;
 
 		// Not sound: the one setting for how Ross is moved (r229), hung here because this
-		// board had the room. Off by default, the keyboard stays the way to walk.
+		// board had the room. On by default; the keys walk him either way.
 		clickToWalk = new PaintedCheckBox(Index_Text.get("options.click_to_walk"), GVars_Font.font_Second, Utils_Board.INK) ;
 		clickToWalk.setChecked(Utils_Config.current.clickToWalk) ;
 		clickToWalk.addListener(new ChangeListener()

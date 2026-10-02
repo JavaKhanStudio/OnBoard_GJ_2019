@@ -147,12 +147,12 @@ class SettingsTest
 			muted.setChecked(false);
 			seen.record("unmuting brings the volume back", Math.abs(reread().volume - 0.7f) < 1e-4 && !GVars_Audio.muted);
 
-			// r229: off as it starts, and the box is what turns it on and off, saved at once.
-			seen.record("click-to-walk starts off", !clickToWalk.isChecked() && !reread().clickToWalk);
-			clickToWalk.setChecked(true);
-			seen.record("click-to-walk saves on", reread().clickToWalk && Utils_Config.current.clickToWalk);
+			// r229: on as it starts, and the box is what turns it off and on, saved at once.
+			seen.record("click-to-walk starts on", clickToWalk.isChecked() && reread().clickToWalk);
 			clickToWalk.setChecked(false);
 			seen.record("click-to-walk saves off", !reread().clickToWalk && !Utils_Config.current.clickToWalk);
+			clickToWalk.setChecked(true);
+			seen.record("click-to-walk saves on", reread().clickToWalk && Utils_Config.current.clickToWalk);
 
 			resolution.setSelected("1280x720");
 			fps.setSelected("60");

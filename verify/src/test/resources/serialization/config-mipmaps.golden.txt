@@ -12,4 +12,4 @@ config-mipmaps.levelCompleteSound = null
 config-mipmaps.footstepsSound = null
 config-mipmaps.useMipmaps = true
 config-mipmaps.language = "fr"
-config-mipmaps.clickToWalk = false
+config-mipmaps.clickToWalk = true

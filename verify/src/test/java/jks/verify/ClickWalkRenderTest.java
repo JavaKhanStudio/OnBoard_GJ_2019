@@ -182,10 +182,10 @@ class ClickWalkRenderTest
 	}
 
 	@Test
-	@DisplayName("with the option off, a click moves nobody")
-	void offByDefault()
+	@DisplayName("on in a fresh config; with the option off, a click moves nobody")
+	void onByDefaultAndOff()
 	{
-		assertFalse(new jks.amain.GameConfigs().clickToWalk, "click-to-walk is on in a fresh config");
+		assertTrue(new jks.amain.GameConfigs().clickToWalk, "click-to-walk is off in a fresh config");
 		assertFalse(targetWhenOff, "a click sent Ross walking with the option off");
 		assertFalse(ringWhenOff, "a click showed a ring with the option off");
 		assertEquals(beforeOffX, afterOffX, 0f, "Ross moved on a click with the option off");
