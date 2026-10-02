@@ -140,6 +140,11 @@ REGION NAMES MUST BE ASCII: libGDX reads the .atlas in the JVM's default charset
 stored as cp1252 matched nothing on today's JVMs and level 2 never loaded (r24; now 'ete').
 WagonLevel.init SWALLOWS the exception: a broken backdrop surfaces one step later as
 "Asset not loaded: game/wagon/waN/WAGON.png" — a red herring; look above it for the trace.
+THE BACKDROP HAS ITS OWN CAMERA: the game camera's pan never reaches it by itself.
+WagonLevel.panBackdrop feeds each frame's pan in as screenSpeedConsumableX, scaled so the
+nearest layer (highest speed ratio) moves with the carriage (r234); without it the landscape
+slowed or raced past the windows as Ross walked. Measure with ParallaxWalkProbeTest
+(-PwithGl): it logs the camera and every layer's scroll to build/frames/parallax-walk.csv.
 Gates: ParallaxAssetTest (`./gradlew build`) reads the shipped bytes and fails on mojibake,
 non-ASCII region names or a regionName#regionPosition the ROOT atlas lacks. GameRunTest
 (-PwithGl) matches level 1 to its golden frame; LevelWalkTest (-PwithGl) walks 1->4.

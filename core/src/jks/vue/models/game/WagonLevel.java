@@ -14,6 +14,7 @@ import com.badlogic.gdx.math.Vector3;
 import jks.amain.GVars_Platform;
 import jks.camera.GVars_Camera;
 import jks.input.IKM_Game_Keyboard;
+import jks.tools2d.parallax.ParallaxLayer;
 import jks.tools2d.parallax.heart.Parallax_Heart;
 
 public class WagonLevel 
@@ -46,6 +47,13 @@ public class WagonLevel
 	public boolean readyForUse = false ; 
 	
 	transient float currentCamPosition ; 
+	
+	/**
+	 * Where the view stood on the last update of the carriage shown, to pan its backdrop with it;
+	 * NaN before the first. Static, as only one carriage is shown at a time, and so it stays out
+	 * of the level's model (SerializationDumpTest).
+	 */
+	static float lastCameraX = Float.NaN ; 
 	
 	/**
 	 * Never set by anything: always 0, so setAsGameReady preloads level 1. wa1.wa carries a
@@ -94,6 +102,7 @@ public class WagonLevel
 			item.setGameReady(); 
 		}
 		readyForUse = true ; 
+		lastCameraX = Float.NaN ; 
 		
 		GVars_Game.preLoadLevel(currentLevel + 1); 
 		resize() ; 
@@ -101,8 +110,36 @@ public class WagonLevel
 	
 	public void update(float delta)
 	{
+    	panBackdrop(delta);
     	parallax.act(delta);	
     	ItemOutline.advance(delta);
+	}
+	
+	/**
+	 * The backdrop has its own camera and used to ignore the view's pan, so when Ross walked the
+	 * windows slid over a landscape that stayed put on screen: through them it slowed when he
+	 * walked the way the train goes and raced when he walked back (r234). The pan now goes in as
+	 * train speed for this frame, scaled so the nearest layer moves with the carriage and each
+	 * farther one by its own share, as scenery does when you walk down a train.
+	 */
+	void panBackdrop(float delta)
+	{
+		float cameraX = GVars_Camera.camera.position.x ; 
+		float pan = Float.isNaN(lastCameraX) ? 0 : cameraX - lastCameraX ; 
+		lastCameraX = cameraX ; 
+		if(pan == 0 || delta <= 0)
+			return ; 
+		
+		float nearest = 0 ; 
+		for(ParallaxLayer layer : parallax.parallaxReader.layers)
+			nearest = Math.max(nearest, layer.getParallaxSpeedRatioX()) ; 
+		if(nearest <= 0)
+			return ; 
+		
+		// Both cameras span the window: the pan in the backdrop's units, then as a speed.
+		float view = GVars_Camera.camera.viewportWidth * GVars_Camera.camera.zoom ; 
+		float panInBackdrop = pan * parallax.getWorldWidth() / view ; 
+		parallax.screenSpeedConsumableX += panInBackdrop / (delta * nearest) ; 
 	}
 	
 	public void draw()
