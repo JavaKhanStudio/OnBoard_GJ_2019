@@ -22,6 +22,8 @@ await sleep(3000);
 if (process.env.MENU) await page.screenshot({ path: process.env.MENU });
 // The menu is a column at the left: Options, its second entry, sits at 0.12 x, 0.63 y of the canvas.
 const box = await (await page.$('canvas')).boundingBox();
+// FLOOR=1 first clicks the bare start screen, which no widget takes (r242): it must raise no pageerror.
+if (process.env.FLOOR) { await page.mouse.click(box.x + box.width * 0.6, box.y + box.height * 0.8); await sleep(500); }
 if (!process.env.MENU_ONLY) await page.mouse.click(box.x + box.width * 0.12, box.y + box.height * 0.63);
 await sleep(2000);
 // RESIZE=WxH[@dpr] resizes the tab while the options are open, as a window dragged or a page zoomed (r238).

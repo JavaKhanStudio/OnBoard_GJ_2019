@@ -244,6 +244,12 @@ public class IKM_Game_Keyboard extends InputAdapter
 			if(GVars_Heart.isPaused)
 				return true ;
 			
+			// Only a carriage has items or a floor (r242). The start screen listens through this
+			// class too, and there currentLevel is null before the first run and the last
+			// carriage's after one: a click threw, or touched items and walked a Ross not on screen.
+			if(!(GVars_Heart.vue instanceof Vue_Game) || GVars_Game.currentLevel == null)
+				return false ;
+			
 			Vector3 tmp= new Vector3(screenX,screenY,0);
 			GVars_Camera.camera.unproject(tmp);
 			
