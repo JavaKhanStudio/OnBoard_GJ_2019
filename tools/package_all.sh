@@ -22,7 +22,17 @@
 # html/build/war zipped as it is, index.html at the ROOT of the zip (itch's HTML5 uploads
 # want it there, not in a folder), with VERSION.txt beside it.
 #
-# Out: dist/onboard-{winX64,linuxX64,macArm64,macX64,html}.zip, dist/VERSION, and the unpacked
+# THE DRIVE'S BROWSER VERSION (r222) is dist/onboard-web.zip, the same build in another shape: a
+# browser will not run it from a disk (file://), so it unzips into "On Board (navigateur - browser)/"
+# holding a "Jouer - Play" launcher for Windows, Mac and Linux, each starting a small local web
+# server (tools/web_drive/) and opening the page. The site sits in "fichiers - files/" below them,
+# so index.html is not the first thing anyone clicks. onboard-html.zip is for itch, not for a drive.
+#
+# THE PACKAGES ARE NOT SIGNED: Simon chose that on r222 (2026-10-02) and wants it said at every
+# release, which is why the run ends by saying it. docs/signing.md is what signing would take.
+#
+# Out: dist/onboard-{winX64,linuxX64,macArm64,macX64,html,web}.zip, dist/VERSION, the drive's
+# "dist/LISEZMOI - README.txt" (from tools/drive_README.txt), and the unpacked
 # dist/OnBoard-*/ folders, all replaced. The zip names do not change between versions;
 # dist/VERSION says which commit they are.
 set -euo pipefail
@@ -84,18 +94,35 @@ fi
 echo "On Board $VERSION" >"$TREE/html/build/war/VERSION.txt"
 (cd "$TREE/html/build/war" && zip -qrX "$TREE/dist/onboard-html.zip" .)
 
+echo "  web (drive)"
+WEB="$STAGE/On Board (navigateur - browser)"
+rm -rf "$WEB" "$TREE/dist/onboard-web.zip"
+mkdir -p "$WEB"
+cp -a "$TREE/html/build/war" "$WEB/fichiers - files"
+cp "$TREE/tools/web_drive/serve.pl" "$TREE/tools/web_drive/serve.ps1" "$WEB/fichiers - files/"
+cp "$TREE/tools/web_drive/Jouer - Play"* "$WEB/"
+chmod +x "$WEB/fichiers - files/serve.pl" "$WEB/"*.command "$WEB/"*.sh
+echo "On Board $VERSION" >"$WEB/VERSION.txt"
+(cd "$STAGE" && zip -qrX "$TREE/dist/onboard-web.zip" "On Board (navigateur - browser)")
+
 mkdir -p "$ROOT/dist"
 for line in "${TARGETS[@]}"; do
 	read -r task zip folder <<<"$line"
 	cp "$TREE/dist/$zip" "$ROOT/dist/$zip"
 	rsync -a --delete "$TREE/dist/$folder/" "$ROOT/dist/$folder/"
 done
-cp "$TREE/dist/onboard-html.zip" "$ROOT/dist/onboard-html.zip"
+cp "$TREE/dist/onboard-html.zip" "$TREE/dist/onboard-web.zip" "$ROOT/dist/"
 echo "$VERSION" >"$ROOT/dist/VERSION"
+# What goes on a drive with the zips (r222): which zip for which computer, past the two warnings.
+sed "s/@VERSION@/$VERSION/" "$TREE/tools/drive_README.txt" >"$ROOT/dist/LISEZMOI - README.txt"
 
 echo "package_all: $VERSION"
 for line in "${TARGETS[@]}"; do
 	read -r task zip folder <<<"$line"
 	printf '  %-24s %s\n' "$zip" "$(du -h "$ROOT/dist/$zip" | cut -f1)"
 done
-printf '  %-24s %s\n' onboard-html.zip "$(du -h "$ROOT/dist/onboard-html.zip" | cut -f1)"
+for zip in onboard-html.zip onboard-web.zip; do
+	printf '  %-24s %s\n' "$zip" "$(du -h "$ROOT/dist/$zip" | cut -f1)"
+done
+echo "package_all: NOT SIGNED. Windows warns \"Windows protected your PC\", macOS says \"damaged\"."
+echo "  Simon chose unsigned (r222); say so in the release note. What signing takes: docs/signing.md"

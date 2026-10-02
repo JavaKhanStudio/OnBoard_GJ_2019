@@ -6,12 +6,17 @@ prices.azure.com and developer.apple.com/programs/enroll.
 
 ## Where things stand
 
+**Decision (r222, 2026-10-02): ship unsigned.** Simon chose it (free; D5, never sold) and asked to be
+reminded at every release, since one day it may be worth paying. So `tools/package_all.sh` ends with
+a "NOT SIGNED" line, and a release's done note says the builds are unsigned and points here.
+
 | Package | Signed? | What the player sees | Needs signing? |
 |---|---|---|---|
 | `onboard-winX64.zip` | no | "Windows protected your PC" (SmartScreen): More info, then Run anyway | yes, to lose "Unknown publisher" |
 | `onboard-macArm64.zip`, `onboard-macX64.zip` | no | "On Board is damaged and can't be opened" (Gatekeeper): right-click, Open | yes, plus notarization |
 | `onboard-linuxX64.zip` | no | nothing: Linux does not check | no |
 | `onboard-html.zip` | n/a | nothing: a website is trusted through its https | no |
+| `onboard-web.zip` (the drive's browser version) | no | from a drive, nothing; downloaded, its "Jouer - Play" .bat and .command get the two warnings above | no |
 
 Until the builds are signed, `dist/LISEZMOI - README.txt` tells players how to get past both warnings.
 

@@ -19,5 +19,13 @@
 </head>
 <body>
 	<div id="embed-html"></div>
+	<!-- r222: opened from a disk (file://) the browser refuses the game's files and the logo waits
+	     forever. Say so instead, and where the drive's launcher is. -->
+	<script>if (location.protocol === 'file:') document.body.innerHTML =
+		'<p style="color:#ddd;font:20px/1.5 sans-serif;max-width:40em;margin:15vh auto;padding:0 1em">' +
+		'Le navigateur ne lance pas le jeu depuis un disque. Revenez au dossier précédent et ouvrez ' +
+		'« Jouer - Play » pour votre ordinateur.<br><br>' +
+		'A browser will not run the game from a disk. Go back one folder and open ' +
+		'"Jouer - Play" for your computer.</p><style>.gdx-preloader { display: none; }</style>';</script>
 </body>
 </html>

@@ -433,8 +433,16 @@ which means unsigned, not broken: right-click -> Open once, or
   xattr -dr com.apple.quarantine "On Board.app"
 Signing needs a paid identity only Simon can buy, NOT a Mac: docs/signing.md says what he does
 (Apple Developer 99 USD/yr; Azure Trusted Signing 9.99 USD/mo for Windows) and what a session then
-does on Linux (rcodesign, jsign). A drive README says the html zip will not run double-clicked:
-file:// blocks its first asset load (node tools/browser-gate/open_probe.mjs <url> <png>, r222).
+does on Linux (rcodesign, jsign). SIMON CHOSE UNSIGNED (r222) AND WANTS IT SAID EVERY RELEASE:
+package_all.sh ends with a "NOT SIGNED" line; put it in the release's done note.
+A DRIVE never carries onboard-html.zip (itch's, flat): file:// blocks its first asset load, and
+index.html says so when opened that way (node tools/browser-gate/open_probe.mjs <url> <png>).
+It carries dist/onboard-web.zip: "Jouer - Play" .bat/.command/.sh beside "fichiers - files/" (the
+site), each starting tools/web_drive/serve.ps1 (Windows PowerShell 5.1) or serve.pl (core perl:
+macOS has no python) on 127.0.0.1:47219, FIXED so localStorage keeps the options. To check a
+change to either: run it with ONBOARD_NO_BROWSER=1 in an unzipped build, then gate.mjs on the url
+(serve.ps1 under pwsh, ~/.local/opt/pwsh/pwsh here): tools/web_drive/check.sh does all of it on
+dist/onboard-web.zip, file:// notice included. No Windows or Mac to run them on.
 tools/smoke_package.sh runs the Linux zip offscreen and saves shot_<s>.png (a nested
 non-rootless Xwayland in cage: cage's own XWayland grabs black). Unattended it reaches the
 intro and waits there for a click.
