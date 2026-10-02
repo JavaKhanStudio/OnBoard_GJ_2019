@@ -1,5 +1,5 @@
-// click_walk_probe.mjs <url> <outdir> — click-to-walk in the browser (r229): turns the option on in
-// the tab's stored config, opens carriage 1, clicks the floor at x,y (CSS px of a 1280x720 tab;
+// click_walk_probe.mjs <url> <outdir> — click-to-walk in the browser (r229): a fresh tab, so the
+// config is the default one (FORCE_ON=1 ticks the option in it first), opens carriage 1, clicks the floor at x,y (CSS px of a 1280x720 tab;
 // CLICKS="x,y x,y", default "900,520") and shoots right after each click and 4 s later.
 // Headless Chrome, muted (D6). <url> is the page without its query.
 import puppeteer from 'puppeteer-core';
@@ -17,17 +17,17 @@ const page = await browser.newPage();
 page.on('pageerror', (e) => console.log('pageerror: ' + e.message));
 const ready = () => page.waitForFunction(() => window.onboard && window.onboard.frames() > 30, { timeout: 90000, polling: 100 });
 
-// First start writes the config; flip clickToWalk on in it and reload, as the options box would.
+// First start writes the config; FORCE_ON=1 ticks clickToWalk in it, as the options box would.
 await page.goto(url + '?start=start_screen&mute', { waitUntil: 'load' });
 await ready();
 const key = await page.evaluate(() => Object.keys(localStorage).find((k) => k.startsWith('onboard') && k.includes('config')));
-const before = await page.evaluate((k) => localStorage.getItem(k), key);
-await page.evaluate((k) => {
+const stored = await page.evaluate((k) => JSON.parse(localStorage.getItem(k)), key);
+console.log(`config ${key}: clickToWalk ${stored.clickToWalk}`);
+if (process.env.FORCE_ON) await page.evaluate((k) => {
 	const c = JSON.parse(localStorage.getItem(k));
 	c.clickToWalk = true;
 	localStorage.setItem(k, JSON.stringify(c));
 }, key);
-console.log(`config ${key}: ${before}`);
 
 await page.goto(url + '?start=game&level=1&mute', { waitUntil: 'load' });
 await ready();
