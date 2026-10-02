@@ -124,7 +124,7 @@ try {
 	await sleep(3000);
 	await page.screenshot({ path: `${out}/3_start.png` });
 	say(`start screen after ${report.introClicks} clicks`);
-	// Options, for the render: in a tab its Graphics board has only the mipmaps row (Platform.choosesWindowSize).
+	// Options, for the render: in a tab it is one board, Options, with the mipmaps row above the sound rows (r243).
 	// "Options" is the second word of the menu at 1280x720 (3_start.png)
 	await page.mouse.click(155, 453);
 	await sleep(2000);

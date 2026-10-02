@@ -92,21 +92,7 @@ public class Block_Resolution extends VisTable
 		// quietly changed the others back.
 		fullScreenCheckBox.setChecked(Utils_Config.current.isFullScreen);
 		
-		// Applied and saved the moment it is ticked, like the sound block, rather than waiting
-		// for Apply.
-		mipmapsCheckBox = new PaintedCheckBox(Index_Text.get("options.mipmaps"), GVars_Font.font_Second, Utils_Board.INK) ; 
-		mipmapsCheckBox.setChecked(Utils_Config.current.useMipmaps);
-		mipmapsCheckBox.setName("mipmaps");
-		mipmapsCheckBox.addListener(new ChangeListener()
-		{
-			@Override
-			public void changed(ChangeEvent event, Actor actor)
-			{
-				Utils_Config.current.useMipmaps = mipmapsCheckBox.isChecked() ;
-				Index_Interface.applyMipmaps(mipmapsCheckBox.isChecked()) ;
-				Utils_Config.save() ;
-			}
-		}) ; 
+		mipmapsCheckBox = buildMipmapsBox() ;
 		
 		apply = new TextButton(Index_Text.get("options.apply"),Utils_Board.tagButton()) ;
 		apply.addListener(new ChangeListener()
@@ -121,7 +107,8 @@ public class Block_Resolution extends VisTable
 		this.row() ; 
 		
 		// In a browser tab only the mipmaps row (r137): the window rows are built all the same,
-		// so the rest of this class need not ask, but never shown.
+		// so the rest of this class need not ask, but never shown. OverlayOptions no longer
+		// builds this board in a tab at all (r243); this keeps the block safe if one does.
 		if(sizesWindow)
 		{
 			rowCells.add(this.add(resolutionLabel).left().expandX()) ; 
@@ -146,6 +133,29 @@ public class Block_Resolution extends VisTable
 			applyCell = this.add(apply).colspan(2).center() ; 
 	}
 	
+	/**
+	 * The mipmaps box, applied and saved the moment it is ticked, like the sound block, rather
+	 * than waiting for Apply. In a browser tab it is the one graphics setting, and it hangs on
+	 * the single Options board instead (r243).
+	 */
+	public static PaintedCheckBox buildMipmapsBox()
+	{
+		final PaintedCheckBox box = new PaintedCheckBox(Index_Text.get("options.mipmaps"), GVars_Font.font_Second, Utils_Board.INK) ; 
+		box.setChecked(Utils_Config.current.useMipmaps);
+		box.setName("mipmaps");
+		box.addListener(new ChangeListener()
+		{
+			@Override
+			public void changed(ChangeEvent event, Actor actor)
+			{
+				Utils_Config.current.useMipmaps = box.isChecked() ;
+				Index_Interface.applyMipmaps(box.isChecked()) ;
+				Utils_Config.save() ;
+			}
+		}) ; 
+		return box ;
+	}
+	
 	/** False in a browser tab, where only the mipmaps row is shown (Platform.choosesWindowSize). */
 	private final boolean sizesWindow = GVars_Platform.current.choosesWindowSize() ;
 	
@@ -160,9 +170,7 @@ public class Block_Resolution extends VisTable
 		float plank = Utils_Board.plankHeight(scale) ;
 		titleCell.height(plank).padBottom(Utils_Board.gapBelowPlank(scale)) ;
 		
-		// Five rows and the Apply tag, which gets a row and a half.
-		float body = height - getPadTop() - getPadBottom() - plank - Utils_Board.gapBelowPlank(scale) ;
-		float row = body / 6.5f ;
+		float row = Utils_Board.rowHeight(width, height) ;
 		rowHeight = row ;
 		for(Cell<?> cell : rowCells)
 			cell.height(row) ;

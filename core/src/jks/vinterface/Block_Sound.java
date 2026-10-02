@@ -41,16 +41,33 @@ public class Block_Sound extends VisTable
 	private final Cell<VisLabel> titleCell ;
 	private final Cell<PaintedCheckBox> mutedCell, clickToWalkCell ;
 	private final Cell<VisLabel> volumeCell, effectsCell ;
+	
+	/** The mipmaps box above the sound rows, in a browser tab only (r243); null on the desktop. */
+	private final PaintedCheckBox mipmaps ;
+	private final Cell<PaintedCheckBox> mipmapsCell ;
 
 	public Block_Sound()
+	{this(null) ;}
+
+	/**
+	 * With a mipmaps box, the one board a browser tab shows (r243): there it is the only
+	 * graphics setting left, and a Graphismes board of its own stood three-quarters empty.
+	 * The board is then titled Options, and the box is its first row.
+	 */
+	public Block_Sound(PaintedCheckBox mipmaps)
 	{
 		setBackground(Utils_Board.board()) ;
 		align(Align.top) ;
+		this.mipmaps = mipmaps ;
 
-		title = new VisLabel(Index_Text.get("options.sound"), titleStyle) ;
+		title = new VisLabel(Index_Text.get(mipmaps == null ? "options.sound" : "menu.options"), titleStyle) ;
 		title.setAlignment(Align.center) ;
 		titleCell = add(title).colspan(2).expandX().fillX() ;
 		row() ;
+		
+		mipmapsCell = mipmaps == null ? null : add(mipmaps).colspan(2).fillX() ;
+		if(mipmaps != null)
+			row() ;
 
 		muted = new PaintedCheckBox(Index_Text.get("options.mute"), GVars_Font.font_Second, Utils_Board.INK) ;
 		muted.setChecked(Utils_Config.current.volume <= 0f) ;
@@ -133,6 +150,12 @@ public class Block_Sound extends VisTable
 		effectsLabel.setStyle(textStyle) ;
 		muted.setFont(GVars_Font.font_Second) ;
 		clickToWalk.setFont(GVars_Font.font_Second) ;
+		if(mipmaps != null)
+		{
+			mipmaps.setFont(GVars_Font.font_Second) ;
+			mipmapsCell.height(rowHeight) ;
+			mipmaps.setBoxHeight(rowHeight * 0.8f) ;
+		}
 		
 		setSize(width, height) ;
 		float scale = Utils_Board.scale(width) ;
@@ -164,6 +187,8 @@ public class Block_Sound extends VisTable
 	public ArrayList<Actor> focusOrder()
 	{
 		ArrayList<Actor> order = new ArrayList<>() ;
+		if(mipmaps != null)
+			order.add(mipmaps) ;
 		order.add(muted) ;
 		order.add(volume) ;
 		order.add(effects) ;

@@ -72,6 +72,17 @@ public class Utils_Board
 		return BELOW_PLANK * scale ;
 	}
 
+	/**
+	 * A row's height on a board of this size: the Graphics board's five rows and the Apply tag,
+	 * which gets a row and a half. Every board of the options screen rows by it, so rows line up.
+	 */
+	public static float rowHeight(float boardWidth, float boardHeight)
+	{
+		float scale = scale(boardWidth) ;
+		float body = boardHeight - (PLANK_TOP + BOTTOM) * scale - plankHeight(scale) - gapBelowPlank(scale) ;
+		return body / 6.5f ;
+	}
+
 	/** Painted on the board. A copy, so tinting it cannot reach any other label. */
 	public static LabelStyle ink(LabelStyle font)
 	{

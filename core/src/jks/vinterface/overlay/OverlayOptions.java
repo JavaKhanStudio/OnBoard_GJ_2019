@@ -9,6 +9,7 @@ import com.badlogic.gdx.scenes.scene2d.actions.MoveToAction;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 
+import jks.amain.GVars_Platform;
 import jks.index.Index_Interface;
 import jks.tools.Vector2Int;
 import jks.vinterface.GVars_UI;
@@ -24,6 +25,8 @@ public class OverlayOptions extends OverlayModel
 	
 	// Two sign boards, the pause screen's, side by side. They were two gray boxes in a gray
 	// frame, with an empty third one where preferences were meant to go and never were.
+	// In a browser tab, one (r243): the window rows are the browser's, so the mipmaps box
+	// joins the sound rows on a single Options board and there is no graphicBloc.
 	Block_Resolution graphicBloc ; 
 	Block_Sound soundBloc ;
 	private static final float SOUND_BOARD_SCALE = 0.72f ;
@@ -41,9 +44,14 @@ public class OverlayOptions extends OverlayModel
 		// The return sign, as on the credits: this was the Settings button art.
 		retour = buildReturnSign(backway) ;
 		
-		graphicBloc = new Block_Resolution(); 
-		graphicBloc.setTouchable(Touchable.childrenOnly);
-		soundBloc = new Block_Sound() ; 
+		if(GVars_Platform.current.choosesWindowSize())
+		{
+			graphicBloc = new Block_Resolution(); 
+			graphicBloc.setTouchable(Touchable.childrenOnly);
+			soundBloc = new Block_Sound() ; 
+		}
+		else
+			soundBloc = new Block_Sound(Block_Resolution.buildMipmapsBox()) ; 
 		soundBloc.setTouchable(Touchable.childrenOnly);
 		
 		retour.setPosition(-5, 0);
@@ -54,7 +62,8 @@ public class OverlayOptions extends OverlayModel
 	    getIn.setDuration(0.3f);
 	    retour.addAction(getIn); 
 	    
-		this.addActor(graphicBloc);
+		if(graphicBloc != null)
+			this.addActor(graphicBloc);
 		this.addActor(soundBloc);
 		this.addActor(retour);
 	}
@@ -76,16 +85,25 @@ public class OverlayOptions extends OverlayModel
 			boardHeight = tallest ;
 			boardWidth = boardHeight * Utils_Board.BOARD_WIDTH / Utils_Board.BOARD_HEIGHT ;
 		}
-		// Sound has four rows, not six: a smaller board, hung level with the first.
-		float soundWidth = boardWidth * SOUND_BOARD_SCALE, soundHeight = boardHeight * SOUND_BOARD_SCALE ;
-		float x = left + (room - (boardWidth + margin + soundWidth)) / 2f ;
 		float y = (screenHeight - boardHeight) / 2f ;
+		if(graphicBloc == null)
+		{
+			// The browser's one board, as big as the desktop's Graphismes board, in the middle of the room.
+			soundBloc.resize(boardWidth, boardHeight, Utils_Board.rowHeight(boardWidth, boardHeight));
+			soundBloc.setPosition(left + (room - boardWidth) / 2f, y);
+		}
+		else
+		{
+			// Sound has four rows, not six: a smaller board, hung level with the first.
+			float soundWidth = boardWidth * SOUND_BOARD_SCALE, soundHeight = boardHeight * SOUND_BOARD_SCALE ;
+			float x = left + (room - (boardWidth + margin + soundWidth)) / 2f ;
 
-		graphicBloc.resize(boardWidth, boardHeight);
-		graphicBloc.setPosition(x, y);
+			graphicBloc.resize(boardWidth, boardHeight);
+			graphicBloc.setPosition(x, y);
 
-		soundBloc.resize(soundWidth, soundHeight, graphicBloc.rowHeight());
-		soundBloc.setPosition(x + boardWidth + margin, y + boardHeight - soundHeight);
+			soundBloc.resize(soundWidth, soundHeight, graphicBloc.rowHeight());
+			soundBloc.setPosition(x + boardWidth + margin, y + boardHeight - soundHeight);
+		}
 		
 		float buttonHeight = sizebuttonX / Index_Interface.button_Return_Aspect ;
 		retour.setSize(sizebuttonX, buttonHeight);
@@ -104,12 +122,13 @@ public class OverlayOptions extends OverlayModel
 	public ArrayList<ArrayList<Actor>> mapInterface() 
 	{
 		// Three columns, left to right as they sit on screen: the return sign, the
-		// graphics settings, the sound settings.
+		// graphics settings, the sound settings. Two in a browser tab, which has one board.
 		ArrayList<ArrayList<Actor>> returningList = new ArrayList<ArrayList<Actor>>(); 
 		ArrayList<Actor> buttonList = new ArrayList<>() ;
 		buttonList.add(retour) ;
 		returningList.add(buttonList) ; 
-		returningList.add(graphicBloc.focusOrder()) ;
+		if(graphicBloc != null)
+			returningList.add(graphicBloc.focusOrder()) ;
 		returningList.add(soundBloc.focusOrder()) ;
 		return returningList;
 	}

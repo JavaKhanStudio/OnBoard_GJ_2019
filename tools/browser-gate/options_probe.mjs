@@ -33,6 +33,8 @@ if (process.env.RESIZE) {
 	await page.setViewport({ width: w, height: h, deviceScaleFactor: Number(ratio || dpr) });
 	await sleep(1500);
 }
+// KEYS="ArrowDown Enter" presses those keys, in order, on the options (r243: the keyboard walks every row).
+for (const key of (process.env.KEYS || '').split(/\s+/).filter(Boolean)) { await page.keyboard.press(key); await sleep(300); }
 // BACK=1 presses Retour (Escape) after that, so the shot is the menu coming back.
 if (process.env.BACK) { await page.keyboard.press('Escape'); await sleep(2500); }
 await page.screenshot({ path: out });
