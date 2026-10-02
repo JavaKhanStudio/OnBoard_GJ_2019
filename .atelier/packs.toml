@@ -499,6 +499,33 @@ permutation: a page built for one alone is blank in the other. BROWSER=firefox g
 Firefox, in a window inside cage (headless Firefox has no WebGL here). No Safari to run here.
 """
 
+[tags.web]
+label = "Browser build"
+description = "html/: the game in a tab (GWT), its gate and probes, the web zips"
+color = "#4fc3c7"
+sort = 92
+context = """
+html/ is the game in a browser tab: libGDX's GWT backend compiles core/ to JS (r137).
+html/src/jks/html/HtmlLauncher.java: canvas size, refit, ?start= ?level=, and
+window.onboard, which every probe reads. HtmlPlatform.java: config in localStorage,
+.ogg->.mp3. Core tells a tab from the desktop only by core/src/jks/amain/Platform.java.
+html/gwt/jks/GdxDefinition.gwt.xml: a class libGDX Json reads by reflection is named in
+gdx.reflect.include, a System.getProperty name declared there, or only the tab breaks.
+The rest is in other packs; read the line before you change its subject:
+  #ship      from "THE BROWSER BUILD" on: what gate.sh checks, 16:9 refit (r179),
+             device pixels (r184), DPR 2 vs a ratio-1 tab (r206), mp3, Firefox, drive
+  #build     "JAVAC DOES NOT SEE WHAT GWT REFUSES": ./gradlew build never runs GWT
+  #parallax  backdrops load from .plaxpj by Parallax_Heart.fromJson: GWT has no Kryo
+In a tab Gdx.graphics sizes are DEVICE pixels, 2x the CSS size on Retina (r184): shoot
+a layout at DPR=1 and DPR=2. Gate: tools/browser-gate/gate.sh --draft (~20 s, names
+what GWT refuses), then gate.sh. Headless Chrome, muted (D6); out in html/build/gate/.
+Probes on a served page, node tools/browser-gate/<name>.mjs: options_probe (r238),
+click_walk_probe (r229), outline_probe, fps_probe, open_probe (r222). Attach the shots.
+tools/play_web.sh builds and serves 127.0.0.1:8795, nothing more. The board's "Play it
+in the browser" opens a tab ON SIMON'S DESK: never run it, nor `atelier tools open
+play_web`, from a session (D6). The drive zip: tools/web_drive/check.sh.
+"""
+
 [tags.docs]
 label = "README & credits"
 description = "The one document, and who gets named in the game"
