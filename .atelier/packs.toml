@@ -431,7 +431,10 @@ Which platform would this invocation build for?
 THE macOS BUILDS ARE UNSIGNED. Gatekeeper says "On Board is damaged and can't be opened",
 which means unsigned, not broken: right-click -> Open once, or
   xattr -dr com.apple.quarantine "On Board.app"
-Signing properly needs a Mac and a paid Apple Developer account.
+Signing needs a paid identity only Simon can buy, NOT a Mac: docs/signing.md says what he does
+(Apple Developer 99 USD/yr; Azure Trusted Signing 9.99 USD/mo for Windows) and what a session then
+does on Linux (rcodesign, jsign). A drive README says the html zip will not run double-clicked:
+file:// blocks its first asset load (node tools/browser-gate/open_probe.mjs <url> <png>, r222).
 tools/smoke_package.sh runs the Linux zip offscreen and saves shot_<s>.png (a nested
 non-rootless Xwayland in cage: cage's own XWayland grabs black). Unattended it reaches the
 intro and waits there for a click.
