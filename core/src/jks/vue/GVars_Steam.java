@@ -116,8 +116,7 @@ public class GVars_Steam
 		holdFor = Math.max(HOLD_SECONDS, seconds - coverSeconds()) ;
 		creeping = holdFor > HOLD_SECONDS ;
 		over = bubble ;
-		GVars_Inputs.leftPressed = false ;
-		GVars_Inputs.rightPressed = false ;
+		GVars_Inputs.resetInputs() ;
 		holdInput() ;
 		return true ;
 	}

@@ -27,6 +27,8 @@ public class GameConfigs
 	public boolean useMipmaps = false ; 
 	/** The column of i18n/textes.tsv the game reads (r162): "fr" or "en", picked by the start menu's flags. */
 	public String language = "fr" ; 
+	/** Off: a click in the carriage walks Ross there (r229). The keyboard stays the default way. */
+	public boolean clickToWalk = false ; 
 	
 	/** The saved sound for a slot. Not a getter, so Jackson leaves it out of the file. */
 	public String chosenSound(Enum_Effect_Sound.Slot slot)

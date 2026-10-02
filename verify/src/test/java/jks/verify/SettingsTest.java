@@ -61,7 +61,7 @@ class SettingsTest
 
 	// The widgets, in Block_Resolution.focusOrder() and Block_Sound.focusOrder() order.
 	private static SelectBox<String> resolution, fps;
-	private static Button fullScreen, vsync, mipmaps, apply, muted;
+	private static Button fullScreen, vsync, mipmaps, apply, muted, clickToWalk;
 	private static Slider volume, effects;
 
 	@BeforeAll
@@ -146,6 +146,13 @@ class SettingsTest
 			seen.record("mute saves a volume of zero", reread().volume == 0f && GVars_Audio.muted);
 			muted.setChecked(false);
 			seen.record("unmuting brings the volume back", Math.abs(reread().volume - 0.7f) < 1e-4 && !GVars_Audio.muted);
+
+			// r229: off as it starts, and the box is what turns it on and off, saved at once.
+			seen.record("click-to-walk starts off", !clickToWalk.isChecked() && !reread().clickToWalk);
+			clickToWalk.setChecked(true);
+			seen.record("click-to-walk saves on", reread().clickToWalk && Utils_Config.current.clickToWalk);
+			clickToWalk.setChecked(false);
+			seen.record("click-to-walk saves off", !reread().clickToWalk && !Utils_Config.current.clickToWalk);
 
 			resolution.setSelected("1280x720");
 			fps.setSelected("60");
@@ -254,6 +261,7 @@ class SettingsTest
 		muted = (Button) sound.get(0);
 		volume = (Slider) sound.get(1);
 		effects = (Slider) sound.get(2);
+		clickToWalk = (Button) sound.get(3);
 	}
 
 	/** The config file as the next launch would read it, not Utils_Config.current. */

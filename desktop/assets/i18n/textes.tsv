@@ -34,6 +34,7 @@ options.sound	Options, block title [title face: no accents, d8]	Son	Sound
 options.mute	Options > Son and the pause screen, checkbox	Couper le son	Mute
 options.volume	Options > Son, slider	Volume	Volume
 options.effects	Options > Son, slider	Effets	Effects
+options.click_to_walk	Options > Son, checkbox: a click in the carriage walks Ross there (r229)	Marcher d'un clic	Click to walk
 
 # == Credits ===============================================================
 # The names of the people are not translated and stay in Index_Credits.

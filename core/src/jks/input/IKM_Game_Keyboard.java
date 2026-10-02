@@ -4,20 +4,23 @@ import jks.debug.GVars_Debug;
 
 import jks.tools.Utils_Debug;
 
-import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input.Buttons;
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 
+import jks.amain.Utils_Config;
 import jks.camera.GVars_Camera;
 import jks.vars.GVars_Heart;
 import jks.vinterface.GVars_UI;
 import jks.vinterface.controlling.Utils_Controllable;
+import jks.vue.models.game.ClickMarker;
 import jks.vue.models.game.GVars_Game;
 import jks.vue.models.game.GameItem;
 import jks.vue.models.game.Vue_Game;
+import jks.vue.models.game.WagonLevel;
 
 public class IKM_Game_Keyboard extends InputAdapter 
 {
@@ -241,12 +244,25 @@ public class IKM_Game_Keyboard extends InputAdapter
 			if(GVars_Heart.isPaused)
 				return true ;
 			
-			Vector3 tmp= new Vector3(Gdx.input.getX(),Gdx.input.getY(),0);
+			Vector3 tmp= new Vector3(screenX,screenY,0);
 			GVars_Camera.camera.unproject(tmp);
 			
+			boolean onItem = false ; 
 			for(GameItem item : GVars_Game.currentLevel.listItems)
 			{
+				onItem |= item.isUnder(tmp) ; 
 				item.tryTouch(tmp,GVars_Game.selectedItem, false);
+			}
+			
+			// Click-to-walk (r229), when the options turn it on: a click that reaches no item
+			// sends Ross there. One on an item only acts on the item, and the black bar under
+			// the carriage is the inventory's, not floor.
+			if(Utils_Config.current.clickToWalk && !onItem && button == Buttons.LEFT
+					&& tmp.y >= WagonLevel.BAR && tmp.x >= 0 && tmp.x <= WagonLevel.WIDTH)
+			{
+				GVars_Inputs.walkTo(tmp.x) ; 
+				ClickMarker.show(tmp.x, tmp.y) ; 
+				return true ; 
 			}
 			
 			return false ;

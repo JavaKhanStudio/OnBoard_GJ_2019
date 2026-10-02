@@ -69,8 +69,7 @@ public class GVars_Fade
 
 		atBlack = change ;
 		direction = 1 ;
-		GVars_Inputs.leftPressed = false ;
-		GVars_Inputs.rightPressed = false ;
+		GVars_Inputs.resetInputs() ;
 		holdInput() ;
 		return true ;
 	}

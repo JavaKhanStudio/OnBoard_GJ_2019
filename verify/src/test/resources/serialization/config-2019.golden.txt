@@ -12,3 +12,4 @@ config-2019.levelCompleteSound = null
 config-2019.footstepsSound = null
 config-2019.useMipmaps = false
 config-2019.language = "fr"
+config-2019.clickToWalk = false

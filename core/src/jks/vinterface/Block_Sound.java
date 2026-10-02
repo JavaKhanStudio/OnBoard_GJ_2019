@@ -31,7 +31,7 @@ public class Block_Sound extends VisTable
 {
 
 	private final VisSlider volume, effects ;
-	private final PaintedCheckBox muted ;
+	private final PaintedCheckBox muted, clickToWalk ;
 	private final VisLabel title, volumeLabel, effectsLabel ;
 	
 	// Copies of GVars_Font's styles in ink, refreshed in resize() when the fonts are rebuilt.
@@ -39,7 +39,7 @@ public class Block_Sound extends VisTable
 	private final LabelStyle textStyle = Utils_Board.ink(GVars_Font.labelStyle_Second) ;
 	
 	private final Cell<VisLabel> titleCell ;
-	private final Cell<PaintedCheckBox> mutedCell ;
+	private final Cell<PaintedCheckBox> mutedCell, clickToWalkCell ;
 	private final Cell<VisLabel> volumeCell, effectsCell ;
 
 	public Block_Sound()
@@ -102,6 +102,22 @@ public class Block_Sound extends VisTable
 			}
 		}) ;
 		add(effects).growX().padLeft(12f) ;
+		row() ;
+
+		// Not sound: the one setting for how Ross is moved (r229), hung here because this
+		// board had the room. Off by default, the keyboard stays the way to walk.
+		clickToWalk = new PaintedCheckBox(Index_Text.get("options.click_to_walk"), GVars_Font.font_Second, Utils_Board.INK) ;
+		clickToWalk.setChecked(Utils_Config.current.clickToWalk) ;
+		clickToWalk.addListener(new ChangeListener()
+		{
+			@Override
+			public void changed(ChangeEvent event, Actor actor)
+			{
+				Utils_Config.current.clickToWalk = clickToWalk.isChecked() ;
+				Utils_Config.save() ;
+			}
+		}) ;
+		clickToWalkCell = add(clickToWalk).colspan(2).fillX() ;
 	}
 	
 	/**
@@ -116,6 +132,7 @@ public class Block_Sound extends VisTable
 		volumeLabel.setStyle(textStyle) ;
 		effectsLabel.setStyle(textStyle) ;
 		muted.setFont(GVars_Font.font_Second) ;
+		clickToWalk.setFont(GVars_Font.font_Second) ;
 		
 		setSize(width, height) ;
 		float scale = Utils_Board.scale(width) ;
@@ -124,7 +141,9 @@ public class Block_Sound extends VisTable
 		mutedCell.height(rowHeight) ;
 		volumeCell.height(rowHeight) ;
 		effectsCell.height(rowHeight) ;
+		clickToWalkCell.height(rowHeight) ;
 		muted.setBoxHeight(rowHeight * 0.8f) ;
+		clickToWalk.setBoxHeight(rowHeight * 0.8f) ;
 		volume.setStyle(Utils_Board.slider(rowHeight)) ;
 		effects.setStyle(Utils_Board.slider(rowHeight)) ;
 		invalidateHierarchy() ;
@@ -148,7 +167,14 @@ public class Block_Sound extends VisTable
 		order.add(muted) ;
 		order.add(volume) ;
 		order.add(effects) ;
+		order.add(clickToWalk) ;
 		return order ;
+	}
+
+	/** The click-to-walk box, for tests. */
+	public PaintedCheckBox clickToWalkBox()
+	{
+		return clickToWalk ;
 	}
 
 	/** The effects slider's value, for tests. */

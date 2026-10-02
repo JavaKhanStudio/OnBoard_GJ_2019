@@ -161,8 +161,13 @@ public class GameItem
 	public void updateHover(Vector3 pointer)
 	{
 		// The same test tryTouch makes, so what lights up is exactly what a click reaches.
-		hovered = pointer != null && !picked && textureBounds != null
-				&& textureBounds.contains(pointer.x, pointer.y) ;
+		hovered = pointer != null && isUnder(pointer) ; 
+	}
+	
+	/** Whether a click at this world point reaches the item: the test tryTouch makes. */
+	public boolean isUnder(Vector3 point)
+	{
+		return !picked && textureBounds != null && textureBounds.contains(point.x, point.y) ; 
 	}
 	
 	public ItemOutline.Kind getOutline()

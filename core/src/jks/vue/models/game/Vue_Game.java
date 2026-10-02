@@ -81,6 +81,9 @@ public class Vue_Game extends AVue_Model
     	GVars_Game.ross.draw(staticBatch);
     	staticBatch.end();
     	
+    	// Over Ross, under the interface: where a click sent him (r229).
+    	ClickMarker.draw();
+    	
     	drawInterface() ;
     }
 
@@ -145,6 +148,7 @@ public class Vue_Game extends AVue_Model
 		if(currentLevel != null)
 		{
 			GVars_Inputs.updateInput_Game(delta) ; 
+			ClickMarker.update(delta);
 			currentLevel.update(delta);
 		}
 		

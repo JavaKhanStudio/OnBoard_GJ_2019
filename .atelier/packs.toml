@@ -291,6 +291,11 @@ click, and a raw touch listener ignores the keyboard without any error. Every me
 that until r11. A new menu widget also goes in its screen's mapInterface(). GVars_UI.reset()
 drops the menu on a view change; without it the arrows stay with the menu and Ross can't
 walk. MenuKeyboardTest (-PwithGl) drives the whole path.
+CLICK-TO-WALK (r229) is an option, off by default (GameConfigs.clickToWalk, the Son board).
+Ross walks by the same left/right steering as the keys: GVars_Inputs.walkTarget, which an
+arrow key and resetInputs() clear. A click that reaches an item (GameItem.isUnder, the test
+tryTouch makes) never walks. Something that stops Ross must call resetInputs(), not just
+drop leftPressed/rightPressed, or a pending click walks him on. ClickWalkRenderTest.
 """
 
 [tags.verify]

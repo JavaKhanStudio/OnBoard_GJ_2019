@@ -5,6 +5,7 @@ import com.badlogic.gdx.Input.Keys;
 import jks.camera.GVars_Camera;
 import jks.vinterface.GVars_UI;
 import jks.vinterface.controlling.Utils_Controllable;
+import jks.vue.models.game.ClickMarker;
 import jks.vue.models.game.GVars_Game;
 import jks.vue.models.game.GVars_Personnage; 
 import jks.vue.models.game.WagonLevel;
@@ -23,12 +24,48 @@ public class GVars_Inputs
 	/** The view pans at half his walking speed, as it did when his speed was per frame at 60 fps. */
 	private static float camMulti = 0.5f ; 
 	
+	/**
+	 * Where a click in the carriage sent Ross (r229): the position.x he walks to, or NaN when
+	 * he was sent nowhere. An arrow key takes over from it, and reaching it clears it.
+	 */
+	public static float walkTarget = Float.NaN ; 
+	
+	/**
+	 * Sends Ross to stand with his middle under worldX, kept to where he may walk. Only when
+	 * the options' click-to-walk is on; the keyboard alone stays the default.
+	 */
+	public static void walkTo(float worldX)
+	{
+		float target = worldX - GVars_Game.ross.getFrameWidth() / 2f ; 
+		walkTarget = Math.max(GVars_Personnage.minPositionX, Math.min(GVars_Personnage.maxPositionX, target)) ; 
+	}
+	
+	public static boolean isWalkingToTarget()
+	{
+		return !Float.isNaN(walkTarget) ; 
+	}
+	
 	public static void updateInput_Game(float delta) 
 	{
-
-		if (leftPressed)
+		boolean goLeft = leftPressed, goRight = rightPressed ; 
+		if(!goLeft && !goRight && isWalkingToTarget())
+		{
+			// Close enough to be there within this frame: put him on it rather than step past.
+			float gap = walkTarget - GVars_Game.ross.position.x ; 
+			if(Math.abs(gap) <= GVars_Game.ross.index.walkSpeed * delta)
+			{
+				GVars_Game.ross.position.x = walkTarget ; 
+				walkTarget = Float.NaN ; 
+			}
+			else if(gap < 0)
+				goLeft = true ; 
+			else
+				goRight = true ; 
+		}
+		
+		if (goLeft)
 		{GVars_Game.ross.velocity.x -= GVars_Personnage.velocityAccelerationX * delta ;} 
-		else if (rightPressed)
+		else if (goRight)
 		{GVars_Game.ross.velocity.x += GVars_Personnage.velocityAccelerationX * delta ;}
 		else
 		{
@@ -38,7 +75,7 @@ public class GVars_Inputs
 		GVars_Game.ross.update(delta);
 		float cameraMovePower = GVars_Game.ross.velocity.x * delta * camMulti ; 
 		
-		if(GVars_Inputs.rightPressed)
+		if(goRight)
 		{
 			
 			if(cameraMovePower == 0)
@@ -54,7 +91,7 @@ public class GVars_Inputs
 			}
 			
 		}
-		else if(GVars_Inputs.leftPressed)
+		else if(goLeft)
 		{
 			if(cameraMovePower == 0)
 				cameraMovePower = -speedX * delta ; 
@@ -98,11 +135,13 @@ public class GVars_Inputs
 		if(Keys.D == keycode || Keys.RIGHT == keycode)
 		{
 			rightPressed = down ; 
+			walkTarget = Float.NaN ; 
 			return true ; 
 		}
 		else if(Keys.Q == keycode || Keys.LEFT == keycode)
 		{
 			leftPressed = down ; 
+			walkTarget = Float.NaN ; 
 			return true ; 
 		}
 		return false ; 
@@ -112,6 +151,8 @@ public class GVars_Inputs
 	{
 		leftPressed  = false ;
 		rightPressed = false ;
+		walkTarget = Float.NaN ; 
+		ClickMarker.clear() ; 
 	}
 
 	
