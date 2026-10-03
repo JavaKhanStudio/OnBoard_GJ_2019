@@ -132,7 +132,8 @@ class WagonResizeRenderTest
 	 * {window width, window height, black rows at the bottom, row bottom, row top (both in pixels
 	 * up from the window's bottom), stage width, stage height, plank x, plank top gap, plank
 	 * width, bubble width, bubble font line height, 1 when the bubble types in the current font,
-	 * the key's gap to the right edge, its gap to the top}.
+	 * the key's gap to the right edge, its gap to the top, the cloud's growth for its line in
+	 * thousandths}.
 	 */
 	private static void measure(String name) throws Exception
 	{
@@ -163,6 +164,8 @@ class WagonResizeRenderTest
 		Field typing = DialogBubble.class.getDeclaredField("typing");
 		typing.setAccessible(true);
 		boolean current = ((TypingLabel) typing.get(bubble)).getFont() == shipped;
+		Field scale = DialogBubble.class.getDeclaredField("scale");
+		scale.setAccessible(true);
 
 		seen.add(new int[] {frame.getWidth(), h, black, bottom, top,
 			Math.round(stage.getWidth()), Math.round(stage.getHeight()),
@@ -171,7 +174,8 @@ class WagonResizeRenderTest
 			Math.round(GVars_Font.buildLabel(Enum_Fonts.BUBBLE_LARGE_TEXT_MEDIUM).font.getLineHeight()),
 			current ? 1 : 0,
 			Math.round(stage.getWidth() - GVars_Game.clef.getX() - GVars_Game.clef.getWidth()),
-			Math.round(stage.getHeight() - GVars_Game.clef.getY() - GVars_Game.clef.getHeight())});
+			Math.round(stage.getHeight() - GVars_Game.clef.getY() - GVars_Game.clef.getHeight()),
+			Math.round(scale.getFloat(bubble) * 1000)});
 	}
 
 	private static int brightness(int p)
@@ -213,8 +217,9 @@ class WagonResizeRenderTest
 			assertTrue(Math.abs(s[7] - margin) <= 1 && Math.abs(s[8] - margin) <= 1,
 				at + "the plank is " + s[7] + " from the left and " + s[8] + " from the top, not in the " + margin + " px margin");
 			assertTrue(Math.abs(s[9] - s[0] / 6.5f) <= 1, at + "the plank is " + s[9] + " wide, not a 6.5th of the window");
-			// 1.4 times a 5.8th (devisingLarge since r163), as wide as it is tall since d14: the painting is square.
-			assertTrue(Math.abs(s[10] - s[0] / 5.8f * 1.4f) <= 1, at + "the bubble is " + s[10] + " wide, not 1.4 5.8ths of the window");
+			// 1.4 times a 6.5th (devisingLarge since r249; 5.8 from r163), as wide as it is tall since d14: the painting is square.
+			// Times fitCloud's growth: since r249's smaller cloud, the opening line needs a step or two at 960 wide.
+			assertTrue(Math.abs(s[10] - s[0] / 6.5f * 1.4f * s[15] / 1000f) <= 1, at + "the bubble is " + s[10] + " wide, not 1.4 6.5ths of the window times its growth " + s[15] / 1000f);
 			assertEquals(1, s[12], at + "the bubble still types in the font of another window size");
 			assertTrue(Math.abs(s[13]) <= 1 && Math.abs(s[14] - s[0] / 100) <= 1,
 				at + "the key is " + s[13] + " from the right edge and " + s[14] + " from the top, not in its corner");

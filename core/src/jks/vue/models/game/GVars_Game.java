@@ -66,6 +66,8 @@ public class GVars_Game
 		karma = 0 ; 
 		
 		dialogBubble = new DialogBubble(DialogSize.BUBBLE_LARGE_TEXT_MEDIUM) ;
+		// Vue_Game draws its tail before Ross, so he stands in front of it (r249).
+		dialogBubble.drawTailApart() ;
 		GVars_UI.mainUi.addActor(dialogBubble);
 		
 		playerInventory = new ArrayList<GameItem>() ; 

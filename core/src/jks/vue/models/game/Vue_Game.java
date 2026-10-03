@@ -73,6 +73,10 @@ public class Vue_Game extends AVue_Model
     	for (ToRender rende : toRender) 
 			rende.render();
     	
+    	// Under Ross, the bubble's tail; the rest of the cloud is on the stage, over the key (r249).
+    	if(dialogBubble != null)
+    		dialogBubble.drawTail(GVars_UI.mainUi);
+    	
     	staticBatch.begin();
     	
     	if(ending)

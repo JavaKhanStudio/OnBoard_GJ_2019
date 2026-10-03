@@ -2,6 +2,10 @@ package jks.vinterface.tools;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Batch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Align;
 import com.kotcrab.vis.ui.widget.VisImage;
 import com.kotcrab.vis.ui.widget.VisTable;
@@ -58,6 +62,9 @@ public class DialogBubble extends VisTable
 		
 		Texture texture = Index_Interface.manager.get(Index_Interface.bubbleThink) ; 
 		bubbleBackground = new VisImage(Utils_TexturesAcess.buildDrawingRegionTexture(texture)) ; 
+		int split = Math.round(texture.getHeight() * TAIL_TOP) ; 
+		cloudAbove = new TextureRegionDrawable(new TextureRegion(texture, 0, 0, texture.getWidth(), split)) ; 
+		tail = new TextureRegion(texture, 0, split, texture.getWidth(), texture.getHeight() - split) ; 
 		
 		this.add(bubbleBackground) ;
 		this.add(typing) ; 
@@ -166,10 +173,63 @@ public class DialogBubble extends VisTable
 	
 	boolean reversed ; 
 	
+	/**
+	 * Where the tail is cut from the cloud, as a fraction of bubble_think_2.png from its top: under
+	 * the text's body (BODY_BOTTOM), so the cut never passes behind a letter. What is under it -
+	 * the cloud's lower scallops and the puffs trailing to Ross - is drawn behind him (r249).
+	 */
+	static final float TAIL_TOP = 800f / 1200f ; 
+	/** The cloud above TAIL_TOP, which the stage draws once the tail is drawn apart. */
+	private TextureRegionDrawable cloudAbove ; 
+	/** The cloud under TAIL_TOP, which {@link #drawTail} draws before Ross. */
+	private TextureRegion tail ; 
+	/** Whether the tail is left to {@link #drawTail}: in a carriage, not in the line lab. */
+	boolean tailApart ; 
+	
+	/**
+	 * Leaves the tail to {@link #drawTail}, for a view that draws Ross: the stage is drawn over
+	 * the whole level, so a tail it drew would cross his face whenever the cloud slides down.
+	 */
+	public void drawTailApart()
+	{
+		tailApart = true ; 
+		bubbleBackground.setDrawable(cloudAbove) ; 
+		reverse(reversed) ; 
+	}
+	
+	/**
+	 * The tail, at the cloud's place and fade, on the stage's screen pixels: drawn by the view after
+	 * the level and before Ross, so he stands in front of it. The rest of the cloud and its text
+	 * stay on the stage, in front of the key (r106).
+	 */
+	public void drawTail(Stage stage)
+	{
+		float alpha = getColor().a ; 
+		if(!tailApart || !isVisible() || getStage() == null || alpha <= 0)
+			return ; 
+		Batch batch = stage.getBatch() ; 
+		stage.getCamera().update() ; 
+		batch.setProjectionMatrix(stage.getCamera().combined) ; 
+		batch.begin() ; 
+		batch.setColor(1, 1, 1, alpha) ; 
+		batch.draw(tail, getX(), getY(), reversed ? -width : width, height * (1 - TAIL_TOP)) ; 
+		batch.setColor(1, 1, 1, 1) ; 
+		batch.end() ; 
+	}
+	
 	public void reverse(boolean reverse) 
 	{
 		reversed = reverse ; 
-		bubbleBackground.setSize(width * (reverse ? -1 : 1),height);
+		if(tailApart)
+		{
+			bubbleBackground.setSize(width * (reverse ? -1 : 1), height * TAIL_TOP);
+			bubbleBackground.setPosition(0, height * (1 - TAIL_TOP));
+		}
+		else
+		{
+			bubbleBackground.setSize(width * (reverse ? -1 : 1),height);
+			bubbleBackground.setPosition(0, 0);
+		}
 		// Mirrored, the cloud's body is mirrored too: its right margin is on the left.
 		if(reverse)
 			typing.setPosition(width * (1 - BODY_RIGHT) - width, height * (1 - BODY_BOTTOM));
@@ -237,6 +297,12 @@ public class DialogBubble extends VisTable
 	}
 	
 	
+	/** Whether the cloud is mirrored, its tail at its lower right, as when Ross faces left. */
+	public boolean isReversed()
+	{
+		return reversed ; 
+	}
+	
 	/** Where the cloud is drawn on the stage: x, y, width, height; reverse() draws it left of getX(). */
 	public float[] cloudBox()
 	{
@@ -261,8 +327,12 @@ public class DialogBubble extends VisTable
 	
 	private static final float devisingSmall = 10 ; 
 	private static final float devisingMedium = 7.2f ; 
-	/** Bigger since r163 (6.5), with letters to match: Index_Fonts.BUBBLE_LARGE_TEXT_MEDIUM. */
-	private static final float devisingLarge = 5.8f ; 
+	/**
+	 * Bigger at r163 (6.5 to 5.8), with letters to match: Index_Fonts.BUBBLE_LARGE_TEXT_MEDIUM.
+	 * Back to 6.5 at r249, letters unchanged: Simon found the square cloud too big. A line wraps
+	 * narrower, and the few that then need five rows grow the cloud by fitCloud's finer steps.
+	 */
+	private static final float devisingLarge = 6.5f ; 
 	
 	/**
 	 * Where the text goes in bubble_think_2.png (r163), as fractions of it from its top-left: the
@@ -273,8 +343,12 @@ public class DialogBubble extends VisTable
 	static final float BODY_TOP = 230f / 1200f, BODY_BOTTOM = 780f / 1200f ; 
 	static final float BODY_LEFT = 0.14f, BODY_RIGHT = 0.84f ; 
 	
-	/** A step of {@link #fitCloud()}, and the most it grows: a cloud a third bigger at worst. */
-	static final float GROWTH = 1.15f, MAX_GROWTH = 1.33f ; 
+	/**
+	 * A step of {@link #fitCloud()}, and the most it grows: a cloud a third bigger at worst. 1.05,
+	 * not 1.15 (r249): the smaller cloud's five-row lines need a tenth more, and a 1.15 step made
+	 * them bigger than the cloud they replaced.
+	 */
+	static final float GROWTH = 1.05f, MAX_GROWTH = 1.33f ; 
 	/** How much bigger than its usual size the cloud is for the line it holds now. */
 	float scale = 1f ; 
 	
