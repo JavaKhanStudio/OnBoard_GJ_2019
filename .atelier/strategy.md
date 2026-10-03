@@ -1,8 +1,5 @@
 # On Board: Strategy
 
-> **PROPOSED** by r246 (find-strategy, carrying r190's answers) on 2026-10-03. It binds
-> nothing until the Commissar upholds it against the doctrine.
-
 A strategy line says how this board applies the doctrine. Tactics (a skill or a pack with
 `serves = ["Sn"]`, a closed ticket with `--serves Sn`) carry it out. A decision that goes
 against a doctrine line is a doubt `--against Dn`.
