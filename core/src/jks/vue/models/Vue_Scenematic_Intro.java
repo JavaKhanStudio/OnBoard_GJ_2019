@@ -36,8 +36,12 @@ public class Vue_Scenematic_Intro extends AVue_Scenematic
 	ArrayList<Texture> logoSequence ;
 	/** The logo on the current page. */
 	public Texture currentLogo ;
-	/** It rises once its page is fully up, over LOGO_FADE_IN seconds (D4), and leaves with the page. */
+	/**
+	 * It starts to rise once its page is LOGO_FROM of the way up - after the painting, before it
+	 * is done (r257) - over LOGO_FADE_IN seconds (D4), and leaves with the page.
+	 */
 	public float logoAlpha ;
+	public static final float LOGO_FROM = 0.5f ;
 	private static final float LOGO_FADE_IN = 1.5f ;
 	
 	VisImage showingPage ; 
@@ -71,7 +75,7 @@ public class Vue_Scenematic_Intro extends AVue_Scenematic
 	@Override
 	protected void whileUp(float delta)
 	{
-		if(currentAlpha == 1)
+		if(currentAlpha >= LOGO_FROM)
 			logoAlpha = Math.min(1, logoAlpha + delta / LOGO_FADE_IN) ; 
 	}
 	

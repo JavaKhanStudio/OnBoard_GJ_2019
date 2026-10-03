@@ -30,7 +30,8 @@ import jks.vue.models.Vue_Scenematic_Intro;
  * (Vue_Preloading, and r23's click-per-logo): the team's on page 1, libGDX's on page 2, the
  * jam's on page 3, the order they always came in. The game starts on the first page.
  *
- * Each logo waits for its page to be fully up, then fades in gently (D4); one click turns the
+ * Each logo waits for its page to be half up, starts before the page is done (r257), and fades
+ * in gently (D4); one click turns the
  * page, logo and all. The clicks go in through the input processor the game installed, as a
  * mouse would. A shot of each page with its logo fully up lands in build/frames/intro-logo-N.png.
  */
@@ -52,6 +53,8 @@ class IntroLogosTest
 	private static volatile int clicks;
 	private static volatile int clicksToMenu = -1;
 	private static float lastLogoAlpha;
+	/** Logos that started to rise while their page was still coming up (r257). */
+	private static final List<String> earlyLogos = new ArrayList<>();
 	private static Texture pageShot;
 
 	@BeforeAll
@@ -77,8 +80,10 @@ class IntroLogosTest
 				Vue_Scenematic_Intro intro = (Vue_Scenematic_Intro) GVars_Heart.vue;
 				String logo = name(intro, intro.currentLogo);
 
-				if (intro.logoAlpha > 0 && intro.currentAlpha < 1 && intro.logoAlpha > lastLogoAlpha)
-					faults.add(logo + " rose before its page was up");
+				if (intro.logoAlpha > lastLogoAlpha && intro.currentAlpha < Vue_Scenematic_Intro.LOGO_FROM)
+					faults.add(String.format("%s rose with its page only %.2f up", logo, intro.currentAlpha));
+				if (intro.logoAlpha > 0 && intro.currentAlpha < 1 && !earlyLogos.contains(logo))
+					earlyLogos.add(logo);
 				if (intro.logoAlpha - lastLogoAlpha > MAX_STEP)
 					faults.add(String.format("%s jumped %.2f in one frame", logo, intro.logoAlpha - lastLogoAlpha));
 				lastLogoAlpha = intro.logoAlpha;
@@ -149,9 +154,16 @@ class IntroLogosTest
 	}
 
 	@Test
-	@DisplayName("a logo waits for its page, then fades in gently")
+	@DisplayName("a logo waits for its page to be half up, then fades in gently")
 	void fadesInGently()
 	{
 		assertTrue(faults.isEmpty(), String.join("; ", faults.subList(0, Math.min(5, faults.size()))));
+	}
+
+	@Test
+	@DisplayName("each logo starts to rise before its page is done (r257)")
+	void startsBeforeThePageIsDone()
+	{
+		assertEquals(List.of("pixmen", "libGDX", "Jamming"), earlyLogos);
 	}
 }
