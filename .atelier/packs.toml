@@ -79,6 +79,11 @@ process working directory and cannot see inside the shipped jar. It is what bloc
 packaging for years.
 preLoadLevel throws GdxRuntimeException naming the level and the file. Keep it throwing —
 it used to print a trace, return null, and surface as an NPE inside Clef that said nothing.
+THE VIEW IS PLACED FROM ROSS, not panned by him: GVars_Inputs.followRoss maps his walk
+(GVars_Personnage.minPositionX..maxPositionX) onto the camera's clamps, so each carriage end is
+in view at his last step (r252). It panned by half his steps before, and wa1's last item, the
+block with the O, stayed cut off. Moving his walk range or WagonLevel.WIDTH moves the view;
+CameraFollowsRossTest (-PwithGl) checks it.
 Gates: `./gradlew build` runs LevelDataTest (every .wa parses) and AssetPathTest (every
 path the code names exists).
 """

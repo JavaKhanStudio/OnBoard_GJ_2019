@@ -20,10 +20,6 @@ public class GVars_Inputs
 	
 	public static boolean blockActionForClick ; // Considere s'il faut annuler toute autre action de click
 
-	private static float speedX = 300 ;
-	/** The view pans at half his walking speed, as it did when his speed was per frame at 60 fps. */
-	private static float camMulti = 0.5f ; 
-	
 	/**
 	 * Where a click in the carriage sent Ross (r229): the position.x he walks to, or NaN when
 	 * he was sent nowhere. An arrow key takes over from it, and reaching it clears it.
@@ -73,39 +69,22 @@ public class GVars_Inputs
 		}
 		
 		GVars_Game.ross.update(delta);
-		float cameraMovePower = GVars_Game.ross.velocity.x * delta * camMulti ; 
-		
-		if(goRight)
-		{
-			
-			if(cameraMovePower == 0)
-				cameraMovePower = speedX * delta ; 
-			
-			if(GVars_Camera.camera.position.x + (cameraMovePower) > maxCameraX())
-			{
-				GVars_Camera.camera.position.x = maxCameraX() ; 
-			}
-			else
-			{
-				GVars_Camera.camera.translate(cameraMovePower, 0);
-			}
-			
-		}
-		else if(goLeft)
-		{
-			if(cameraMovePower == 0)
-				cameraMovePower = -speedX * delta ; 
-			
-			if(GVars_Camera.camera.position.x + (cameraMovePower) < minCameraX())
-			{
-				GVars_Camera.camera.position.x = minCameraX() ; 
-			}
-			else
-			{					
-				GVars_Camera.camera.translate(cameraMovePower, 0);
-			}
-			
-		}	
+		followRoss() ; 
+	}
+	
+	/**
+	 * The view sits where Ross is: on the start of the carriage at his first step, on its end at
+	 * his last, and in between in step with him, about 0.6 of his walk. It used to pan by half of
+	 * each frame's walk and was never told where he stood, so a walk to his last step left the
+	 * view 200 short of the end: the block with the O (wa1's cube, the last item) was cut in two,
+	 * and only pushing on against the wall, which panned on, brought it in (r252).
+	 */
+	static void followRoss()
+	{
+		float walked = (GVars_Game.ross.position.x - GVars_Personnage.minPositionX)
+			/ (GVars_Personnage.maxPositionX - GVars_Personnage.minPositionX) ; 
+		walked = Math.max(0, Math.min(1, walked)) ; 
+		GVars_Camera.camera.position.x = minCameraX() + walked * (maxCameraX() - minCameraX()) ; 
 	}
 	
 	/** The view's centre when its left edge is on the start of the carriage. */
