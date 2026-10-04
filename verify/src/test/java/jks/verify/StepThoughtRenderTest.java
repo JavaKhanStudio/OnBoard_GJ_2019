@@ -49,16 +49,18 @@ class StepThoughtRenderTest
 	private static final double PIECE_AT = 5.0;
 	private static final double AFTER_PIECE_AT = 8.5;
 	private static final double LAST_PIECE_AT = 9.0;
-	/** Into the creep, well before the line is read: the steam covers in 0.83 s and holds. */
+	/** Into the creep, well before the line is read: the steam holds at its first ring (r262). */
 	private static final double CREEPING_AT = LAST_PIECE_AT + 2.0;
 
 	private static GameHarness harness;
 	private static volatile String onOpening, afterPiece, piece1Line, piece2Line, piece3Line;
 	private static volatile boolean flashing1, flashing2, flashing3;
 	private static volatile int carriageWhileCreeping, carriageAfterClick, carriageBeforeRead, carriageAfterRead;
-	private static volatile boolean creepingBeforeClick;
-	/** Mean brightness of the middle of the bubble, and of a patch of the screen away from it, under the steam. */
-	private static volatile double bubbleWhileCreeping = -1, steamWhileCreeping = -1;
+	private static volatile boolean creepingBeforeClick, atRingBeforeClick;
+	/** The last frame the steam covered whole, before each change. */
+	private static volatile BufferedImage covered;
+	/** Mean brightness of the middle of the bubble, under the steam. */
+	private static volatile double bubbleWhileCreeping = -1;
 	/** How far the screen's corners were from the steam's middle, under each change's steam (r120). */
 	private static volatile String cornersOut1 = "not measured", cornersOut2 = "not measured";
 	private static volatile float lastLineSeconds;
@@ -84,6 +86,7 @@ class StepThoughtRenderTest
 			try
 			{
 				double t = harness.gameSeconds;
+				if (GVars_Steam.isCovered()) covered = GameHarness.grab();
 				if (step[0] == 0 && t >= OPENED_AT)
 				{
 					step[0] = 1;
@@ -127,13 +130,13 @@ class StepThoughtRenderTest
 					step[0] = 6;
 					carriageWhileCreeping = GVars_Game.currentLevelInt;
 					creepingBeforeClick = GVars_Steam.isCreeping();
+					atRingBeforeClick = GVars_Steam.isAtRing();
 					BufferedImage creeping = GameHarness.grab();
 					Frames.write(creeping, new File(OUTPUT, "step-thought-creeping.png"));
 					Actor bubble = GVars_Game.dialogBubble;
 					bubbleWhileCreeping = brightness(creeping, bubble.getX() + bubble.getWidth() * 0.4f,
 						bubble.getY() + bubble.getHeight() * 0.45f, bubble.getWidth() * 0.2f, bubble.getHeight() * 0.1f);
-					steamWhileCreeping = brightness(creeping, 900, 250, 100, 100);
-					cornersOut1 = cornersOffSteam(creeping);
+					covered = null;
 					// A click anywhere, through whatever the game is listening with.
 					Gdx.input.getInputProcessor().touchDown(640, 360, 0, 0);
 					at[0] = t;
@@ -142,6 +145,8 @@ class StepThoughtRenderTest
 				{
 					step[0] = 7;
 					carriageAfterClick = GVars_Game.currentLevelInt;
+					cornersOut1 = covered == null ? "never covered" : cornersOffSteam(covered);
+					covered = null;
 					// A long line, then the whole key: the steam waits for the line.
 					GVars_Game.sayItemMessage("wa1.cage.message2");
 					float reading = GVars_Game.dialogBubble.secondsBusy();
@@ -154,14 +159,13 @@ class StepThoughtRenderTest
 				{
 					step[0] = 8;
 					carriageBeforeRead = GVars_Game.currentLevelInt;
-					BufferedImage holding = GameHarness.grab();
-					Frames.write(holding, new File(OUTPUT, "step-thought-steam-carriage2.png"));
-					cornersOut2 = cornersOffSteam(holding);
+					Frames.write(GameHarness.grab(), new File(OUTPUT, "step-thought-steam-carriage2.png"));
 				}
 				else if (step[0] == 8 && t >= at[0] + 1.5)
 				{
 					step[0] = 9;
 					carriageAfterRead = GVars_Game.currentLevelInt;
+					cornersOut2 = covered == null ? "never covered" : cornersOffSteam(covered);
 					Gdx.app.exit();
 				}
 			}
@@ -259,10 +263,11 @@ class StepThoughtRenderTest
 	{
 		assertTrue(lastLineSeconds > 3, "the last piece came with nothing to read: " + lastLineSeconds);
 		assertTrue(creepingBeforeClick, "no steam creeping 2 s after the last piece");
-		// The steam has covered the carriage by then, and the bubble is still white on top (r118).
-		assertTrue(steamWhileCreeping < 150, "the steam had not covered the carriage: " + steamWhileCreeping);
+		// The steam holds at its first ring while the line is read, not on a covered screen
+		// (r262), and the bubble is white on top of whatever steam reaches it (r118).
+		assertTrue(atRingBeforeClick, "the steam was not holding at its first ring 2 s after the last piece");
 		assertTrue(bubbleWhileCreeping > 200, "the bubble is hidden under the steam: " + bubbleWhileCreeping);
-		// Every change covers the whole screen, not only the first (r120).
+		// Every change is made under steam covering the whole screen, not only the first (r120).
 		assertEquals("", cornersOut1, "leaving carriage 1, the steam left corners showing");
 		assertEquals("", cornersOut2, "leaving carriage 2, the steam left corners showing");
 		assertEquals(1, carriageWhileCreeping, "the carriage went before its last line was read");

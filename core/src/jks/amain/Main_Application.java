@@ -30,6 +30,7 @@ import jks.vue.models.game.GVars_Game;
 import jks.vue.models.game.ItemOutlineLab;
 import jks.vue.models.game.CarriageMusicSwitch;
 import jks.vue.models.game.KarmaSlider;
+import jks.vue.models.game.SteamLab;
 import jks.vue.models.game.Vue_Game;
 
 public class Main_Application extends ApplicationAdapter 
@@ -53,6 +54,8 @@ public class Main_Application extends ApplicationAdapter
 	 * same kind of screen for how a hovered item lights: GAME, with ItemOutlineLab's sliders
 	 * over it (d10). -Donboard.level picks its carriage. LINE_LAB lists every item with what
 	 * Ross says about it, and writes an edited line into the text table; see Vue_LineLab (r74).
+	 * STEAM_LAB is GAME with SteamLab over it: the steam that leaves a carriage, played on
+	 * demand in each of its shapes (r262).
 	 *
 	 * CREDITS is the start screen with the credits already open, exactly as its Credits
 	 * button leaves it, so Retour lands on the menu. It is there so the credits can be looked
@@ -60,7 +63,7 @@ public class Main_Application extends ApplicationAdapter
 	 */
 	public enum StartPoint
 	{
-		LOGO, INTRO, START_SCREEN, GAME, OUTRO, SOUND_LAB, ITEM_LAB, LINE_LAB, CREDITS
+		LOGO, INTRO, START_SCREEN, GAME, OUTRO, SOUND_LAB, ITEM_LAB, LINE_LAB, STEAM_LAB, CREDITS
 	}
 	
 	public static StartPoint startPoint = fromSystemProperty() ; 
@@ -167,6 +170,7 @@ public class Main_Application extends ApplicationAdapter
 			case SOUND_LAB:    GVars_Heart.changeVue(new Vue_SoundLab(),true) ; break ;
 			case ITEM_LAB:     startAtGame() ; ItemOutlineLab.open() ; KarmaSlider.open() ; break ;
 			case LINE_LAB:     GVars_Heart.changeVue(new Vue_LineLab(),true) ; break ;
+			case STEAM_LAB:    startAtGame() ; SteamLab.open() ; break ;
 			case CREDITS:      GVars_Heart.changeVue(new Vue_StartScreen(true),true) ; break ;
 		}
 	}
