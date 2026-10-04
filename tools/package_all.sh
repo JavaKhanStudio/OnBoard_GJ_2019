@@ -35,10 +35,34 @@
 # "dist/LISEZMOI - README.txt" (from tools/drive_README.txt), and the unpacked
 # dist/OnBoard-*/ folders, all replaced. The zip names do not change between versions;
 # dist/VERSION says which commit they are.
-set -euo pipefail
+#
+# IT IS THE BOARD'S "MAKE A BUILD" COMMAND (r254): the Tools screen (atelier r1420) runs it with
+# nobody watching. So everything it says, and every line Gradle prints, is also kept in
+# dist/package_all.log; a good run ends with the absolute path of each zip and of that log, and
+# any failure ends with one "package_all: FAILED ..." line naming the step and the log. Two runs
+# at once are refused (they would share ../onboard-release). Nothing in a build opens a window or
+# plays a sound, and the script makes sure of it rather than trusting a caller's flag (D6): no
+# DISPLAY or WAYLAND_DISPLAY reaches Gradle, and OpenAL has only its null driver.
+set -Eeuo pipefail
 ROOT=$(cd "$(dirname "$(readlink -f "$0")")/.." && pwd)
-COMMIT=$(git -C "$ROOT" rev-parse --verify "${1:-HEAD}^{commit}")
+mkdir -p "$ROOT/dist"
+LOG="$ROOT/dist/package_all.log"
+: >"$LOG"
+exec > >(tee -a "$LOG") 2> >(tee -a "$LOG" >&2)
+STEP="setup"
+fail() { echo "package_all: FAILED at $STEP: $*. Log: $LOG" >&2; exit 1; }
+trap 'fail "line $LINENO exited $?"' ERR
+
+unset DISPLAY WAYLAND_DISPLAY
+export ALSOFT_DRIVERS=null
+for tool in git zip unzip rsync ffmpeg flock; do
+	command -v $tool >/dev/null || fail "needs $tool on this machine"
+done
+
+COMMIT=$(git -C "$ROOT" rev-parse --verify --quiet "${1:-HEAD}^{commit}") || fail "no commit '${1:-HEAD}'"
 TREE=${RELEASE_TREE:-$(dirname "$ROOT")/onboard-release}
+exec 9>"$TREE.lock"
+flock -n 9 || fail "another package_all is already building in $TREE"
 
 # 2026.09.26-bb2b2a9: the commit's date, so versions sort, and its hash, so it can be found.
 VERSION="$(git -C "$ROOT" log -1 --format=%cd --date=format:%Y.%m.%d "$COMMIT")-$(git -C "$ROOT" rev-parse --short "$COMMIT")"
@@ -62,18 +86,26 @@ TARGETS=(
 STAGE=$(mktemp -d)
 trap 'rm -rf "$STAGE"' EXIT
 
+# One Gradle invocation, its whole output kept in the log; on failure its last 30 lines on stderr.
+gradle() {
+	echo "---- ./gradlew $* ----" >>"$LOG"
+	if ! (cd "$TREE" && ./gradlew --console=plain "$@") >"$STAGE/gradle.log" 2>&1; then
+		cat "$STAGE/gradle.log" >>"$LOG"
+		tail -30 "$STAGE/gradle.log" >&2
+		fail "./gradlew $* did not build"
+	fi
+	cat "$STAGE/gradle.log" >>"$LOG"
+}
+
 for line in "${TARGETS[@]}"; do
 	read -r task zip folder <<<"$line"
+	STEP=$task
 	rm -f "$TREE/dist/$zip"
 	echo "  $task"
-	if ! (cd "$TREE" && ./gradlew --console=plain ":desktop:$task") >"$STAGE/gradle.log" 2>&1; then
-		tail -30 "$STAGE/gradle.log" >&2
-		echo "package_all: $task FAILED" >&2
-		exit 1
-	fi
+	gradle ":desktop:$task"
 	grep '^checkDistNatives:' "$STAGE/gradle.log" | sed 's/^/    /' \
-		|| { echo "package_all: $task never ran checkDistNatives" >&2; exit 1; }
-	[[ -f "$TREE/dist/$zip" ]] || { echo "package_all: $task made no dist/$zip" >&2; exit 1; }
+		|| fail "it never ran checkDistNatives"
+	[[ -f "$TREE/dist/$zip" ]] || fail "it made no dist/$zip"
 
 	rm -rf "${STAGE:?}/On Board" "${STAGE:?}/$zip"
 	mkdir "$STAGE/On Board"
@@ -84,16 +116,14 @@ for line in "${TARGETS[@]}"; do
 	mv "$STAGE/$zip" "$TREE/dist/$zip"
 done
 
+STEP="html:war"
 echo "  html:war"
 rm -f "$TREE/dist/onboard-html.zip"
-if ! (cd "$TREE" && ./gradlew --console=plain :html:war) >"$STAGE/gradle.log" 2>&1; then
-	tail -30 "$STAGE/gradle.log" >&2
-	echo "package_all: html:war FAILED" >&2
-	exit 1
-fi
+gradle :html:war
 echo "On Board $VERSION" >"$TREE/html/build/war/VERSION.txt"
 (cd "$TREE/html/build/war" && zip -qrX "$TREE/dist/onboard-html.zip" .)
 
+STEP="web (drive)"
 echo "  web (drive)"
 WEB="$STAGE/On Board (navigateur - browser)"
 rm -rf "$WEB" "$TREE/dist/onboard-web.zip"
@@ -105,7 +135,7 @@ chmod +x "$WEB/fichiers - files/serve.pl" "$WEB/"*.command "$WEB/"*.sh
 echo "On Board $VERSION" >"$WEB/VERSION.txt"
 (cd "$STAGE" && zip -qrX "$TREE/dist/onboard-web.zip" "On Board (navigateur - browser)")
 
-mkdir -p "$ROOT/dist"
+STEP="copy to $ROOT/dist"
 for line in "${TARGETS[@]}"; do
 	read -r task zip folder <<<"$line"
 	cp "$TREE/dist/$zip" "$ROOT/dist/$zip"
@@ -116,13 +146,12 @@ echo "$VERSION" >"$ROOT/dist/VERSION"
 # What goes on a drive with the zips (r222): which zip for which computer, past the two warnings.
 sed "s/@VERSION@/$VERSION/" "$TREE/tools/drive_README.txt" >"$ROOT/dist/LISEZMOI - README.txt"
 
-echo "package_all: $VERSION"
-for line in "${TARGETS[@]}"; do
+# The last lines are what the Tools screen shows: each file, absolute, then the log.
+echo "package_all: built $VERSION"
+for line in "${TARGETS[@]}" "- onboard-html.zip" "- onboard-web.zip"; do
 	read -r task zip folder <<<"$line"
-	printf '  %-24s %s\n' "$zip" "$(du -h "$ROOT/dist/$zip" | cut -f1)"
-done
-for zip in onboard-html.zip onboard-web.zip; do
-	printf '  %-24s %s\n' "$zip" "$(du -h "$ROOT/dist/$zip" | cut -f1)"
+	printf '  %-6s %s\n' "$(du -h "$ROOT/dist/$zip" | cut -f1)" "$ROOT/dist/$zip"
 done
 echo "package_all: NOT SIGNED. Windows warns \"Windows protected your PC\", macOS says \"damaged\"."
 echo "  Simon chose unsigned (r222); say so in the release note. What signing takes: docs/signing.md"
+echo "  log: $LOG"
