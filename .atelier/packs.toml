@@ -431,7 +431,8 @@ checkout — that holds other sessions' unfinished edits. Each zip unzips into o
 DISPLAY/WAYLAND_DISPLAY and sets ALSOFT_DRIVERS=null itself, refuses a second run at once
 (../onboard-release.lock), keeps everything in dist/package_all.log, ends with each zip's
 absolute path and the log's, and any failure is ONE "package_all: FAILED at <step>" line. Keep
-those last lines that shape: the Tools screen shows them. It also builds
+those last lines that shape: the Tools screen shows them; tests/package_all_failure.sh checks the
+Gradle-failure one in a scratch repo (no build, real dist/ untouched). It also builds
 :html:war there and zips it FLAT as dist/onboard-html.zip (index.html and VERSION.txt at
 the root: itch wants them there). tools/itch_push.sh --dry-run <user>/<game> shows the five
 channels and refuses an html zip over itch's HTML5 limits (1000 files, 200 MB a file,
