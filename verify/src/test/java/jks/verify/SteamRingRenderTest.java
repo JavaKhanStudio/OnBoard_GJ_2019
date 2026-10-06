@@ -189,6 +189,14 @@ class SteamRingRenderTest
 	}
 
 	@Test
+	@DisplayName("The game ships Floor held at frame 2, Simon's pick (d16)")
+	void shipsFloor()
+	{
+		assertEquals(Ring.FLOOR, GVars_Steam.SHIPPED_RING);
+		assertEquals(2, Ring.FLOOR.shippedFrame);
+	}
+
+	@Test
 	@DisplayName("Every shape closes over the whole screen for the change, and the change comes when it always did")
 	void itClosesForTheChange()
 	{

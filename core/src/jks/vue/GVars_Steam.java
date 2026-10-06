@@ -87,8 +87,8 @@ public class GVars_Steam
 		}
 	}
 
-	/** The game's pick, until Simon picks in the steam lab (r262). */
-	public static final Ring SHIPPED_RING = Ring.CORNER ;
+	/** The game's: Floor, held at its frame 2 - Simon's pick in the steam lab (d16, r270). */
+	public static final Ring SHIPPED_RING = Ring.FLOOR ;
 
 	/** Where the next creep's ring rises from; the steam lab moves it. Not saved. */
 	public static Ring ring = SHIPPED_RING ;
