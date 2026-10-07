@@ -31,6 +31,9 @@
 # THE PACKAGES ARE NOT SIGNED: Simon chose that on r222 (2026-10-02) and wants it said at every
 # release, which is why the run ends by saying it. docs/signing.md is what signing would take.
 #
+# THE ICONS (r274): tools/package_icons.py reads the icon onboard.exe and each .app carry and fails
+# the run unless it is the On Board logo; dist/package_icons.png shows them side by side.
+#
 # Out: dist/onboard-{winX64,linuxX64,macArm64,macX64,html,web}.zip, dist/VERSION, the drive's
 # "dist/LISEZMOI - README.txt" (from tools/drive_README.txt), and the unpacked
 # dist/OnBoard-*/ folders, all replaced. The zip names do not change between versions;
@@ -58,6 +61,7 @@ export ALSOFT_DRIVERS=null
 for tool in git zip unzip rsync ffmpeg flock; do
 	command -v $tool >/dev/null || fail "needs $tool on this machine"
 done
+python3 -c 'import PIL' 2>/dev/null || fail "needs python3 with Pillow (tools/package_icons.py)"
 
 COMMIT=$(git -C "$ROOT" rev-parse --verify --quiet "${1:-HEAD}^{commit}") || fail "no commit '${1:-HEAD}'"
 TREE=${RELEASE_TREE:-$(dirname "$ROOT")/onboard-release}
@@ -116,6 +120,12 @@ for line in "${TARGETS[@]}"; do
 	mv "$STAGE/$zip" "$TREE/dist/$zip"
 done
 
+# r274: the .exe and both .app must show the On Board logo, which no file manager here can show.
+STEP="icons"
+echo "  icons"
+python3 "$TREE/tools/package_icons.py" "$TREE/dist" "$TREE/dist/package_icons.png" | sed 's/^/    /' \
+	|| fail "an executable does not present the logo (tools/package_icons.py)"
+
 STEP="html:war"
 echo "  html:war"
 rm -f "$TREE/dist/onboard-html.zip"
@@ -141,7 +151,7 @@ for line in "${TARGETS[@]}"; do
 	cp "$TREE/dist/$zip" "$ROOT/dist/$zip"
 	rsync -a --delete "$TREE/dist/$folder/" "$ROOT/dist/$folder/"
 done
-cp "$TREE/dist/onboard-html.zip" "$TREE/dist/onboard-web.zip" "$ROOT/dist/"
+cp "$TREE/dist/onboard-html.zip" "$TREE/dist/onboard-web.zip" "$TREE/dist/package_icons.png" "$ROOT/dist/"
 echo "$VERSION" >"$ROOT/dist/VERSION"
 # What goes on a drive with the zips (r222): which zip for which computer, past the two warnings.
 sed "s/@VERSION@/$VERSION/" "$TREE/tools/drive_README.txt" >"$ROOT/dist/LISEZMOI - README.txt"
