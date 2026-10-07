@@ -32,24 +32,27 @@
 # release, which is why the run ends by saying it. docs/signing.md is what signing would take.
 #
 # THE ICONS (r274): tools/package_icons.py reads the icon onboard.exe and each .app carry and fails
-# the run unless it is the On Board logo; dist/package_icons.png shows them side by side.
+# the run unless it is the On Board logo; build/release/package_icons.png shows them side by side.
 #
-# Out: dist/onboard-{winX64,linuxX64,macArm64,macX64,html,web}.zip, dist/VERSION, the drive's
-# "dist/LISEZMOI - README.txt" (from tools/drive_README.txt), and the unpacked
-# dist/OnBoard-*/ folders, all replaced. The zip names do not change between versions;
-# dist/VERSION says which commit they are.
+# Out: dist/ holds THE PACKAGES AND NOTHING ELSE (r278, Simon's choice): onboard-{winX64,linuxX64,
+# macArm64,macX64,html,web}.zip and the drive's "LISEZMOI - README.txt" (from
+# tools/drive_README.txt). The rest goes to build/release/: VERSION, package_all.log,
+# package_icons.png and construo's unpacked OnBoard-*/ folders. All replaced each run, and what
+# an older run left in dist/ beside the packages is removed. The zip names do not change between
+# versions; build/release/VERSION says which commit they are (tools/itch_push.sh reads it).
 #
 # IT IS THE BOARD'S "MAKE A BUILD" COMMAND (r254): the Tools screen (atelier r1420) runs it with
 # nobody watching. So everything it says, and every line Gradle prints, is also kept in
-# dist/package_all.log; a good run ends with the absolute path of each zip and of that log, and
+# build/release/package_all.log; a good run ends with the absolute path of each zip and of that log, and
 # any failure ends with one "package_all: FAILED ..." line naming the step and the log. Two runs
 # at once are refused (they would share ../onboard-release). Nothing in a build opens a window or
 # plays a sound, and the script makes sure of it rather than trusting a caller's flag (D6): no
 # DISPLAY or WAYLAND_DISPLAY reaches Gradle, and OpenAL has only its null driver.
 set -Eeuo pipefail
 ROOT=$(cd "$(dirname "$(readlink -f "$0")")/.." && pwd)
-mkdir -p "$ROOT/dist"
-LOG="$ROOT/dist/package_all.log"
+REL="$ROOT/build/release"
+mkdir -p "$ROOT/dist" "$REL"
+LOG="$REL/package_all.log"
 : >"$LOG"
 exec > >(tee -a "$LOG") 2> >(tee -a "$LOG" >&2)
 STEP="setup"
@@ -123,7 +126,7 @@ done
 # r274: the .exe and both .app must show the On Board logo, which no file manager here can show.
 STEP="icons"
 echo "  icons"
-python3 "$TREE/tools/package_icons.py" "$TREE/dist" "$TREE/dist/package_icons.png" | sed 's/^/    /' \
+python3 "$TREE/tools/package_icons.py" "$TREE/build/release" "$TREE/build/release/package_icons.png" | sed 's/^/    /' \
 	|| fail "an executable does not present the logo (tools/package_icons.py)"
 
 STEP="html:war"
@@ -149,10 +152,14 @@ STEP="copy to $ROOT/dist"
 for line in "${TARGETS[@]}"; do
 	read -r task zip folder <<<"$line"
 	cp "$TREE/dist/$zip" "$ROOT/dist/$zip"
-	rsync -a --delete "$TREE/dist/$folder/" "$ROOT/dist/$folder/"
+	rsync -a --delete "$TREE/build/release/$folder/" "$REL/$folder/"
 done
-cp "$TREE/dist/onboard-html.zip" "$TREE/dist/onboard-web.zip" "$TREE/dist/package_icons.png" "$ROOT/dist/"
-echo "$VERSION" >"$ROOT/dist/VERSION"
+cp "$TREE/dist/onboard-html.zip" "$TREE/dist/onboard-web.zip" "$ROOT/dist/"
+cp "$TREE/build/release/package_icons.png" "$REL/"
+echo "$VERSION" >"$REL/VERSION"
+# dist/ is the packages (r278): what runs before it left beside them goes.
+rm -rf "$ROOT/dist/"OnBoard-*/ "$ROOT/dist/onboard-web/" \
+	"$ROOT/dist/VERSION" "$ROOT/dist/package_icons.png" "$ROOT/dist/package_all.log"
 # What goes on a drive with the zips (r222): which zip for which computer, past the two warnings.
 sed "s/@VERSION@/$VERSION/" "$TREE/tools/drive_README.txt" >"$ROOT/dist/LISEZMOI - README.txt"
 

@@ -4,15 +4,15 @@
 #   tools/itch_push.sh --dry-run <user>/<game>   # what would go where, no network, no key
 #   tools/itch_push.sh <user>/<game>             # push (needs Simon's credentials)
 #
-# The zips are tools/package_all.sh's: dist/onboard-*.zip, and dist/VERSION names the commit
+# The zips are tools/package_all.sh's: dist/onboard-*.zip, and build/release/VERSION names the commit
 # they were built from. It becomes each build's version on itch (--userversion-file).
 #
 # REFUSES to push:
 #   - a zip that is missing, or whose VERSION.txt ("On Board/VERSION.txt", at the root of
-#     onboard-html.zip) is not dist/VERSION (the five must be one build);
+#     onboard-html.zip) is not build/release/VERSION (the five must be one build);
 #   - an html zip over itch's HTML5 limits: more than 1000 files, a file over 200 MB, or
 #     over 500 MB unpacked. It says the numbers;
-#   - a build older than the game: if any commit since dist/VERSION's touched what goes in
+#   - a build older than the game: if any commit since build/release/VERSION's touched what goes in
 #     a package (core/, desktop/, html/, the Gradle files), rebuild first. Commits to docs, tools
 #     or tests do not make it stale;
 #   - without credentials: BUTLER_API_KEY in the environment, or ~/.config/itch/butler_creds
@@ -50,10 +50,11 @@ PACKAGED=(core desktop html build.gradle settings.gradle gradle.properties gradl
 
 fail() { echo "itch_push: $*" >&2; exit 1; }
 
-[[ -f $ROOT/dist/VERSION ]] || fail "no dist/VERSION: build with tools/package_all.sh first"
-VERSION=$(<"$ROOT/dist/VERSION")
+VERSION_FILE=$ROOT/build/release/VERSION
+[[ -f $VERSION_FILE ]] || fail "no build/release/VERSION: build with tools/package_all.sh first"
+VERSION=$(<"$VERSION_FILE")
 BUILT=${VERSION##*-}
-git -C "$ROOT" cat-file -e "$BUILT^{commit}" 2>/dev/null || fail "dist/VERSION names $BUILT, which is not a commit here"
+git -C "$ROOT" cat-file -e "$BUILT^{commit}" 2>/dev/null || fail "build/release/VERSION names $BUILT, which is not a commit here"
 
 STALE=$(git -C "$ROOT" log --format='%h %s' "$BUILT..HEAD" -- "${PACKAGED[@]}")
 [[ -z $STALE ]] || fail "the zips are $VERSION, and these commits since change what is packaged:
@@ -67,7 +68,7 @@ for line in "${CHANNELS[@]}"; do
 	[[ $channel == html ]] && stamp=VERSION.txt
 	inside=$(unzip -p "$ROOT/dist/$zip" "$stamp" 2>/dev/null) \
 		|| fail "dist/$zip has no $stamp: not built by tools/package_all.sh"
-	[[ $inside == "On Board $VERSION" ]] || fail "dist/$zip is '$inside', dist/VERSION is $VERSION"
+	[[ $inside == "On Board $VERSION" ]] || fail "dist/$zip is '$inside', build/release/VERSION is $VERSION"
 done
 
 # The html channel against itch's limits: files, largest file, unpacked total
@@ -118,7 +119,7 @@ fi
 
 for line in "${CHANNELS[@]}"; do
 	read -r zip channel <<<"$line"
-	"$BUTLER_DIR/butler" push --userversion-file="$ROOT/dist/VERSION" \
+	"$BUTLER_DIR/butler" push --userversion-file="$VERSION_FILE" \
 		"$ROOT/dist/$zip" "$TARGET:$channel"
 done
 echo "itch_push: $VERSION pushed. Each channel appears as an upload on the game's edit page."

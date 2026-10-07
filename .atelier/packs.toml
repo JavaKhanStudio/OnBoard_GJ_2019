@@ -320,7 +320,7 @@ verify/src/test/java/jks/verify/. Two suites:
   ./gradlew :verify:test -PwithGl    13 more classes, 35 tests, each booting the real game
 Never open a window on Simon's screen: Gradle handles that itself since 24eecf1 — the GL
 tests always, runGame/runEditor whenever ATELIER_AGENT is set. Wrap anything OUTSIDE Gradle
-in tools/offscreen.sh: dist/OnBoard-*/onboard, a fat jar, a scratch program.
+in tools/offscreen.sh: build/release/OnBoard-*/onboard, a fat jar, a scratch program.
 A new JavaExec calls rootProject.offscreen(it, 'unattended') or rootProject.headless(it), or the
 build stops naming it. tools/offscreen-lint.sh (first step of tools/publish_gate.sh) fails a
 tools/*.sh that opens a window outside cage; `# on-screen: <why>` exempts one. A nested X server
@@ -426,10 +426,13 @@ one invocation is REFUSED rather than silently shipping the wrong ones.
 A RELEASE (what goes on itch) is tools/package_all.sh [commit]: all four, one invocation
 each, built in a detached worktree of the commit (../onboard-release), never in the shared
 checkout — that holds other sessions' unfinished edits. Each zip unzips into one
-"On Board/" folder with VERSION.txt; dist/VERSION names the commit. It is the board's
+"On Board/" folder with VERSION.txt. DIST/ HOLDS THE PACKAGES AND NOTHING ELSE (r278, Simon):
+the six zips and "LISEZMOI - README.txt". build/release/ holds the rest: VERSION (names the
+commit; itch_push.sh reads it), package_all.log, package_icons.png and the unpacked OnBoard-*/
+folders (the :desktop:packageX tasks unpack there too). Put nothing new in dist/. It is the board's
 "Make a build" command (r254, button: atelier r1420), so it runs unwatched: it strips
 DISPLAY/WAYLAND_DISPLAY and sets ALSOFT_DRIVERS=null itself, refuses a second run at once
-(../onboard-release.lock), keeps everything in dist/package_all.log, ends with each zip's
+(../onboard-release.lock), keeps everything in build/release/package_all.log, ends with each zip's
 absolute path and the log's, and any failure is ONE "package_all: FAILED at <step>" line. Keep
 those last lines that shape: the Tools screen shows them; tests/package_all_failure.sh checks the
 Gradle-failure one in a scratch repo (no build, real dist/ untouched). It also builds
@@ -475,7 +478,7 @@ Only the Linux package can be executed on this machine. Say in the report what y
 what you inferred from an identical configuration — do not call an unrun .exe verified.
 THE ICONS (r274): onboard.exe embeds logo_onboard.ico (construo re-encodes it, 16-256 px), each
 .app names logo_onboard.icns (tools/make_icns.py). Nautilus shows neither: it never reads them.
-  tools/package_icons.py [dist]   fails unless each is the logo, draws dist/package_icons.png
+  tools/package_icons.py [dir]   fails unless each is the logo, draws build/release/package_icons.png
 package_all.sh runs it as its "icons" step; tests/package_icons.sh proves it rejects another
 picture. The Linux binary is an ELF: it carries no icon, so the packaged game ADDS ITSELF TO THE
 APP MENU at each start (r276, Simon's choice): LinuxMenuEntry writes

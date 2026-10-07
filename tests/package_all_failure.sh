@@ -4,8 +4,8 @@
 #   tests/package_all_failure.sh
 #
 # It copies tools/package_all.sh into a scratch git repository whose ./gradlew prints a few lines
-# and exits 1, and runs it there with RELEASE_TREE in the scratch dir. The real checkout's dist/
-# and ../onboard-release are never touched, and nothing is built, shown or played.
+# and exits 1, and runs it there with RELEASE_TREE in the scratch dir. The real checkout's dist/,
+# build/release/ and ../onboard-release are never touched, and nothing is built, shown or played.
 #
 # Passes when the run exits 1, its last stderr line is
 #   package_all: FAILED at packageWindows: ./gradlew :desktop:packageWindows did not build. Log: <log>
@@ -35,7 +35,7 @@ code=$?
 set -e
 sleep 0.2 # tee in package_all.sh may still be flushing
 
-LOG="$REPO/dist/package_all.log"
+LOG="$REPO/build/release/package_all.log"
 fails=0
 check() { if eval "$2"; then echo "  ok   $1"; else echo "  FAIL $1"; fails=1; fi; }
 check "exit code 1 (was $code)" '[[ $code == 1 ]]'

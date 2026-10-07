@@ -15,7 +15,9 @@ this reads them itself:
 Each largest icon is compared with logo_onboard.png (both cropped to their opaque pixels,
 64 px on grey, mean RGB difference), and all of them are drawn side by side on grey.
 
-    tools/package_icons.py [dist dir] [out.png]      defaults: dist  dist/package_icons.png
+    tools/package_icons.py [dir] [out.png]   defaults: build/release  build/release/package_icons.png
+
+[dir] holds the unpacked OnBoard-*/ folders (r278: build/release/, not dist/).
 """
 import io
 import os
@@ -119,7 +121,7 @@ def diff(icon, logo):
 
 
 def main():
-    dist = sys.argv[1] if len(sys.argv) > 1 else os.path.join(ROOT, "dist")
+    dist = sys.argv[1] if len(sys.argv) > 1 else os.path.join(ROOT, "build", "release")
     out = sys.argv[2] if len(sys.argv) > 2 else os.path.join(dist, "package_icons.png")
     logo = Image.open(LOGO).convert("RGBA")
     shown, failed = [], False

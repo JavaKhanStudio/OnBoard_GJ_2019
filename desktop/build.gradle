@@ -273,7 +273,8 @@ construo { c ->
 
 
 // The packageXXX tasks produce a zip. That is the right thing to hand someone, but it
-// leaves nothing you can double-click while working, so these unpack it next to it.
+// leaves nothing you can double-click while working, so these unpack it into
+// build/release/OnBoard-*/: dist/ holds the packages and nothing else (r278).
 [['Windows',          'winX64',   'onboard-winX64.zip'],
  ['Linux',            'linuxX64', 'onboard-linuxX64.zip'],
  ['MacAppleSilicon',  'macArm64', 'onboard-macArm64.zip'],
@@ -281,14 +282,14 @@ construo { c ->
 
     tasks.register("package${name}", Copy) {
         group = 'distribution'
-        description = "Build the ${name} release and unpack it into dist/OnBoard-${name.toLowerCase()}/"
+        description = "Build the ${name} release and unpack it into build/release/OnBoard-${name.toLowerCase()}/"
         dependsOn "package${target.capitalize()}"
 
         from { zipTree(rootProject.file("dist/${zipName}")) }
-        into rootProject.file("dist/OnBoard-${name.toLowerCase()}")
+        into rootProject.file("build/release/OnBoard-${name.toLowerCase()}")
 
         doLast {
-            def folder = rootProject.file("dist/OnBoard-${name.toLowerCase()}")
+            def folder = rootProject.file("build/release/OnBoard-${name.toLowerCase()}")
             def launcher = name == 'Windows' ? new File(folder, 'onboard.exe')
                 : name.startsWith('Mac') ? new File(folder, 'On Board.app')
                 : new File(folder, 'onboard')
