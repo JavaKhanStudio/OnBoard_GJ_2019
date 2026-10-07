@@ -477,7 +477,13 @@ THE ICONS (r274): onboard.exe embeds logo_onboard.ico (construo re-encodes it, 1
 .app names logo_onboard.icns (tools/make_icns.py). Nautilus shows neither: it never reads them.
   tools/package_icons.py [dist]   fails unless each is the logo, draws dist/package_icons.png
 package_all.sh runs it as its "icons" step; tests/package_icons.sh proves it rejects another
-picture. The Linux binary is an ELF: it carries no icon.
+picture. The Linux binary is an ELF: it carries no icon, so the packaged game ADDS ITSELF TO THE
+APP MENU at each start (r276, Simon's choice): LinuxMenuEntry writes
+$XDG_DATA_HOME/applications/com.pixmen.onboard.desktop and hicolor icons (ui/icon/window/, 16-256),
+only when run by construo's onboard launcher, never by runGame or the tests. Anything that runs the
+packaged game from a session sets XDG_DATA_HOME to a scratch dir (smoke_package.sh, itch_shots.sh
+do), or it lands in Simon's real menu. XDG_DATA_HOME=<that dir> tools/linux_menu_probe.py <png>
+shows what GNOME would resolve. Not "onboard": that is GNOME's on-screen keyboard's id.
 THE BROWSER BUILD (r137) is html/: libGDX's GWT backend, a JavaExec of the GWT compiler (not a
 plugin), La chasse-galerie's recipe.
   ./gradlew :html:war            html/build/war, a static site (~1 min; -Pdraft ~20 s, unoptimized)

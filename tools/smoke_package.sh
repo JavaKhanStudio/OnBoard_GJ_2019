@@ -37,7 +37,8 @@ rm -f "$OUT"/shot_*.png "$OUT/game.log"
 cat >"$WORK/inside.sh" <<EOF
 #!/usr/bin/env bash
 cd "$WORK/On Board"
-WAYLAND_DISPLAY= ./onboard >"$OUT/game.log" 2>&1 &
+# XDG_DATA_HOME: the packaged game adds itself to the application menu (r276); not to Simon's.
+WAYLAND_DISPLAY= XDG_DATA_HOME="$WORK/xdg" ./onboard >"$OUT/game.log" 2>&1 &
 game=\$!
 prev=0
 for t in ${MOMENTS[*]}; do

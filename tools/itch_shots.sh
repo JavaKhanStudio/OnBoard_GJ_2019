@@ -65,7 +65,8 @@ PY
 	cat >"$WORK/inside.sh" <<EOF
 #!/usr/bin/env bash
 cd "$GAME"
-./onboard >"$OUT/$name.log" 2>&1 &
+# XDG_DATA_HOME: the packaged game adds itself to the application menu (r276); not to Simon's.
+XDG_DATA_HOME="$WORK/xdg" ./onboard >"$OUT/$name.log" 2>&1 &
 game=\$!
 prev=0
 for t in ${ts[*]}; do

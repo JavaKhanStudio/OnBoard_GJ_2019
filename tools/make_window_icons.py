@@ -7,6 +7,9 @@ running game opens takes its icon from whatever the program hands GLFW, and with
 Windows shows its generic application icon in the title bar and taskbar. GLFW picks the
 closest size for each use, so a handful of small ones beats one large one scaled on the fly.
 
+The Linux package's application menu entry (r276, LinuxMenuEntry) installs the same files as its
+hicolor icons; 256 is for the app grid on a HiDPI screen, which a 128 would reach blurred.
+
     tools/make_window_icons.py <source.png> <out dir>
 """
 import os
@@ -15,7 +18,7 @@ import sys
 from make_icns import square
 from PIL import Image
 
-SIZES = [16, 32, 48, 128]
+SIZES = [16, 32, 48, 128, 256]
 
 
 def build(source, target_dir):

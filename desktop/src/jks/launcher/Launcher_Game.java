@@ -15,6 +15,8 @@ public class Launcher_Game
 	{
 			
 		DesktopPlatform.install() ;
+		// The Linux package's entry in the application menu, with the logo (r276).
+		LinuxMenuEntry.install() ;
 		Lwjgl3ApplicationConfiguration config = new Lwjgl3ApplicationConfiguration();
 		
 		// Reads the "config" file next to the game: window size, fullscreen, vsync, volume.

@@ -9,6 +9,10 @@ Prenez le zip de votre ordinateur, décompressez-le : il donne un dossier « On 
   Mac (M1 et +)    onboard-macArm64.zip   ouvrez « On Board.app »
   Mac (Intel)      onboard-macX64.zip     ouvrez « On Board.app »
 
+Sur Linux, le jeu s'ajoute au menu des applications, avec son logo, quand il
+démarre. Si vous supprimez le dossier, supprimez aussi
+~/.local/share/applications/com.pixmen.onboard.desktop
+
 Le jeu n'est pas signé :
   - Windows dit « Windows a protégé votre ordinateur » : cliquez « Informations
     complémentaires », puis « Exécuter quand même ».
@@ -32,6 +36,10 @@ Take the zip for your computer and unzip it: it gives one "On Board" folder.
   Linux            onboard-linuxX64.zip   run ./onboard
   Mac (M1 and up)  onboard-macArm64.zip   open "On Board.app"
   Mac (Intel)      onboard-macX64.zip     open "On Board.app"
+
+On Linux, the game adds itself to the applications menu, with its logo, when it
+starts. If you delete the folder, delete
+~/.local/share/applications/com.pixmen.onboard.desktop too.
 
 The game is not signed:
   - Windows says "Windows protected your PC": click "More info", then "Run anyway".
