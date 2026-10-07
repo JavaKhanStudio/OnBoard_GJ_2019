@@ -6,7 +6,8 @@ per field. The field each block goes in is named in its heading. Images are a se
 
 Sources: README.md ("The story", "Controls"), core/src/jks/index/Index_Credits.java,
 core/src/jks/input/IKM_Game_Keyboard.java, desktop/assets/ui/fonts/Mansalva-OFL.txt,
-tools/package_all.sh (zip names).
+tools/package_all.sh (zip names), desktop/src/jks/launcher/LinuxMenuEntry.java (the Linux
+menu entry, r276).
 
 ---
 
@@ -114,8 +115,12 @@ After that it opens normally.
 *Le jeu n'est pas signé par Apple : macOS dit « On Board est endommagé ». Il ne l'est pas.
 Clic droit sur `On Board.app` → Ouvrir, ou la commande ci-dessus dans le Terminal.*
 
-**Linux** (x86-64) — Unzip, then run `./onboard` in the "On Board" folder.
-*Décompressez, puis lancez `./onboard` dans le dossier « On Board ».*
+**Linux** (x86-64) — Unzip, then run `./onboard` in the "On Board" folder. The game adds
+itself to your applications menu, with its logo, when it starts. If you delete the folder,
+delete `~/.local/share/applications/com.pixmen.onboard.desktop` too.
+*Décompressez, puis lancez `./onboard` dans le dossier « On Board ». Le jeu s'ajoute au menu
+des applications, avec son logo, quand il démarre. Si vous supprimez le dossier, supprimez
+aussi `~/.local/share/applications/com.pixmen.onboard.desktop`.*
 
 ### Crédits / Credits
 
