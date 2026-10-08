@@ -109,7 +109,7 @@ public class GVars_Steam
 		/** The ring swells forward and settles back, slowly, like breath. */
 		BREATHE(2f, 1.5f, 1.5f, 1f, 3.5f, 0f),
 		/** The ring never stops: it keeps creeping in for as long as the line is read. */
-		GATHER(1.5f, 1.5f, 1.5f, 1.5f, 0f, 0f),
+		GATHER(1.5f, 1.5f, 1.5f, 3f, 0f, 0f),
 		/** The ring rolls: its puffs slide out towards the screen's edges and back, swelling as they go. */
 		DRIFT(2f, 1.5f, 1.5f, 0.4f, 4f, 0.05f) ;
 
@@ -152,8 +152,8 @@ public class GVars_Steam
 		}
 	}
 
-	/** The game's: BREATHE, till Simon picks in the steam lab (r262). */
-	public static final Motion SHIPPED_MOTION = Motion.BREATHE ;
+	/** The game's: GATHER, gaining three frames - Simon's pick in the steam lab (r262). */
+	public static final Motion SHIPPED_MOTION = Motion.GATHER ;
 	/** How the next creep moves; the steam lab moves it. Not saved. */
 	public static Motion motion = SHIPPED_MOTION ;
 	/** This run's: SNAP for {@link #through}, {@link #motion} for a creep. */
@@ -502,9 +502,9 @@ public class GVars_Steam
 		// The stage drew it under the steam already; this draws it again, in the stage's space.
 		if(over != null && over.getStage() != null && over.isVisible())
 		{
-			// Its tail too, once Ross is under the steam: a carriage draws it apart, before
-			// him (r249), and the covered screen showed a cloud cut flat at its bottom.
-			if(over instanceof DialogBubble && index >= frames.size - 2)
+			// Its tail too: a carriage draws it apart, before Ross (r249), so the steam rising
+			// over him hid the tail and left the cloud in front, cut at its bottom (r262).
+			if(over instanceof DialogBubble)
 				((DialogBubble) over).drawTail(over.getStage()) ;
 
 			Batch batch = over.getStage().getBatch() ;

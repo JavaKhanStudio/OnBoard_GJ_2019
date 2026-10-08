@@ -184,7 +184,7 @@ public class SteamLab extends VisTable
 	/** The knobs of a {@link Motion}, in the order of {@link Motion#knobs()}. */
 	static final String[] KNOBS = {"rise", "close", "lift", "swell", "period", "drift"} ;
 	static final String[] KNOB_LABELS = {"Rise (s)", "Close (s)", "Lift (s)", "Swell (frames)", "Breath (s)", "Roll out"} ;
-	static final float[] KNOB_MAX = {3f, 3f, 3f, 3f, 8f, 0.12f} ;
+	static final float[] KNOB_MAX = {3f, 3f, 3f, 6f, 8f, 0.12f} ;
 
 	/** The sliders on the picked motion's own knobs; Snap has none, it flips at twelve a second. */
 	private static void showKnobs(VisSlider[] knobs, VisLabel[] shown)

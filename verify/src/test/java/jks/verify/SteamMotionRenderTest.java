@@ -23,6 +23,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Button;
 
 import jks.amain.Main_Application;
 import jks.vinterface.GVars_UI;
+import jks.vinterface.tools.DialogBubble;
 import jks.vue.GVars_Steam;
 import jks.vue.GVars_Steam.Motion;
 import jks.vue.models.game.GVars_Game;
@@ -59,6 +60,8 @@ class SteamMotionRenderTest
 	private static final Map<Motion, Double> reading = new EnumMap<>(Motion.class);
 	private static final Map<Motion, Double> coveredBeforeChange = new EnumMap<>(Motion.class);
 	private static final Map<Motion, Double> liftedAfter = new EnumMap<>(Motion.class);
+	/** The least of the cloud's tail box that was white, from the ring to the close, before the cloud fades. */
+	private static final Map<Motion, Double> tailWhite = new EnumMap<>(Motion.class);
 	private static volatile Throwable error;
 
 	@BeforeAll
@@ -115,7 +118,9 @@ class SteamMotionRenderTest
 
 				double in = t - playedAt[0];
 				BufferedImage now = GameHarness.grab();
-				Frames.write(third(now), new File(OUTPUT, motion.name().toLowerCase() + "/" + String.format("%04d", written[0]++) + ".png"));
+				// On the game's clock: a frame runs under 1/30 s when the machine keeps up.
+				if (in >= written[0] / 30.0)
+					Frames.write(third(now), new File(OUTPUT, motion.name().toLowerCase() + "/" + String.format("%04d", written[0]++) + ".png"));
 
 				if (in < 2.0 && previous[0] != null)
 					biggestStep.merge(motion, Frames.difference(previous[0], now), Math::max);
@@ -127,7 +132,11 @@ class SteamMotionRenderTest
 					atRing.put(motion, GVars_Steam.isAtRing());
 				}
 				if (holdA[0] != null && !holdMoved.containsKey(motion) && in >= HOLD_B)
+				{
 					holdMoved.put(motion, Frames.difference(holdA[0], now));
+				}
+				if (in >= 2.0 && in < reading.get(motion) - 0.4)
+					tailWhite.merge(motion, tailWhite(now, GVars_Game.dialogBubble), Math::min);
 
 				if (GVars_Steam.isCovered()) lastCovered[0] = now;
 
@@ -169,6 +178,25 @@ class SteamMotionRenderTest
 		return out;
 	}
 
+	/**
+	 * The share of white under the cloud's body, where its tail is: drawn apart, behind Ross
+	 * (r249), the rising steam hid it while the body stayed in front (r262).
+	 */
+	private static double tailWhite(BufferedImage frame, DialogBubble bubble)
+	{
+		float w = bubble.getWidth(), h = bubble.getHeight() / 3f;
+		float left = bubble.isReversed() ? bubble.getX() - w : bubble.getX();
+		int white = 0, all = 0;
+		for (int x = Math.max(0, Math.round(left)); x < Math.min(frame.getWidth(), Math.round(left + w)); x += 2)
+			for (int y = Math.max(0, Math.round(bubble.getY())); y < Math.min(frame.getHeight(), Math.round(bubble.getY() + h)); y += 2)
+			{
+				int p = frame.getRGB(x, frame.getHeight() - 1 - y);
+				if (((p >> 16) & 0xFF) > 235 && ((p >> 8) & 0xFF) > 235 && (p & 0xFF) > 235) white++;
+				all++;
+			}
+		return all == 0 ? 0 : white / (double) all;
+	}
+
 	/** The share of the screen in the covered frame's dark grey. */
 	private static double steam(BufferedImage frame)
 	{
@@ -190,7 +218,7 @@ class SteamMotionRenderTest
 		assertNull(error, error == null ? null : "a step threw: " + error);
 		assertEquals(Motion.values().length, liftedAfter.size(), "not every motion lifted off the next carriage: " + liftedAfter);
 		System.out.println("steam motion: biggest step " + biggestStep + ", hold moved " + holdMoved
-			+ ", change after " + changeAfter + " (reading " + reading + "), lifted after " + liftedAfter);
+			+ ", tail white " + tailWhite + ", change after " + changeAfter + " (reading " + reading + "), lifted after " + liftedAfter);
 	}
 
 	@Test
@@ -217,6 +245,15 @@ class SteamMotionRenderTest
 	}
 
 	@Test
+	@DisplayName("The cloud stays whole in front of the steam, its tail too")
+	void theCloudStaysWhole()
+	{
+		ran();
+		for (Motion motion : Motion.values())
+			assertTrue(tailWhite.get(motion) > 0.1, motion + ": the cloud's tail went under the steam: " + tailWhite);
+	}
+
+	@Test
 	@DisplayName("Every motion covers the screen for the change, which comes when it always did, and lifts slower than Snap")
 	void theChangeStays()
 	{
@@ -233,9 +270,10 @@ class SteamMotionRenderTest
 	}
 
 	@Test
-	@DisplayName("The game ships Breathe until Simon picks (r262)")
-	void shipsBreathe()
+	@DisplayName("The game ships Gather, gaining three frames while the line is read: Simon's pick (r262)")
+	void shipsGather()
 	{
-		assertEquals(Motion.BREATHE, GVars_Steam.SHIPPED_MOTION);
+		assertEquals(Motion.GATHER, GVars_Steam.SHIPPED_MOTION);
+		assertEquals(3f, Motion.GATHER.shipped[3]);
 	}
 }
