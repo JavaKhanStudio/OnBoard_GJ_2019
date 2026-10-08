@@ -21,22 +21,29 @@ import jks.amain.Main_Application;
 import jks.index.Index_Text;
 import jks.vinterface.tools.DialogBubble;
 import jks.vue.models.game.GVars_Game;
+import jks.vue.models.game.GVars_Personnage;
 
 /**
  * Ross stands in front of his thought's tail (r249). The bubble is on the stage, drawn over the
  * whole level, so when it slid down beside the taller Ross of carriage 2 its puffs crossed his
  * face. The tail is now drawn before him.
  *
- * Ross at the right of carriage 2, thinking: the cloud cannot go further right than the screen's
- * edge, so setBubblePosition slides it left and its puffs land on his face. One frame with the
- * cloud, one once it has faded: a pixel the painted tail covers but the frame did not change at
- * is a pixel Ross drew over it. Behind him, 37% of the tail's samples are; drawn over him, 5%,
- * which is the moving backdrop seen through the window.
+ * Since the view follows Ross (r252) he never stands close enough to the screen's edge for the
+ * clamped cloud to slide onto him: at x 1300, where this test used to put him, he is mid-screen
+ * and the tail misses him (r281). So he is put where it can reach him: at his first step, facing
+ * right so the cloud goes left of him and setBubblePosition holds it at the edge, and LIFT higher,
+ * so the cloud is held under the screen's top and its puffs come down to his face - the way the
+ * taller Ross of r249 did it. One frame with the cloud, one once it has faded: a sample of the
+ * painted tail where the frame did not change is a pixel Ross drew over it. painted counts the
+ * painting's own samples (1200 wide), not screen pixels. Behind him, about 6% of them are; with
+ * the tail drawn after Ross, under 0.6% (r281, 7923 against 684).
  */
 @Tag("gl")
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class BubbleTailRenderTest
 {
+	/** How far above his floor Ross is put, in world units: 60 gives the most overlap (r281). */
+	private static final float LIFT = 60;
 	private static final double SAY_AT = 2.0;
 	private static final double LOOK_AT = SAY_AT + 1.5;
 	private static final double FADE_AT = LOOK_AT + 0.1;
@@ -78,7 +85,9 @@ class BubbleTailRenderTest
 				if (step[0] == 0 && t >= SAY_AT)
 				{
 					step[0] = 1;
-					GVars_Game.ross.position.x = 1300;
+					GVars_Game.ross.position.x = GVars_Personnage.minPositionX;
+					GVars_Game.ross.reverse(false);
+					GVars_Game.ross.position.y += LIFT;
 					bubble.applyText(Index_Text.get("wa2.hint1"));
 				}
 				else if (step[0] == 1 && t >= LOOK_AT)
@@ -139,7 +148,7 @@ class BubbleTailRenderTest
 			}
 		System.out.println("r249 tail: " + painted + " painted samples on screen, " + hidden + " left unchanged by it");
 		assertTrue(painted > 1000, "the tail is not on the screen: the frame proves nothing");
-		assertTrue(hidden > painted / 5, "Ross hid " + hidden + " of the tail's " + painted
+		assertTrue(hidden > painted / 40, "Ross hid " + hidden + " of the tail's " + painted
 			+ " samples: it is drawn over him");
 	}
 
