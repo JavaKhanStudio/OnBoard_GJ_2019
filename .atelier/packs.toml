@@ -474,6 +474,13 @@ intro and waits there for a click.
 Those shots are 1280x720: cage's headless output cannot be resized. tools/itch_shots.sh takes
 1920x1080 ones instead, in gamescope --backend headless with gamescopectl screenshot, one launch
 per -Donboard.start scene (ONLY="wa1 wa3" for a few). tools/itch_cover.sh makes the 630x500 cover.
+LANG_CODE=en itch_shots.sh takes them in English (<scene>_en_<s>.png): it writes the game's config
+whole, and runs gamescope without WAYLAND_DISPLAY (a session's dead socket made it exit at once).
+A clip that needs a click or a key cannot come from the zip (no xdotool): tools/itch_gifs.sh
+records verify's ItchClipTest (-Pclip -PclipScene=intro|carriage|walkN -PclipLang=en, the game
+scripted on a fixed 1/30 s clock) and makes docs/itch/clip_<scene>[_en].gif + .mp4, fr and en.
+Ordered dither, 640 px, 12 fps: error diffusion made a 16 s clip 13 MB. docs/itch/shot*.png and
+clip_* are gitignored (over 1 MB): they live on disk and on r129's and r283's attachments.
 Only the Linux package can be executed on this machine. Say in the report what you ran and
 what you inferred from an identical configuration — do not call an unrun .exe verified.
 THE ICONS (r274): onboard.exe embeds logo_onboard.ico (construo re-encodes it, 16-256 px), each
