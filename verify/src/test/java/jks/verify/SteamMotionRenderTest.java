@@ -60,8 +60,12 @@ class SteamMotionRenderTest
 	private static final Map<Motion, Double> reading = new EnumMap<>(Motion.class);
 	private static final Map<Motion, Double> coveredBeforeChange = new EnumMap<>(Motion.class);
 	private static final Map<Motion, Double> liftedAfter = new EnumMap<>(Motion.class);
-	/** The least of the cloud's tail box that was white, from the ring to the close, before the cloud fades. */
+	/** The least of the cloud's tail box that was white while the steam stood at its ring. */
 	private static final Map<Motion, Double> tailWhite = new EnumMap<>(Motion.class);
+	/** The most of the cloud's box that was white once the steam covered the screen: the cloud dissolved before. */
+	private static final Map<Motion, Double> cloudWhenCovered = new EnumMap<>(Motion.class);
+	/** How far the cloud had dissolved on the first covered frame. */
+	private static final Map<Motion, Float> sunkWhenCovered = new EnumMap<>(Motion.class);
 	private static volatile Throwable error;
 
 	@BeforeAll
@@ -135,10 +139,17 @@ class SteamMotionRenderTest
 				{
 					holdMoved.put(motion, Frames.difference(holdA[0], now));
 				}
-				if (in >= 2.0 && in < reading.get(motion) - 0.4)
+				if (in >= 2.0 && GVars_Steam.isAtRing())
 					tailWhite.merge(motion, tailWhite(now, GVars_Game.dialogBubble), Math::min);
 
-				if (GVars_Steam.isCovered()) lastCovered[0] = now;
+				if (GVars_Steam.isCovered())
+				{
+					lastCovered[0] = now;
+					if (!sunkWhenCovered.containsKey(motion))
+						Frames.write(now, new File(OUTPUT, "covered-" + motion.name().toLowerCase() + ".png"));
+					sunkWhenCovered.putIfAbsent(motion, GVars_Game.dialogBubble.sunk());
+					cloudWhenCovered.merge(motion, cloudWhite(now, GVars_Game.dialogBubble), Math::max);
+				}
 
 				if (!changeAfter.containsKey(motion) && GVars_Game.currentLevelInt != carriage[0])
 				{
@@ -182,6 +193,21 @@ class SteamMotionRenderTest
 	 * The share of white under the cloud's body, where its tail is: drawn apart, behind Ross
 	 * (r249), the rising steam hid it while the body stayed in front (r262).
 	 */
+	/** The share of near-white in the cloud's whole box: a fading cloud is still lighter than any steam. */
+	private static double cloudWhite(BufferedImage frame, DialogBubble bubble)
+	{
+		float[] box = bubble.cloudBox();
+		int h = frame.getHeight(), white = 0, all = 0;
+		for (int x = Math.max(0, (int) box[0]); x < Math.min(frame.getWidth(), box[0] + box[2]); x += 2)
+			for (int y = Math.max(0, (int) (h - box[1] - box[3])); y < Math.min(h, h - box[1]); y += 2)
+			{
+				int p = frame.getRGB(x, y);
+				if (((p >> 16) & 0xFF) > 200 && ((p >> 8) & 0xFF) > 200 && (p & 0xFF) > 200) white++;
+				all++;
+			}
+		return all == 0 ? 0 : white / (double) all;
+	}
+
 	private static double tailWhite(BufferedImage frame, DialogBubble bubble)
 	{
 		float w = bubble.getWidth(), h = bubble.getHeight() / 3f;
@@ -218,7 +244,7 @@ class SteamMotionRenderTest
 		assertNull(error, error == null ? null : "a step threw: " + error);
 		assertEquals(Motion.values().length, liftedAfter.size(), "not every motion lifted off the next carriage: " + liftedAfter);
 		System.out.println("steam motion: biggest step " + biggestStep + ", hold moved " + holdMoved
-			+ ", tail white " + tailWhite + ", change after " + changeAfter + " (reading " + reading + "), lifted after " + liftedAfter);
+			+ ", tail white " + tailWhite + ", cloud white when covered " + cloudWhenCovered + " (sunk " + sunkWhenCovered + "), change after " + changeAfter + " (reading " + reading + "), lifted after " + liftedAfter);
 	}
 
 	@Test
@@ -245,12 +271,24 @@ class SteamMotionRenderTest
 	}
 
 	@Test
-	@DisplayName("The cloud stays whole in front of the steam, its tail too")
+	@DisplayName("The cloud stays whole in front of the steam at its ring, its tail too")
 	void theCloudStaysWhole()
 	{
 		ran();
 		for (Motion motion : Motion.values())
 			assertTrue(tailWhite.get(motion) > 0.1, motion + ": the cloud's tail went under the steam: " + tailWhite);
+	}
+
+	@Test
+	@DisplayName("The cloud dissolves from its bottom up as the steam closes, gone before the screen is covered")
+	void theCloudGoesFirst()
+	{
+		ran();
+		for (Motion motion : Motion.values())
+		{
+			assertEquals(1f, sunkWhenCovered.get(motion), 0.001f, motion + " covered the screen with the cloud not gone: " + sunkWhenCovered);
+			assertTrue(cloudWhenCovered.get(motion) < 0.02, motion + ": the cloud still showed over the covered screen: " + cloudWhenCovered);
+		}
 	}
 
 	@Test

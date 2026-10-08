@@ -1,9 +1,11 @@
 package jks.vinterface.tools;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.graphics.glutils.HdpiUtils;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Align;
@@ -82,6 +84,7 @@ public class DialogBubble extends VisTable
 		textWhenVisible = text ; 
 		appearing = true ;
 		disappearing = false ; 
+		sunk = 0 ; 
 		typing.restart(textStartUp + gentle(text));
 		fitCloud() ; 
 	}
@@ -211,10 +214,97 @@ public class DialogBubble extends VisTable
 		stage.getCamera().update() ; 
 		batch.setProjectionMatrix(stage.getCamera().combined) ; 
 		batch.begin() ; 
-		batch.setColor(1, 1, 1, alpha) ; 
-		batch.draw(tail, getX(), getY(), reversed ? -width : width, height * (1 - TAIL_TOP)) ; 
+		for(int band = sunk > 0 ? 0 : BANDS ; band <= BANDS ; band++)
+		{
+			float share = bandShare(band) ; 
+			if(share <= 0 || !clipBand(batch, band))
+				continue ; 
+			batch.setColor(1, 1, 1, alpha * share) ; 
+			batch.draw(tail, getX(), getY(), reversed ? -width : width, height * (1 - TAIL_TOP)) ; 
+		}
+		unclip(batch) ; 
 		batch.setColor(1, 1, 1, 1) ; 
 		batch.end() ; 
+	}
+	
+	/**
+	 * How far the cloud has dissolved, from its bottom up (r262): 0 whole, 1 gone. The steam
+	 * leaving a carriage sets it as it closes, so the cloud fades away under the rising steam
+	 * before the steam covers it, instead of standing over the covered screen. A new line puts
+	 * it back to 0.
+	 */
+	float sunk ; 
+	/** The soft edge of the dissolve, as a share of the cloud's height, cut in BANDS steps. */
+	static final float SOFT_EDGE = 0.4f ; 
+	static final int BANDS = 32 ; 
+	
+	public void sink(float sunk)
+	{
+		this.sunk = Math.max(0, Math.min(1, sunk)) ; 
+	}
+	
+	public float sunk()
+	{
+		return sunk ; 
+	}
+	
+	/** Where the gone part ends, from the cloud's bottom, as a share of its height. */
+	private float sinkLine()
+	{
+		return -SOFT_EDGE + sunk * (1 + SOFT_EDGE) ; 
+	}
+	
+	/**
+	 * The share of the cloud a band shows: bands 0 to BANDS-1 cut the soft edge from the gone
+	 * part up, band BANDS is everything above it, whole.
+	 */
+	private float bandShare(int band)
+	{
+		if(sunk <= 0)
+			return band == BANDS ? 1 : 0 ; 
+		return band == BANDS ? 1 : (band + 0.5f) / BANDS ; 
+	}
+	
+	/** Clips the batch to a band of the cloud, in the stage's screen pixels; false if it is off the cloud. */
+	private boolean clipBand(Batch batch, int band)
+	{
+		if(sunk <= 0)
+			return true ; 
+		float step = SOFT_EDGE / BANDS ; 
+		float from = Math.max(0, sinkLine() + band * step) ; 
+		float to = band == BANDS ? 1 : Math.min(1, sinkLine() + (band + 1) * step) ; 
+		if(to <= from)
+			return false ; 
+		batch.flush() ; 
+		Gdx.gl.glEnable(GL20.GL_SCISSOR_TEST) ; 
+		int y0 = Math.round(getY() + from * height), y1 = Math.round(getY() + to * height) ; 
+		HdpiUtils.glScissor(0, y0, Gdx.graphics.getWidth(), Math.max(0, y1 - y0)) ; 
+		return true ; 
+	}
+	
+	private void unclip(Batch batch)
+	{
+		if(sunk <= 0)
+			return ; 
+		batch.flush() ; 
+		Gdx.gl.glDisable(GL20.GL_SCISSOR_TEST) ; 
+	}
+	
+	/** The cloud and its text, dissolved from the bottom up as far as {@link #sunk} says. */
+	@Override
+	public void draw(Batch batch, float parentAlpha)
+	{
+		if(sunk <= 0)
+		{
+			super.draw(batch, parentAlpha) ; 
+			return ; 
+		}
+		if(sunk >= 1)
+			return ; 
+		for(int band = 0 ; band <= BANDS ; band++)
+			if(clipBand(batch, band))
+				super.draw(batch, parentAlpha * bandShare(band)) ; 
+		unclip(batch) ; 
 	}
 	
 	public void reverse(boolean reverse) 
@@ -278,6 +368,7 @@ public class DialogBubble extends VisTable
 			if(this.getColor().a <= 0) 
 			{	
 				this.getColor().a = 0 ; 
+				sunk = 0 ; 
 				typing.restart("") ; 
 				textWhenVisible = "" ;
 				disappearing = false ; 

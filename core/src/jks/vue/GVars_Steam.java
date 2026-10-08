@@ -32,7 +32,9 @@ import jks.vinterface.tools.DialogBubble;
  * While that line is read, a creep no longer sits on a covered screen (r262): the steam rises to
  * its first ring, {@link Ring#frame}, and holds there with the carriage still showing; it closes
  * the rest of the way just before the change, which comes when it always did. {@link #ring} says
- * where the ring rises from; the steam lab (-Donboard.start=steam_lab) compares them.
+ * where the ring rises from; the steam lab (-Donboard.start=steam_lab) compares them. The line's
+ * cloud stays over the steam at the ring, and dissolves from its bottom up as the ring closes,
+ * gone before the screen is covered (r262, {@link #BUBBLE_GONE_AT}).
  */
 public class GVars_Steam
 {
@@ -433,6 +435,28 @@ public class GVars_Steam
 		return Math.max(0, Math.min(shape.frame, frames.size) - 1) ;
 	}
 
+	/**
+	 * How far the ring has closed, 0 at the ring to 1 covered; 0 before it closes, and for a
+	 * WHOLE creep, which never stands at a ring.
+	 */
+	static float closed()
+	{
+		if(direction <= 0 || shape == Ring.WHOLE)
+			return direction < 0 ? 1 : 0 ;
+		if(moving != Motion.SNAP)
+			return Math.max(0, Math.min(1, (time - closeStart) / Math.max(0.001f, coverAt - closeStart))) ;
+		float closing = (frames.size - 1 - holdIndex()) * FRAME_SECONDS ;
+		float from = coverSeconds() + holdFor - closing ;
+		return Math.max(0, Math.min(1, (time - from) / Math.max(0.001f, closing))) ;
+	}
+
+	/**
+	 * The share of the close by which the line's cloud is gone (r262): Simon wants it faded
+	 * before the steam covers it, so it dissolves from its bottom up as the steam closes in
+	 * and is gone before the screen is.
+	 */
+	public static final float BUBBLE_GONE_AT = 0.7f ;
+
 	/** Whether the steam covers the whole screen now, on its way to the change. */
 	public static boolean isCovered()
 	{
@@ -500,6 +524,8 @@ public class GVars_Steam
 
 		// The line being read stays in front (r118), and fades out on its own after the change.
 		// The stage drew it under the steam already; this draws it again, in the stage's space.
+		if(over instanceof DialogBubble && shape != Ring.WHOLE)
+			((DialogBubble) over).sink(ease(closed() / BUBBLE_GONE_AT)) ;
 		if(over != null && over.getStage() != null && over.isVisible())
 		{
 			// Its tail too: a carriage draws it apart, before Ross (r249), so the steam rising
