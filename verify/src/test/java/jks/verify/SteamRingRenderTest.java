@@ -28,9 +28,10 @@ import jks.vue.models.game.SteamLab;
 /**
  * The steam that leaves a carriage holds at its first ring while Ross's line is read, the
  * carriage still showing, and closes only for the change, which comes when it always did
- * (r262). Played from the steam lab, once in each shape: Whole is the steam before r262.
+ * (r262). Played from the steam lab, once in each shape: Whole is the steam before r262. Each
+ * moves the game's way, GVars_Steam.SHIPPED_MOTION; SteamMotionRenderTest compares the motions.
  *
- * Writes build/frames/steam-ring-<shape>.png, the screen a second and a half into each, and
+ * Writes build/frames/steam-ring-<shape>.png, the screen two and a half seconds into each, and
  * steam-ring-<shape>-covered.png, the last frame before the change.
  */
 @Tag("gl")
@@ -41,8 +42,8 @@ class SteamRingRenderTest
 
 	/** The carriage has loaded and its first thought is up. */
 	private static final double FIRST_PLAY_AT = 4.0;
-	/** Into the hold: a 12-a-second ring of 3 frames is up long before this. */
-	private static final double HOLDING_AFTER = 1.5;
+	/** Into the hold: the shipped motion eases up to its ring in 2 s (r262). */
+	private static final double HOLDING_AFTER = 2.5;
 
 	/** The two greys the fumee frames are painted in, pale puffs and dark body. */
 	private static final int[][] STEAM = {{70, 101, 108}, {100, 124, 129}};
@@ -221,5 +222,8 @@ class SteamRingRenderTest
 		assertTrue(settings.contains("\"frameCORNER\": " + Ring.CORNER.shippedFrame), settings);
 		assertTrue(settings.contains("\"frameFRAME\": " + Ring.FRAME.shippedFrame), settings);
 		assertTrue(settings.contains("\"moved\": [\"ring\"]"), settings);
+		assertTrue(settings.contains("\"motion\": \"" + GVars_Steam.SHIPPED_MOTION.name() + "\""), settings);
+		assertTrue(settings.contains("\"BREATHE\": {\"rise\": 2.0, \"close\": 1.5"), settings);
+		assertTrue(settings.contains("\"BREATHEStart\": {\"rise\": 2.0"), settings);
 	}
 }

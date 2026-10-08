@@ -49,8 +49,8 @@ class StepThoughtRenderTest
 	private static final double PIECE_AT = 5.0;
 	private static final double AFTER_PIECE_AT = 8.5;
 	private static final double LAST_PIECE_AT = 9.0;
-	/** Into the creep, well before the line is read: the steam holds at its first ring (r262). */
-	private static final double CREEPING_AT = LAST_PIECE_AT + 2.0;
+	/** Into the creep, well before the line is read: the steam has eased up to its first ring (r262). */
+	private static final double CREEPING_AT = LAST_PIECE_AT + 2.5;
 
 	private static GameHarness harness;
 	private static volatile String onOpening, afterPiece, piece1Line, piece2Line, piece3Line;
@@ -141,7 +141,8 @@ class StepThoughtRenderTest
 					Gdx.input.getInputProcessor().touchDown(640, 360, 0, 0);
 					at[0] = t;
 				}
-				else if (step[0] == 6 && t >= at[0] + 2.0)
+				// Once the steam has lifted off carriage 2: an eased lift outlasts the click's close.
+				else if (step[0] == 6 && t >= at[0] + 2.5 && !GVars_Steam.isRunning())
 				{
 					step[0] = 7;
 					carriageAfterClick = GVars_Game.currentLevelInt;
@@ -262,10 +263,10 @@ class StepThoughtRenderTest
 	void theSteamWaitsForTheLastLine()
 	{
 		assertTrue(lastLineSeconds > 3, "the last piece came with nothing to read: " + lastLineSeconds);
-		assertTrue(creepingBeforeClick, "no steam creeping 2 s after the last piece");
+		assertTrue(creepingBeforeClick, "no steam creeping 2.5 s after the last piece");
 		// The steam holds at its first ring while the line is read, not on a covered screen
 		// (r262), and the bubble is white on top of whatever steam reaches it (r118).
-		assertTrue(atRingBeforeClick, "the steam was not holding at its first ring 2 s after the last piece");
+		assertTrue(atRingBeforeClick, "the steam was not holding at its first ring 2.5 s after the last piece");
 		assertTrue(bubbleWhileCreeping > 200, "the bubble is hidden under the steam: " + bubbleWhileCreeping);
 		// Every change is made under steam covering the whole screen, not only the first (r120).
 		assertEquals("", cornersOut1, "leaving carriage 1, the steam left corners showing");

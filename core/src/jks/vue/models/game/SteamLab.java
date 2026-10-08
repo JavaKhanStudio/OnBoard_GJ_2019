@@ -15,6 +15,7 @@ import jks.camera.GVars_Camera;
 import jks.vinterface.GVars_UI;
 import jks.vinterface.font.GVars_Font;
 import jks.vue.GVars_Steam;
+import jks.vue.GVars_Steam.Motion;
 import jks.vue.GVars_Steam.Ring;
 
 /**
@@ -22,6 +23,11 @@ import jks.vue.GVars_Steam.Ring;
  * on demand. Pick where the first ring rises from - Whole is the steam before r262 - and the
  * frame it holds on while Ross's line is read (each shape keeps its own), then press Play: the same line every time, the
  * change at the same moment, and the next carriage comes up under the steam.
+ *
+ * Under the shapes, how the steam moves (r262, second round): Snap is the flip-book d16
+ * shipped; Breathe, Gather and Drift ease through the frames, slower, and keep the ring alive
+ * while the line is read. Each keeps its own knobs: the rise, the close and the lift in
+ * seconds, how many frames the ring swells by, how long a breath lasts, how far it rolls out.
  *
  * A development screen, not part of the game. Nothing leads here; open it with
  *   ./gradlew :desktop:runGame -Donboard.start=steam_lab
@@ -87,6 +93,59 @@ public class SteamLab extends VisTable
 		add(frame).width(160f).padTop(8f) ;
 		add(shown).left().padTop(8f).padLeft(12f).width(40f).row() ;
 
+		add(new VisLabel("Motion", GVars_Font.labelStyle_Second)).colspan(3).left().padTop(10f).row() ;
+		final VisSlider[] knobs = new VisSlider[KNOBS.length] ;
+		final VisLabel[] knobShown = new VisLabel[KNOBS.length] ;
+		VisTable motions = new VisTable() ;
+		ButtonGroup<VisTextButton> motionGroup = new ButtonGroup<>() ;
+		for(final Motion motion : Motion.values())
+		{
+			VisTextButton button = new VisTextButton(label(motion), "toggle") ;
+			button.setName("motion-" + motion.name()) ;
+			motionGroup.add(button) ;
+			button.setChecked(GVars_Steam.motion == motion) ;
+			button.addListener(new ChangeListener()
+			{
+				@Override
+				public void changed(ChangeEvent event, Actor actor)
+				{
+					if(((VisTextButton) actor).isChecked())
+					{
+						GVars_Steam.motion = motion ;
+						showKnobs(knobs, knobShown) ;
+					}
+				}
+			}) ;
+			motions.add(button).padRight(6f) ;
+		}
+		add(motions).colspan(3).left().row() ;
+
+		for(int k = 0 ; k < KNOBS.length ; k++)
+		{
+			final int knob = k ;
+			knobs[k] = new VisSlider(0f, KNOB_MAX[k], KNOB_MAX[k] / 40f, false) ;
+			knobs[k].setName("knob-" + KNOBS[k]) ;
+			knobShown[k] = new VisLabel("", GVars_Font.labelStyle_Second) ;
+			knobs[k].addListener(new ChangeListener()
+			{
+				@Override
+				public void changed(ChangeEvent event, Actor actor)
+				{
+					Motion motion = GVars_Steam.motion ;
+					if(motion == Motion.SNAP)
+						return ;
+					float[] values = motion.knobs() ;
+					values[knob] = knobs[knob].getValue() ;
+					motion.set(values) ;
+					knobShown[knob].setText(format(values[knob])) ;
+				}
+			}) ;
+			add(new VisLabel(KNOB_LABELS[k], GVars_Font.labelStyle_Second)).left().padRight(16f) ;
+			add(knobs[k]).width(160f) ;
+			add(knobShown[k]).left().padLeft(12f).width(40f).row() ;
+		}
+		showKnobs(knobs, knobShown) ;
+
 		VisTable buttons = new VisTable() ;
 		VisTextButton play = new VisTextButton("Play") ;
 		play.addListener(new ChangeListener()
@@ -120,6 +179,42 @@ public class SteamLab extends VisTable
 		frame.setProgrammaticChangeEvents(true) ;
 		frame.setDisabled(ring == Ring.WHOLE) ;
 		shown.setText(ring == Ring.WHOLE ? "-" : String.valueOf(ring.frame)) ;
+	}
+
+	/** The knobs of a {@link Motion}, in the order of {@link Motion#knobs()}. */
+	static final String[] KNOBS = {"rise", "close", "lift", "swell", "period", "drift"} ;
+	static final String[] KNOB_LABELS = {"Rise (s)", "Close (s)", "Lift (s)", "Swell (frames)", "Breath (s)", "Roll out"} ;
+	static final float[] KNOB_MAX = {3f, 3f, 3f, 3f, 8f, 0.12f} ;
+
+	/** The sliders on the picked motion's own knobs; Snap has none, it flips at twelve a second. */
+	private static void showKnobs(VisSlider[] knobs, VisLabel[] shown)
+	{
+		Motion motion = GVars_Steam.motion ;
+		float[] values = motion.knobs() ;
+		for(int k = 0 ; k < knobs.length ; k++)
+		{
+			knobs[k].setProgrammaticChangeEvents(false) ;
+			knobs[k].setValue(values[k]) ;
+			knobs[k].setProgrammaticChangeEvents(true) ;
+			knobs[k].setDisabled(motion == Motion.SNAP) ;
+			shown[k].setText(motion == Motion.SNAP ? "-" : format(values[k])) ;
+		}
+	}
+
+	private static String format(float value)
+	{
+		return String.valueOf(Math.round(value * 100f) / 100f) ;
+	}
+
+	private static String label(Motion motion)
+	{
+		switch(motion)
+		{
+			case SNAP:    return "Snap (d16)" ;
+			case BREATHE: return "Breathe" ;
+			case GATHER:  return "Gather" ;
+			default:      return "Drift" ;
+		}
 	}
 
 	private static String label(Ring ring)
@@ -165,6 +260,27 @@ public class SteamLab extends VisTable
 			json.append(" \"").append(key).append("\": ").append(ring.frame).append(", \"").append(key).append("Start\": ").append(ring.shippedFrame).append(",\n") ;
 			if(ring.frame != ring.shippedFrame)
 				moved.append(moved.length() > 0 ? ", " : "").append('"').append(key).append('"') ;
+		}
+		json.append(" \"motion\": \"").append(GVars_Steam.motion.name()).append("\", \"motionStart\": \"").append(GVars_Steam.SHIPPED_MOTION.name()).append("\",\n") ;
+		if(GVars_Steam.motion != GVars_Steam.SHIPPED_MOTION)
+			moved.append(moved.length() > 0 ? ", " : "").append("\"motion\"") ;
+		for(Motion motion : Motion.values())
+		{
+			if(motion == Motion.SNAP)
+				continue ;
+			float[] values = motion.knobs() ;
+			json.append(" \"").append(motion.name()).append("\": {") ;
+			for(int k = 0 ; k < KNOBS.length ; k++)
+			{
+				String key = motion.name() + "." + KNOBS[k] ;
+				json.append(k > 0 ? ", " : "").append('"').append(KNOBS[k]).append("\": ").append(format(values[k])) ;
+				if(Math.abs(values[k] - motion.shipped[k]) > 0.001f)
+					moved.append(moved.length() > 0 ? ", " : "").append('"').append(key).append('"') ;
+			}
+			json.append("}, \"").append(motion.name()).append("Start\": {") ;
+			for(int k = 0 ; k < KNOBS.length ; k++)
+				json.append(k > 0 ? ", " : "").append('"').append(KNOBS[k]).append("\": ").append(format(motion.shipped[k])) ;
+			json.append("},\n") ;
 		}
 		return json.append(" \"moved\": [").append(moved).append("]}").toString() ;
 	}
