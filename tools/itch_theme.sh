@@ -12,6 +12,9 @@
 #                              the colour printed last — set it as the theme's background colour.
 #   theme_embed.jpg            1280x720 (the embed's viewport): introPage3, Ross stepping aboard.
 #   theme_embed_ticket.jpg     1280x720: introPage2, the 9:30 ticket in his hand.
+#   theme_embed_steam_*.jpg    1280x720: the intro's painted steam (ui/cinematic/fumee.png, the
+#                              frames GVars_Steam plays) half over the train (_train) or the platform
+#                              (_platform), or closed with the stamp logo above the button (_logo).
 # JPEG where a PNG would pass push_check's 1 MB.
 set -euo pipefail
 ROOT=$(cd "$(dirname "$(readlink -f "$0")")/.." && pwd)
@@ -45,6 +48,15 @@ magick "$A/introPage1.png" \( -size 1920x600 gradient:"rgba(0,0,0,0)-$BG" \) -gr
 # Embed BG: the viewport is 1280x720 (page.md, Embed options), the pages are 16:9: scale whole.
 magick "$A/introPage3.png" -resize 1280x720 -strip -quality 90 "$OUT/theme_embed.jpg"
 magick "$A/introPage2.png" -resize 1280x720 -strip -quality 90 "$OUT/theme_embed_ticket.jpg"
+
+# The steam: fumee.atlas packs nine 1920x1080 frames, three a row. Frame 6 has risen past the
+# middle, the man left of it (the Run game button lands on steam, not on a face); frame 9 covers.
+fumee() { magick "$ROOT/desktop/assets/ui/cinematic/fumee.png" -crop 1920x1080+$(( ($1-1)%3*1920 ))+$(( ($1-1)/3*1080 )) +repage "$T/fumee$1.png"; }
+fumee 6; fumee 9
+magick "$A/introPage3.png" "$T/fumee6.png" -composite -resize 1280x720 -strip -quality 90 "$OUT/theme_embed_steam_train.jpg"
+magick "$A/introPage1.png" "$T/fumee6.png" -composite -resize 1280x720 -strip -quality 90 "$OUT/theme_embed_steam_platform.jpg"
+magick "$T/fumee9.png" -resize 1280x720 \( "$LOGO" -resize x300 \) -gravity Center -geometry +0-150 \
+	-composite -strip -quality 90 "$OUT/theme_embed_steam_logo.jpg"
 
 magick identify "$OUT"/theme_*
 echo "background colour: $BG"

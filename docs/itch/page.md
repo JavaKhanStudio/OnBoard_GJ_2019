@@ -60,7 +60,11 @@ in docs/itch/. `tools/itch_theme_preview.py <png> <banner> <embed>` mocks the pa
 - Background image: `theme_background.jpg` (introPage1, the autumn platform), no repeat,
   centred at the top; Background colour `#806875` (its faded bottom edge)
 - Embed background (Embed options): `theme_embed_ticket.jpg` (the 9:30 ticket in his hand:
-  the Run game button lands on the hand, not on a face) or `theme_embed.jpg` (the man boarding)
+  the Run game button lands on the hand, not on a face) or `theme_embed.jpg` (the man boarding),
+  or the intro's painted steam (r293, Simon): `theme_embed_steam_train.jpg` and
+  `theme_embed_steam_platform.jpg` (the steam half-risen over the train or the platform, the man
+  left of the button), `theme_embed_steam_logo.jpg` (the steam closed, the stamp logo above the
+  button)
 
 ## Description
 
