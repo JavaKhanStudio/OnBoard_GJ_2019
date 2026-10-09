@@ -148,3 +148,6 @@ Thumbs.db
 
 ## tools/browser-gate's puppeteer-core, installed by gate.sh on its first run
 node_modules/
+
+# Python bytecode from tools/*.py and tests/renders/*/*.py
+__pycache__/
