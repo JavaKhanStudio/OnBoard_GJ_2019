@@ -18,7 +18,7 @@ On Board
 
 ## Short description or tagline
 
-Un voyage en train à travers la vie de Ross. / A train ride through Ross's life.
+Le 9 h 30 va partir. Ross sera-t-il à bord ? / The 9:30 is leaving. Will Ross be on board?
 
 ## Classification
 
@@ -54,37 +54,63 @@ Un voyage en train à travers la vie de Ross. / A train ride through Ross's life
 
 ### Français
 
-**On Board** est un petit point-and-click narratif. Ross monte dans le train de 9 h 30, et
-chaque wagon est un âge de sa vie : l'enfant qui rêve de partir, l'adolescent en guerre
-contre son père, le soldat photographe de guerre, le jeune marié. Quatre wagons, quatre
-saisons.
+**Le 9 h 30 va partir. Ross sera-t-il à bord ?**
 
-Dans chaque wagon, Ross cherche les trois morceaux d'une clé pour ouvrir la porte du
-suivant. Et dans chaque wagon, un objet lui laisse un choix. Le jeu ne dit jamais lequel est
-le bon : chacun a son prix. Ce que vous faites en chemin décide de l'une des deux fins.
+Un billet, un quai d'automne, un homme et sa valise. Ross monte, et le train traverse sa
+vie : un wagon par âge, chacun un souvenir à traverser pour atteindre la porte du bout.
 
-Le jeu est en français et en anglais : choisissez la langue avec les drapeaux du menu de
-départ.
+**La salle de jeux.** Il est gamin, tout ce qu'il possède tient dans un baluchon, et il va
+enfin partir d'ici. Dans un coin, un oiseau a l'air affamé dans sa cage dorée.
 
-Fait en 2019 par l'équipe PIX MEN pendant la game jam Jamming Assembly, et remis à jour
-en 2026 sans rien changer à ce que l'équipe a dessiné.
+**Le wagon de l'ado.** Des disques, des clopes, un dossier de police épais comme un roman,
+et le portrait du paternel en uniforme. « Même en peinture, il me juge. »
+
+**La guerre.** Un wagon éventré. Son appareil photo sur son trépied : « Il a vu plus de
+choses que moi. » Une lettre pour Diana, jamais envoyée. Un trou dans le mur, qu'il pourrait
+boucher… ou finir.
+
+**Le mariage.** Le voile, le gâteau, le portrait de sa femme enceinte, un hochet à emballer.
+Et un verre vide, qui attend qu'il décide quoi y verser.
+
+Dans chaque wagon, les trois morceaux d'une clé, et un objet qui ne le laisse pas s'en tirer
+à bon compte. Nourrir l'oiseau ou ouvrir la cage. Dessiner des cornes au paternel ou crever
+la toile avec son propre couteau. L'eau ou le whisky. Personne ne dit à Ross lequel est le
+bon, et le jeu non plus. Chaque choix a son prix, et au bout de la ligne il y a une porte
+ouverte, et un petit garçon qui joue avec un train en bois.
+
+Un court point-and-click narratif, dessiné à la main par l'équipe PIX MEN pendant la game
+jam Jamming Assembly en 2019, remis à jour en 2026. En français et en anglais : les drapeaux
+du menu de départ choisissent la langue.
 
 ### English
 
-**On Board** is a short narrative point-and-click. Ross boards the 9:30 train, and each
-carriage is an age of his life: the child who dreams of running away, the teenager at war
-with his father, the soldier and war photographer, the young groom. Four carriages, four
-seasons.
+**The 9:30 is leaving. Will Ross be on board?**
 
-In each carriage Ross looks for the three pieces of a key that opens the door to the next.
-And in each carriage, one object leaves him a choice. The game never says which one is
-right: each has its cost. What you do along the way decides which of the two endings you
-reach.
+A ticket, an autumn platform, a man with a suitcase. Ross steps aboard, and the train runs
+through his life: one carriage for each age, each one a memory he has to walk through to
+reach the door at the far end.
 
-The game is in French and English: pick the language with the flags on the start menu.
+**The playroom.** He's a kid, everything he owns fits in a bundle, and he is finally running
+away. In the corner, a bird in a golden cage looks hungry.
 
-Made in 2019 by the PIX MEN team for the Jamming Assembly game jam, and brought up to date
-in 2026 without changing what the team drew.
+**The teenager's carriage.** Records, smokes, a police file thick as a novel, and his
+father's portrait in uniform. "Even in paint, he judges me."
+
+**The war.** A carriage blown open. His camera on its tripod: "It has seen more than I
+have." A letter to Diana he never sent. A hole in the wall he could patch… or finish.
+
+**The wedding.** The veil, the cake, a portrait of his pregnant wife, a baby's rattle to
+wrap. And an empty glass, waiting for him to decide what to pour.
+
+In each carriage, three pieces of a key, and one object that won't let him off easy. Feed
+the bird or open the cage. Draw horns on the old man or take his own knife to the canvas.
+Water or whisky. Nobody tells Ross which is right, and neither does the game. Every choice
+costs something, and at the end of the line there is an open door, and a little boy
+playing with a toy train.
+
+A short narrative point-and-click, hand-drawn by the PIX MEN team at the Jamming Assembly
+game jam in 2019 and brought up to date in 2026. In French and English: the flags on the
+start menu pick the language.
 
 ### Commandes / Controls
 
