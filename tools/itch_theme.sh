@@ -8,8 +8,8 @@
 #                              From itch_shots.sh's <wa>_14.png (the hint bubble is gone by 14 s):
 #                              ONLY="wa1 wa2 wa3 wa4" tools/itch_shots.sh makes them.
 #   theme_banner_train.png     960x320: introPage3's red carriage in the steam, the stamp logo left.
-#   theme_background.jpg       1920 wide: introPage1, the autumn platform, fading at the bottom into
-#                              the colour printed last — set it as the theme's background colour.
+#   theme_background.jpg       1920x1440: introPage1, the autumn platform, the steam rising over its
+#                              bottom and below it — set the colour printed last as the background.
 #   theme_embed.jpg            1280x720 (the embed's viewport): introPage3, Ross stepping aboard.
 #   theme_embed_ticket.jpg     1280x720: introPage2, the 9:30 ticket in his hand.
 #   theme_embed_steam_*.jpg    1280x720: the intro's painted steam (ui/cinematic/fumee.png, the
@@ -40,18 +40,25 @@ magick "$A/introPage3.png" -crop 1920x640+0+160 +repage -resize 960x320 \
 	\( "$LOGO" -resize x290 \) -gravity West -geometry +16+0 -composite \
 	-strip "$OUT/theme_banner_train.png"
 
-# Background: introPage1 whole, then 600 px fading into its own bottom-edge colour.
-BG=$(magick "$A/introPage1.png" -crop 1920x40+0+1040 +repage -scale 1x1! -format '#%[hex:p{0,0}]' info:)
-magick "$A/introPage1.png" \( -size 1920x600 gradient:"rgba(0,0,0,0)-$BG" \) -gravity South \
-	-compose Over -composite -strip -quality 88 "$OUT/theme_background.jpg"
+# The steam: fumee.atlas packs nine 1920x1080 frames, three a row (GVars_Steam plays them).
+fumee() { magick "$ROOT/desktop/assets/ui/cinematic/fumee.png" -crop 1920x1080+$(( ($1-1)%3*1920 ))+$(( ($1-1)/3*1080 )) +repage "$T/fumee$1.png"; }
+
+# Background: introPage1 whole on a 1920x1440 page (a third taller, r293), the intro's painted steam
+# rising from both bottom corners over its lower edge: fumee frame 3 and its mirror, set 440 px
+# down, and the pair again, 760 px inward, to close the gap they leave over the rails. Below the steam the page is the steam's own light tone, the theme's background colour.
+BG='#647C81'
+fumee 3
+magick -size 1920x1440 xc:"$BG" "$A/introPage1.png" -composite \
+	"$T/fumee3.png" -geometry -760+600 -composite \( "$T/fumee3.png" -flop \) -geometry +760+600 -composite \
+	\( "$T/fumee3.png" \( "$T/fumee3.png" -flop \) -composite \) -geometry +0+440 -composite \
+	-strip -quality 88 "$OUT/theme_background.jpg"
 
 # Embed BG: the viewport is 1280x720 (page.md, Embed options), the pages are 16:9: scale whole.
 magick "$A/introPage3.png" -resize 1280x720 -strip -quality 90 "$OUT/theme_embed.jpg"
 magick "$A/introPage2.png" -resize 1280x720 -strip -quality 90 "$OUT/theme_embed_ticket.jpg"
 
-# The steam: fumee.atlas packs nine 1920x1080 frames, three a row. Frame 6 has risen past the
-# middle, the man left of it (the Run game button lands on steam, not on a face); frame 9 covers.
-fumee() { magick "$ROOT/desktop/assets/ui/cinematic/fumee.png" -crop 1920x1080+$(( ($1-1)%3*1920 ))+$(( ($1-1)/3*1080 )) +repage "$T/fumee$1.png"; }
+# Embed BG from the steam. Frame 6 has risen past the middle, the man left of it (the Run game
+# button lands on steam, not on a face); frame 9 covers the screen.
 fumee 6; fumee 9
 magick "$A/introPage3.png" "$T/fumee6.png" -composite -resize 1280x720 -strip -quality 90 "$OUT/theme_embed_steam_train.jpg"
 magick "$A/introPage1.png" "$T/fumee6.png" -composite -resize 1280x720 -strip -quality 90 "$OUT/theme_embed_steam_platform.jpg"

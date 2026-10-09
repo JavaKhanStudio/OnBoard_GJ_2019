@@ -12,7 +12,7 @@ import os, subprocess, sys, tempfile
 
 d = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "docs/itch"))
 out, banner, embed = sys.argv[1:4]
-bg = sys.argv[4] if len(sys.argv) > 4 else "#806875"
+bg = sys.argv[4] if len(sys.argv) > 4 else "#647C81"
 doc = f"""<!doctype html><meta charset=utf-8><style>
 body{{margin:0;background:{bg} url(file://{d}/theme_background.jpg) no-repeat center top;
  font:16px/1.55 Lato,'Helvetica Neue',sans-serif;color:#e9e4dc}}
@@ -32,6 +32,6 @@ with tempfile.NamedTemporaryFile("w", suffix=".html", delete=False, encoding="ut
     f.write(doc)
 subprocess.run(["google-chrome", "--headless=new", "--hide-scrollbars", "--mute-audio",
                 "--allow-file-access-from-files", f"--screenshot={os.path.abspath(out)}",
-                "--window-size=1920,1300", "file://" + f.name], check=True, capture_output=True)
+                "--window-size=1920,1500", "file://" + f.name], check=True, capture_output=True)
 os.unlink(f.name)
 print(out)

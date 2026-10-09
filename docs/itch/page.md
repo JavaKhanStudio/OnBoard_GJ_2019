@@ -57,8 +57,9 @@ in docs/itch/. `tools/itch_theme_preview.py <png> <banner> <embed>` mocks the pa
 
 - Banner: `theme_banner_ages.png` (960x420, Ross in the four carriages, child to groom) or
   `theme_banner_train.png` (960x320, the man boarding in the steam, with the stamp logo)
-- Background image: `theme_background.jpg` (introPage1, the autumn platform), no repeat,
-  centred at the top; Background colour `#806875` (its faded bottom edge)
+- Background image: `theme_background.jpg` (1920x1440: introPage1, the autumn platform, with
+  the intro's painted steam rising over its bottom and a third below it), no repeat,
+  centred at the top; Background colour `#647C81` (the steam it ends in)
 - Embed background (Embed options): `theme_embed_ticket.jpg` (the 9:30 ticket in his hand:
   the Run game button lands on the hand, not on a face) or `theme_embed.jpg` (the man boarding),
   or the intro's painted steam (r293, Simon): `theme_embed_steam_train.jpg` and
