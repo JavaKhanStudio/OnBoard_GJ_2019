@@ -7,7 +7,8 @@ per field. The field each block goes in is named in its heading. Images are a se
 Sources: README.md ("The story", "Controls"), core/src/jks/index/Index_Credits.java,
 core/src/jks/input/IKM_Game_Keyboard.java, desktop/assets/ui/fonts/Mansalva-OFL.txt,
 tools/package_all.sh (zip names), desktop/src/jks/launcher/LinuxMenuEntry.java (the Linux
-menu entry, r276).
+menu entry, r276), core/src/jks/vinterface/LanguageFlags.java and desktop/assets/i18n/textes.tsv
+(French and English, r162: every row has both).
 
 ---
 
@@ -27,7 +28,7 @@ Un voyage en train à travers la vie de Ross. / A train ride through Ross's life
 - Genre: Adventure
 - Tags (10): point-and-click, narrative, short, 2d, hand-drawn, game-jam, story-rich,
   emotional, atmospheric, singleplayer
-- Languages: French
+- Languages: French, English
 - Inputs: Keyboard, Mouse
 - Platforms: Windows, macOS, Linux, and played in the browser (set per upload)
 
@@ -62,7 +63,8 @@ Dans chaque wagon, Ross cherche les trois morceaux d'une clé pour ouvrir la por
 suivant. Et dans chaque wagon, un objet lui laisse un choix. Le jeu ne dit jamais lequel est
 le bon : chacun a son prix. Ce que vous faites en chemin décide de l'une des deux fins.
 
-Le jeu est en français.
+Le jeu est en français et en anglais : choisissez la langue avec les drapeaux du menu de
+départ.
 
 Fait en 2019 par l'équipe PIX MEN pendant la game jam Jamming Assembly, et remis à jour
 en 2026 sans rien changer à ce que l'équipe a dessiné.
@@ -79,7 +81,7 @@ And in each carriage, one object leaves him a choice. The game never says which 
 right: each has its cost. What you do along the way decides which of the two endings you
 reach.
 
-The game's text is in French only.
+The game is in French and English: pick the language with the flags on the start menu.
 
 Made in 2019 by the PIX MEN team for the Jamming Assembly game jam, and brought up to date
 in 2026 without changing what the team drew.
