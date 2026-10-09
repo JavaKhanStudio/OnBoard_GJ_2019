@@ -1,8 +1,8 @@
 # On Board — itch.io page text
 
 Everything below the first rule is meant to be pasted into itch.io's page editor, one block
-per field. The field each block goes in is named in its heading. Images are a separate task
-(r129); this file has no image references.
+per field. The field each block goes in is named in its heading. Screenshots and clips are
+r129's and r283's; the theme images (banner, background, embed) are listed under Theme.
 
 Sources: README.md ("The story", "Controls"), core/src/jks/index/Index_Credits.java,
 core/src/jks/input/IKM_Game_Keyboard.java, desktop/assets/ui/fonts/Mansalva-OFL.txt,
@@ -49,6 +49,18 @@ Le 9 h 30 va partir. Ross sera-t-il à bord ? / The 9:30 is leaving. Will Ross b
 - Automatically start on page load: off (browsers hold sound back until a click anyway)
 - Fullscreen button: on
 - Enable scrollbars: off
+
+## Theme (Edit theme, r293)
+
+Made by `tools/itch_theme.sh` from the team's art (cropped and scaled, never stretched), all
+in docs/itch/. `tools/itch_theme_preview.py <png> <banner> <embed>` mocks the page with them.
+
+- Banner: `theme_banner_ages.png` (960x420, Ross in the four carriages, child to groom) or
+  `theme_banner_train.png` (960x320, the man boarding in the steam, with the stamp logo)
+- Background image: `theme_background.jpg` (introPage1, the autumn platform), no repeat,
+  centred at the top; Background colour `#806875` (its faded bottom edge)
+- Embed background (Embed options): `theme_embed_ticket.jpg` (the 9:30 ticket in his hand:
+  the Run game button lands on the hand, not on a face) or `theme_embed.jpg` (the man boarding)
 
 ## Description
 
