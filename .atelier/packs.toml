@@ -325,6 +325,9 @@ A new JavaExec calls rootProject.offscreen(it, 'unattended') or rootProject.head
 build stops naming it. tools/offscreen-lint.sh (first step of tools/publish_gate.sh) fails a
 tools/*.sh that opens a window outside cage; `# on-screen: <why>` exempts one. A nested X server
 takes a free display: tools/nested-x.sh, never a fixed :9.
+A PICTURE of an agent's run: `tools/offscreen-shot.sh build/shots/run.png 10,30 ./gradlew
+:desktop:runGame --console=plain` writes run-1.png, run-2.png (exit 3 on a blank frame), then
+`atelier attach <ref> build/shots/run-2.png`.
 Their sound goes to build/audio/<task>.wav instead of the speakers (b3f280f), path in
 ATELIER_AUDIO_CAPTURE. AudioCapture.java reads it back, which is how MusicTest checks what
 was actually played rather than what the code asked for.
