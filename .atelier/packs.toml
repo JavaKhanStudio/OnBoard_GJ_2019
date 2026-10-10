@@ -113,6 +113,7 @@ skin has been deleted.
 """
 
 [tags.parallax]
+visual = true          # a screen: its close needs a Chose: line (r1559, r1584)
 label = "Parallax backdrops"
 description = "The .plax backdrops and the parallax-background library that draws and reads them"
 color = "#36d7e0"
@@ -156,6 +157,7 @@ non-ASCII region names or a regionName#regionPosition the ROOT atlas lacks. Game
 """
 
 [tags.ui]
+visual = true          # a screen: its close needs a Chose: line (r1559, r1584)
 label = "UI, fonts & dialogue"
 description = "Overlays, the menus, FreeType fonts, VisUI, the speech bubbles"
 color = "#ff8cc6"
