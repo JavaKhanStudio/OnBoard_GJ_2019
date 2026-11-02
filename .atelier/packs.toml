@@ -103,7 +103,7 @@ FILENAMES ARE CASE-SENSITIVE and the game was written on Windows. One capital
 (UI_newGame.png vs UI_NewGame.png) was enough to stop it booting on Linux. AssetPathTest
 checks every path the code names — add yours to it.
 The backdrops — .plax, .plaxpj, the four .atlas/.png pairs at the ROOT of desktop/assets
-and core/jars/parallaxReader0.7.jar — belong to the `parallax` tag. Read that pack before
+— belong to the `parallax` tag. Read that pack before
 moving, renaming or recompressing any of them: the root atlases look like stray duplicates
 and are the ones the game draws.
 .atlas/.png pairs are libGDX TextureAtlas — AtlasTest covers them.
