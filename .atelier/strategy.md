@@ -1,7 +1,7 @@
 # On Board: Strategy
 
 A strategy line says how this board applies the doctrine. Tactics (a skill or a pack with
-`serves = ["Sn"]`, a closed ticket with `--serves Sn`) carry it out. A decision that goes
+`serves = ["Sn"]`) carry it out. A decision that goes
 against a doctrine line is a doubt `--against Dn`.
 
 **S1. What we add beside the 2019 game (labs, dev tools, the browser build) lives apart from it and can be taken out without touching what the team made.**
